@@ -88,6 +88,69 @@ struct global
 	int cap;
 };
 
+#define OLDGLOBSIZE     (sizeof(struct oldglobal))
+struct oldglobal
+{
+        int mdtime;
+        int mdday;
+        int mdyear;
+        int dlight;
+
+        int players_created;
+        int npcs_created;
+        int players_died;
+        int npcs_died;
+
+        int character_cnt;
+        int item_cnt;
+        int effect_cnt;
+
+        int expire_cnt;
+        int expire_run;
+
+        int gc_cnt;
+        int gc_run;
+
+        int lost_cnt;
+        int lost_run;
+
+        int reset_char;
+        int reset_item;
+
+        int ticker;
+
+        long long total_online_time;
+        long long online_per_hour[24];
+
+        int flags;
+
+        long long uptime;
+        long long uptime_per_hour[24];
+
+        int awake;
+        int body;
+
+        int players_online;
+        int queuesize;
+
+        long long recv;
+        long long send;
+
+        int transfer_reset_time;
+        int load_avg;
+
+        long load;
+
+        int max_online;
+        int max_online_per_hour[24];
+
+        char fullmoon;
+        char newmoon;
+
+	unsigned long long unique;
+
+	int cap;
+};
 
 /*******/
 /* Map */

@@ -4,6 +4,7 @@ Server/acct.cgi
 Server/info.cgi
 Server/server
 Server/password
+Server/server.pid
 Client/gfx/*.png
 Client/gfx/*.bmp
 Client/.*

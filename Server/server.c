@@ -709,6 +709,12 @@ int main(int argc,char *args[])
 		else if (strcasecmp("save",args[1])==0) { pop_save_all_chars(); unload(); exit(0); }
                 else if (strcasecmp("convchar",args[1])==0) { converter_main(0); unload(); exit(0); }
                 else if (strcasecmp("convitem",args[1])==0) { converter_main(1); unload(); exit(0); }
+                else if (strcasecmp("convglobs",args[1])==0) { converter_main(2); unload(); exit(0); }
+                else if (!strcasecmp("console",args[1])==0 && !strcasecmp("cons",args[1])==0 && !strcasecmp("c",args[1])==0) {
+                        xlog("Wrong option given. Stopping server. To run normally through the command line, use option \"console\", \"cons\" or \"c\".");
+                        unload();
+                        exit(0);
+                }
         }
 
         sock=socket(PF_INET,SOCK_STREAM,0);

@@ -26,12 +26,16 @@ struct item *newit_temp;
 struct olditem *oldit;
 struct olditem *oldit_temp;
 
+struct global *oldglobs;
+struct global *globs;
+
 int converter_main(int cmode) {
     printf("Beginning conversion.\n");
 
     switch(cmode) {
         case 0: return converter_char();
         case 1: return converter_item();
+        case 2: return converter_globs();
     }
 
     return 0;
@@ -64,7 +68,7 @@ int converter_char(void) {
     handle[1]=open(DATDIR"/newchar.dat",O_RDWR);
     if (handle[1]==-1) {
             printf("Building new characters\n");
-            handle[1]=open(DATDIR"/newchar.dat",O_RDWR|O_CREAT,0600);
+            handle[1]=open(DATDIR"/newchar.dat",O_RDWR|O_CREAT,0655);
     }
     if (!extend(handle[1], CHARSIZE, sizeof(struct character), NULL)) return -1;
 
@@ -92,7 +96,7 @@ int converter_char(void) {
     handle[3]=open(DATDIR"/newtchar.dat",O_RDWR);
     if (handle[3]==-1) {
             printf("Building new tcharacters\n");
-            handle[3]=open(DATDIR"/newtchar.dat",O_RDWR|O_CREAT,0600);
+            handle[3]=open(DATDIR"/newtchar.dat",O_RDWR|O_CREAT,0655);
     }
     if (!extend(handle[3], TCHARSIZE, sizeof(struct character), NULL)) return -1;
 
@@ -505,7 +509,7 @@ int converter_item(void) {
     handle[1]=open(DATDIR"/newitem.dat",O_RDWR);
     if (handle[1]==-1) {
             printf("Building new items\n");
-            handle[1]=open(DATDIR"/newitem.dat",O_RDWR|O_CREAT,0600);
+            handle[1]=open(DATDIR"/newitem.dat",O_RDWR|O_CREAT,0655);
     }
     if (!extend(handle[1], ITEMSIZE, sizeof(struct item), NULL)) return -1;
 
@@ -533,7 +537,7 @@ int converter_item(void) {
     handle[3]=open(DATDIR"/newtitem.dat",O_RDWR);
     if (handle[3]==-1) {
             printf("Building new titems\n");
-            handle[3]=open(DATDIR"/newtitem.dat",O_RDWR|O_CREAT,0600);
+            handle[3]=open(DATDIR"/newtitem.dat",O_RDWR|O_CREAT,0655);
     }
     if (!extend(handle[3], TITEMSIZE, sizeof(struct item), NULL)) return -1;
 
@@ -734,6 +738,120 @@ int converter_item(void) {
 	if (munmap(newit,ITEMSIZE)) printf("ERROR: munmap(newit) %s\n",strerror(errno));
 	if (munmap(oldit_temp,OLDTITEMSIZE)) printf("ERROR: munmap(oldit_temp) %s\n",strerror(errno));
 	if (munmap(newit_temp,TITEMSIZE)) printf("ERROR: munmap(newit_temp) %s\n",strerror(errno));
+
+    return 0;
+}
+
+int converter_globs(void) {
+    int handle;
+
+    printf("Converting globals.\n");
+    printf("Loading data files...\n");
+    /** OLD GLOBS **/
+    xlog("Loading OLD GLOBS: Item size=%d, file size=%db",
+            sizeof(struct oldglobal),sizeof(struct oldglobal));
+
+    handle=open(DATDIR"/global.dat",O_RDWR);
+    if (handle==-1) {
+        printf("Could not find globs data file (%s/global.dat). Stopping conversion.\n", DATDIR);
+        return -1;
+    }
+    if (!extend(handle, OLDGLOBSIZE, sizeof(struct oldglobal), NULL)) return -1;
+
+    oldglobs=mmap(NULL,sizeof(struct oldglobal),PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
+    if (oldglobs==(void*)-1) return -1;
+    close(handle);
+
+    /** NEW GLOBS **/
+    xlog("Loading NEW GLOBS: Item size=%d, file size=%db",
+            sizeof(struct global),sizeof(struct global));
+
+    handle=open(DATDIR"/newglobal.dat",O_RDWR);
+    if (handle==-1) {
+        printf("Building new globs\n");
+        handle=open(DATDIR"/newglobal.dat",O_RDWR|O_CREAT,0655);
+    }
+    if (!extend(handle, GLOBSIZE, sizeof(struct global), NULL)) return -1;
+
+    globs=mmap(NULL,sizeof(struct global),PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
+    if (globs==(void*)-1) return -1;
+    close(handle);
+
+    // begin conversion
+    printf("Converting globals...\n");
+    globs->mdtime = oldglobs->mdtime;
+    globs->mdday = oldglobs->mdday;
+    globs->mdyear = oldglobs->mdyear;
+    globs->dlight = oldglobs->dlight;
+
+    globs->players_created = oldglobs->players_created;
+    globs->npcs_created = oldglobs->npcs_created;
+    globs->players_died = oldglobs->players_died;
+    globs->npcs_died = oldglobs->npcs_died;
+
+    globs->character_cnt = oldglobs->character_cnt;
+    globs->item_cnt = oldglobs->item_cnt;
+    globs->effect_cnt = oldglobs->effect_cnt;
+
+    globs->expire_cnt = oldglobs->expire_cnt;
+    globs->expire_run = oldglobs->expire_run;
+
+    globs->gc_cnt = oldglobs->gc_cnt;
+    globs->gc_run = oldglobs->gc_run;
+
+    globs->lost_cnt = oldglobs->lost_cnt;
+    globs->lost_run = oldglobs->lost_run;
+
+    globs->reset_char = oldglobs->reset_char;
+    globs->reset_item = oldglobs->reset_item;
+
+    globs->ticker = oldglobs->ticker;  // New type
+
+    globs->total_online_time = oldglobs->total_online_time;
+    for (int n=0; n<24; n++) {
+        globs->online_per_hour[n] = oldglobs->online_per_hour[n];
+    }
+
+    globs->flags = oldglobs->flags;
+
+    globs->uptime = oldglobs->uptime;
+    for (int n=0; n<24; n++) {
+        globs->uptime_per_hour[n] = oldglobs->uptime_per_hour[n];
+    }
+
+    globs->awake = oldglobs->awake;
+    globs->body = oldglobs->body;
+
+    globs->players_online = oldglobs->players_online;
+    globs->queuesize = oldglobs->queuesize;
+
+    globs->recv = oldglobs->recv;
+    globs->send = oldglobs->send;
+
+    globs->transfer_reset_time = oldglobs->transfer_reset_time;
+    globs->load_avg = oldglobs->load_avg;
+
+    globs->load = oldglobs->load;
+
+    globs->max_online = oldglobs->max_online;
+    for (int n=0; n<24; n++) {
+        globs->max_online_per_hour[n] = oldglobs->max_online_per_hour[n];
+    }
+
+    globs->fullmoon = oldglobs->fullmoon;
+    globs->newmoon = oldglobs->newmoon;
+
+    globs->unique = oldglobs->unique;
+
+    globs->cap = oldglobs->cap;
+    //conversion end
+
+	printf("Conversion done.\n");
+	close(handle);
+	
+	printf("Unloading data files...\n");
+	if (munmap(oldglobs,OLDGLOBSIZE)) printf("ERROR: munmap(oldglobs) %s\n",strerror(errno));
+	if (munmap(globs,GLOBSIZE)) printf("ERROR: munmap(globs) %s\n",strerror(errno));
 
     return 0;
 }
