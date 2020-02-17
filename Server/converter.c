@@ -15,6 +15,7 @@
 
 int converter_char(void);
 int converter_item(void);
+int converter_globs(void);
 
 struct character *newch;
 struct character *ch_temp;

@@ -365,10 +365,10 @@ struct player
 
 	unsigned int challenge;
 	unsigned int state;
-	unsigned int lasttick,lasttick2;
+	unsigned long int lasttick,lasttick2;
 	unsigned int usnr;
 	unsigned int pass1,pass2;
-	unsigned int ltick,rtick;
+	unsigned long int ltick,rtick;
 
 	int prio;
 

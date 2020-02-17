@@ -53,7 +53,7 @@ struct global
         int reset_char;
         int reset_item;
 
-        int ticker;
+        unsigned long ticker;  //TODO - update all variables that are set to globs->ticker to also be of type unsigned long
 
         long long total_online_time;
         long long online_per_hour[24];
