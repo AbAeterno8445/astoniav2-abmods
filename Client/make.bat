@@ -14,8 +14,16 @@ echo Compiling Source
 echo Compiling RES
 %BINPATH%\brcc32 merc.rc
 echo Linking
-%BINPATH%\ilink32 /aa -L%LIBPATH% -Llpng -Lzlib -LE:\bcc\lib\psdk E:\bcc\lib\c0w32.obj dd.obj engine.obj main.obj inter.obj socket.obj sound.obj conv.obj options.obj,merc.exe,,cw32mt.lib import32.lib zlib.lib libpng.lib ddraw.lib dsound.lib,merc.def,merc.res
+%BINPATH%\ilink32 /aa -L%LIBPATH% -Llpng -Lzlib -L%LIBPATH%\psdk %LIBPATH%\c0w32.obj dd.obj engine.obj main.obj inter.obj socket.obj sound.obj conv.obj options.obj,merc.exe,,cw32mt.lib import32.lib zlib.lib libpng.lib ddraw.lib dsound.lib,merc.def,merc.res
 echo Removing .objs
 del *.obj
+echo Cleaning up...
+del merc.ilc
+del merc.ild
+del merc.ilf
+del merc.ils
+del merc.map
+del merc.RES
+del merc.tds
 echo Finished
 pause
