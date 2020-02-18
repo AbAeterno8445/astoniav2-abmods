@@ -2,6 +2,13 @@
 
 Remember to extract .dat.tar.xz back into a .dat folder.
 
+## New features
+
+- **Instances:** You can create instanced areas of a certain width/height. Concept very similar to how Path of Exile handles it, where a certain area can have multiple personal instances for each player.
+
+- **Multi-colored text format:** You may have lines with multiple colors using the format '/|\<font code>|'.
+eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can send messages formatted this way directly from the client. Check font macros in **macros.h** for all available fonts.
+
 ## New macros/settings
 - **gendefs.h:**
     - **TURNING_ENABLED:** 0 or 1, enables/disables character turning animations.
@@ -11,6 +18,9 @@ Remember to extract .dat.tar.xz back into a .dat folder.
     - **INST_MAX:** maximum simultaneous amount of alive instances.
     - **INST_MAXBASES:** maximum amount of instance bases.
     - **INST_DURATION:** instance lifespan in ticks, after inactivity (no players within).
+
+- **macros.h:**
+    - Many font-related macros, explained within the file.
 
 ## God instance management commands
 - **gotoinst \<id> \<x> \<y>** - Transports you to instance \<id> at \<x>, \<y>.

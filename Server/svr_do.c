@@ -137,10 +137,10 @@ void do_area_say1(int cn, int xs, int ys, char *msg)
                 m_hei = map_instances[inst_id].height;
         }
 
-        sprintf(msg_named, "%.30s: \"%.300s\"\n", ch[cn].name, msg);
+        sprintf(msg_named, "/|%d|%.30s:/|%d| \"%.300s\"\n", get_char_fontcode(cn), ch[cn].name, CFNT_LOCAL, msg);
         if (IS_INVISIBLE(cn)) {
                 invis = 1;
-                sprintf(msg_invis, "Somebody says: \"%.300s\"\n", msg);
+                sprintf(msg_invis, "/|%d|Somebody says:/|%d| \"%.300s\"\n", get_char_fontcode(cn), CFNT_LOCAL, msg);
         }
         if (areaspiral[1] == 0) {
                 if (inst_id == -1) initspiral();
@@ -544,7 +544,8 @@ int do_is_ignore(int cn,int co,int flag)
 void do_tell(int cn,char *con,char *text)
 {
         int co;
-        char buf[256];
+        char buf[512];
+        int ccode_proc = 0;
 
         if (ch[cn].flags&CF_SHUTUP) {
                 do_char_log(cn,0,"You try to speak, but you only produce a croaking sound.\n");
@@ -562,6 +563,12 @@ void do_tell(int cn,char *con,char *text)
                 return;
         }
 
+        // Remove potential color codes for non-gods
+        if (!ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP)) {
+                text = txt_remove_colorcodes(text);
+                ccode_proc = 1;
+        }
+
         /* CS, 991127: Support for AFK <message> */
         if (ch[co].data[0]) {
                 if (ch[co].text[0][0]) {
@@ -577,17 +584,18 @@ void do_tell(int cn,char *con,char *text)
                 return;
         }
 
-        if ((ch[cn].flags&CF_INVISIBLE) && invis_level(cn)>invis_level(co)) sprintf(buf,"Somebody tells you: \"%.200s\"\n",text);
-        else sprintf(buf,"%s tells you: \"%.200s\"\n",ch[cn].name,text);
+        if ((ch[cn].flags&CF_INVISIBLE) && invis_level(cn)>invis_level(co)) sprintf(buf,"/|%d|Somebody tells you:/|%d| \"%.200s\"\n",get_char_fontcode(cn),CFNT_TELLRECV,text);
+        else sprintf(buf,"/|%d|%s tells you:/|%d| \"%.200s\"\n",get_char_fontcode(cn),ch[cn].name,CFNT_TELLRECV,text);
         do_char_log(co,3,"%s",buf);
 
 	if (ch[co].flags&CF_CCP) ccp_tell(co,cn,text);
 
-        do_char_log(cn,1,"Told %s: \"%.200s\"\n",ch[co].name,text);
+        do_char_log(cn,1,"/|%d|Told %s: \"%.200s\"\n",CFNT_TELLSEND,ch[co].name,text);
 
         if (cn==co) do_char_log(cn,1,"Do you like talking to yourself?\n");
 
         if (ch[cn].flags&(CF_PLAYER)) chlog(cn,"Told %s: \"%s\"",ch[co].name,text);
+        if (ccode_proc) free(text);
 }
 
 void do_notell(int cn)
@@ -612,12 +620,19 @@ void do_noshout(int cn)
 
 void do_shout(int cn,char *text)
 {
-        char buf[256];
+        char buf[512];
+        int ccode_proc = 0;
         int n;
 
         if (!text) {
                 do_char_log(cn,0,"Shout. Yes. Shout it will be. But what do you want to shout?\n");
                 return;
+        }
+
+        // Remove potential color codes for non-gods
+        if (!ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP)) {
+                text = txt_remove_colorcodes(text);
+                ccode_proc = 1;
         }
 
         if (ch[cn].a_end<50000) {
@@ -632,8 +647,8 @@ void do_shout(int cn,char *text)
 
         ch[cn].a_end-=50000;
 
-        if (ch[cn].flags&CF_INVISIBLE) sprintf(buf,"Somebody shouts: \"%.200s\"\n",text);
-        else sprintf(buf,"%.30s shouts: \"%.200s\"\n",ch[cn].name,text);
+        if (ch[cn].flags&CF_INVISIBLE) sprintf(buf,"/|%d|Somebody shouts:/|%d| \"%.200s\"\n",get_char_fontcode(cn),CFNT_GLOBAL,text);
+        else sprintf(buf,"/|%d|%.30s shouts:/|%d| \"%.200s\"\n",get_char_fontcode(cn),ch[cn].name,CFNT_GLOBAL,text);
 
         for (n=1; n<MAXCHARS; n++) {
                 if (((ch[n].flags&(CF_PLAYER|CF_USURP)) || ch[n].temp==15) && ch[n].used==USE_ACTIVE && ((!(ch[n].flags&CF_NOSHOUT) && !do_is_ignore(cn,n,0)) || (ch[cn].flags&CF_GOD))) {
@@ -643,7 +658,7 @@ void do_shout(int cn,char *text)
         }
 
         if (ch[cn].flags&(CF_PLAYER)) chlog(cn,"Shouts \"%s\"",text);
-
+        if (ccode_proc) free(text);
 }
 
 void do_itell(int cn,char *text)
@@ -660,11 +675,14 @@ void do_itell(int cn,char *text)
                 return;
         }
 
+        // Remove potential color codes
+        text = txt_remove_colorcodes(text);
+
         if ((ch[cn].flags&CF_USURP) && IS_SANECHAR(co=ch[cn].data[97])) do_imp_log(2,"%.30s (%.30s) imp-tells: \"%.170s\"\n",ch[cn].name,ch[co].name,text);
         else do_imp_log(2,"%.30s imp-tells: \"%.200s\"\n",ch[cn].name,text);
 
         if (ch[cn].flags&(CF_PLAYER)) chlog(cn,"imp-tells \"%s\"",text);
-
+        free(text);
 }
 
 void do_stell(int cn,char *text)
@@ -679,10 +697,13 @@ void do_stell(int cn,char *text)
                 return;
         }
 
+        // Remove potential color codes
+        text = txt_remove_colorcodes(text);
+
         do_staff_log(2,"%.30s staff-tells: \"%.200s\"\n",ch[cn].name,text);
 
         if (ch[cn].flags&(CF_PLAYER)) chlog(cn,"staff-tells \"%s\"",text);
-
+        free(text);
 }
 
 void do_nostaff(int cn)
@@ -710,6 +731,9 @@ void do_gtell(int cn, char *text)
                 return;
         }
 
+        // Remove potential color codes
+        text = txt_remove_colorcodes(text);
+
         for (n=CHD_MINGROUP; n<=CHD_MAXGROUP; n++) {
                 if ((co=ch[cn].data[n])) {
                         if (!isgroup(co, cn)) {
@@ -726,6 +750,7 @@ void do_gtell(int cn, char *text)
         } else {
                 do_char_log(cn, 0, "You don't have a group to talk to!\n");
         }
+        free(text);
 }
 
 void do_help(int cn,char *topic)
@@ -1355,17 +1380,21 @@ void do_emote(int cn,char *text)
 
         if (strchr(text,'%')) return;
 
+        // Remove potential color codes
+        text = txt_remove_colorcodes(text);
+
         if (ch[cn].flags&CF_SHUTUP) {
                 do_char_log(cn,0,"You feel guilty.\n");
                 chlog(cn,"emote: feels guilty (%s)",text);
 	} else if (ch[cn].flags&CF_INVISIBLE) { // JC: 091200: added anonymous emote
                 do_area_log(0,0,ch[cn].x,ch[cn].y,2,"Somebody %s.\n",text);
                 chlog(cn,"emote(inv): %s",text);
-
         } else {
                 do_area_log(0,0,ch[cn].x,ch[cn].y,2,"%s %s.\n",ch[cn].name,text);
                 chlog(cn,"emote: %s",text);
         }
+
+        free(text);
 }
 
 /*	added by SoulHunter 01.05.2000	*/
@@ -1847,6 +1876,7 @@ void do_say(int cn,char *text)
         char *ptr;
         int n,m,in;
         int inst_id;
+        int ccode_proc = 0;
 
         inst_id = ch[cn].instance_id;
 
@@ -1854,7 +1884,7 @@ void do_say(int cn,char *text)
 		player_analyser(cn,text);
 	}
 
-	if ((ch[cn].flags&CF_PLAYER) && *text!='|') {
+	if ((ch[cn].flags&CF_PLAYER) && !(ch[cn].flags&CF_GOD) && *text!='|') {
 		ch[cn].data[71]+=CNTSAY;
 		if (ch[cn].data[71]>MAXSAY) {
 			do_char_log(cn,0,"Oops, you're a bit too fast for me!\n");
@@ -1868,6 +1898,12 @@ void do_say(int cn,char *text)
                 if (inst_id == -1) do_area_log(cn,0,ch[cn].x,ch[cn].y,0,"ASTONIA RECOGNISES ITS CREATOR!\n");
                 else do_area_log_inst(inst_id,cn,0,ch[cn].x,ch[cn].y,0,"ASTONIA RECOGNISES ITS CREATOR!\n");
                 return;
+        }
+
+        // Remove potential color codes for non-gods
+        if (!ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP)) {
+                text = txt_remove_colorcodes(text);
+                ccode_proc = 1;
         }
 
         /*
@@ -1933,14 +1969,16 @@ void do_say(int cn,char *text)
 
         /* CS, 991113: Enable selective seeing of an invisible players' name */
         if (ch[cn].flags&(CF_PLAYER|CF_USURP)) do_area_say1(cn,ch[cn].x,ch[cn].y,ptr);
-        else if (inst_id == -1) do_area_log(0,0,ch[cn].x,ch[cn].y,1,"%.30s: \"%.300s\"\n",ch[cn].name,ptr);
-        else do_area_log_inst(inst_id,0,0,ch[cn].x,ch[cn].y,1,"%.30s: \"%.300s\"\n",ch[cn].name,ptr);
+        else if (inst_id == -1) do_area_log(0,0,ch[cn].x,ch[cn].y,1,"/|%d|%.30s:/|%d| \"%.300s\"\n",get_char_fontcode(cn),ch[cn].name,CFNT_LOCAL,ptr);
+        else do_area_log_inst(inst_id,0,0,ch[cn].x,ch[cn].y,1,"/|%d|%.30s:/|%d| \"%.300s\"\n",get_char_fontcode(cn),ch[cn].name,CFNT_LOCAL,ptr);
 
         if (m==4) { god_slap(0,cn); chlog(cn,"Punished for trying to fake another character"); }
         if (ch[cn].flags&(CF_PLAYER|CF_USURP)) chlog(cn,"Says \"%s\" %s",text,(ptr!=text ? ptr : ""));
 
         /* support for riddles (lab 9) */
         (void) lab9_guesser_says(cn, text);
+
+        if (ccode_proc) free(ptr);
 }
 
 void process_options(int cn,char *buf)
@@ -1972,11 +2010,9 @@ void do_sayx(int cn,char *format,...)
         process_options(cn,buf);
 
         if (ch[cn].instance_id == -1) {
-                if (ch[cn].flags&(CF_PLAYER)) do_area_log(0,0,ch[cn].x,ch[cn].y,3,"%.30s: \"%.300s\"\n",ch[cn].name,buf);
-                else do_area_log(0,0,ch[cn].x,ch[cn].y,1,"%.30s: \"%.300s\"\n",ch[cn].name,buf);
+                do_area_log(0,0,ch[cn].x,ch[cn].y,1,"/|%d|%.30s:/|%d| \"%.300s\"\n",get_char_fontcode(cn),ch[cn].name,CFNT_LOCAL,buf);
         } else {
-                if (ch[cn].flags&(CF_PLAYER)) do_area_log_inst(ch[cn].instance_id,0,0,ch[cn].x,ch[cn].y,3,"%.30s: \"%.300s\"\n",ch[cn].name,buf);
-                else do_area_log_inst(ch[cn].instance_id,0,0,ch[cn].x,ch[cn].y,1,"%.30s: \"%.300s\"\n",ch[cn].name,buf);
+                do_area_log_inst(ch[cn].instance_id,0,0,ch[cn].x,ch[cn].y,1,"/|%d|%.30s:/|%d| \"%.300s\"\n",get_char_fontcode(cn),ch[cn].name,CFNT_LOCAL,buf);
         }
 }
 

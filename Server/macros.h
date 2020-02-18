@@ -77,3 +77,35 @@ All rights reserved.
 // Sanity check on skill number
 #define SANESKILL(s)    ((s)>=0 && (s)<MAXSKILL)
 
+/* *** MISC *** */
+
+// Font macros (should match with client)
+#define FNT_RED			0
+#define FNT_YELLOW		1
+#define FNT_GREEN		2
+#define FNT_BLUE		3
+#define FNT_OBFUSCATED	4
+#define FNT_PURPLE		1960
+#define FNT_TURQUOISE	1961
+#define FNT_PINK		1962
+#define FNT_ORANGE		1963
+#define FNT_AQUA		1964
+#define FNT_SILVER		1965
+#define FNT_EMERALD		1966
+
+// Chat font schemes
+#define CFNT_LOCAL      (FNT_SILVER)    // Area chat (say)
+#define CFNT_GLOBAL     (FNT_SILVER)    // Global chat (shout)
+#define CFNT_TELLSEND   (FNT_YELLOW)   // Tell send
+#define CFNT_TELLRECV   (FNT_YELLOW)    // Tell receive
+
+// Character font schemes
+#define CHFNT_GGOD      (FNT_TURQUOISE) // Greater god
+#define CHFNT_GOD       (FNT_TURQUOISE) // God
+#define CHFNT_IMP       (FNT_GREEN)     // Imp
+#define CHFNT_STAFF     (FNT_GREEN)     // Staffer
+#define CHFNT_BUILDER   (FNT_AQUA)      // Builder
+#define CHFNT_INVIS     (FNT_AQUA)      // Invisible
+#define CHFNT_NORMAL    (FNT_BLUE)      // Normal player
+#define CHFNT_NPCGOOD   (FNT_EMERALD)    // Good npc (alignment > 0)
+#define CHFNT_NPCEVIL   (FNT_RED)       // Evil npc (alignment < 0)
