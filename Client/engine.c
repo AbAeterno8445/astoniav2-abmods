@@ -26,6 +26,8 @@ extern int screen_overlay_sprite;
 extern short screen_windowed;
 extern short screen_renderdist;
 
+int cursedtxt_off = 0;
+
 // from dd.c
 int copysprite(int nr,int effect,int x,int y,int xoff,int yoff);
 void dd_flip(void);
@@ -577,7 +579,7 @@ extern int mouse_x,mouse_y;	// current mouse coordinates
 #define LL	22
 #define XLL (22*10)
 static char logtext[XLL][60];
-static char logfont[XLL];
+static int logfont[XLL][60];
 
 #define MAXTS            20
 
@@ -702,8 +704,8 @@ void eng_display_win(int plr_sprite,int init)
 	memcpy(buf,input+view_pos,48);
 	buf[48]=0;
 
-	dd_puttext(screen_width-GUI_CHAT_XOFF,9+10*LL,1,buf);
-	dd_putc(screen_width-GUI_CHAT_XOFF+6*(cur_pos-view_pos),9+10*LL,1,127);
+	dd_puttext_1f(screen_width-GUI_CHAT_XOFF,9+10*LL,FNT_YELLOW,buf);
+	dd_putc(screen_width-GUI_CHAT_XOFF+6*(cur_pos-view_pos),9+10*LL,FNT_YELLOW,127);
 
 	if (init) {
 		if (show_shop) show_look=0;
@@ -1231,38 +1233,88 @@ void eng_display(int init)	// optimize me!!!!!
 	}
 }
 
-// DISPLAY: TEXT OUTPUT
+void appendc(char* s, char c) {
+        int len = strlen(s);
+        s[len] = c;
+        s[len+1] = '\0';
+}
 
-void tlog(char *text,char font)
+// DISPLAY: TEXT OUTPUT
+void tlog(char *text,int font)
 {
 	int n,panic=0;
+	int cmode=0, txt_len, copiedchars=0;
+
+	char *tmp_col[5]={0};
+	char *src_text=calloc(XLL, sizeof(char));
+	int *line_font=calloc(XLL, sizeof(int));
 	static int flag=0;
 
 	if (!flag) {
 		for (n=0; n<XLL*60; n++) {
 			logtext[0][n]=0;
 		}
-		for (n=0; n<XLL; n++) {
-			logfont[n]=0;
+		for (n=0; n<XLL*60; n++) {
+			logfont[0][n]=FNT_YELLOW;
 		}
 		flag=1;
 	}
 
 	if (strlen(text)<1)	return;
 
+	// Process color coding system
+	txt_len = min(XLL, strlen(text)+1);
+	for (n=0; n<txt_len; n++) {
+		if (n < txt_len - 2) {
+			if (text[n] == '/' && text[n+1] == '|') {
+				n+=2;
+				cmode=n;
+			} else if (cmode > 0 && (text[n] == '|' || n-cmode > 4)) {
+				n++;
+				strncpy(tmp_col, &text[cmode], n-cmode-1);
+				font = atoi(tmp_col);
+				tmp_col[0]=0;
+				cmode=0;
+			}
+		}
+
+		if (cmode == 0) {
+			line_font[copiedchars] = font;
+			appendc(src_text, text[n]);
+			copiedchars++;
+		}
+	}
+
 	while (panic++<XLL) {
 		do_msg();
 		memmove(logtext[1],logtext[0],XLL*60-60);
-		memmove(&logfont[1],&logfont[0],XLL-1);
-		memcpy(logtext[0],text,min(60-1,strlen(text)+1));
-		logfont[0]=font;
-		logtext[0][60-1]=0;
-		if (strlen(text)<XS-1) return;
-		for (n=XS-1; n>0; n--) if (logtext[0][n]==' ') break;
+		memmove(logfont[1],logfont[0],XLL*60*sizeof(int)-60*sizeof(int));
+		memcpy(logtext[0],src_text,min(XS-1,strlen(src_text)+1));
+		//memcpy(logfont[0],line_font,min(XS-1,strlen(src_text)+1));
+		logtext[0][XS-1]=0;
+
+		for (n=0; n<min(XS-1,strlen(src_text)+1); n++) {
+			logfont[0][n] = line_font[n];
+		}
+
+		if (strlen(src_text)<XS-1) return;
+
+		for (n=XS-1; n>0; n--) {
+			if (logtext[0][n]==' ') break;
+		}
+
 		if (n!=0) {
-			logtext[0][n]=0; text+=n+1;
-		} else text+=XS-1;
+			logtext[0][n]=0;
+			src_text+=n+1;
+			line_font+=n+1;
+		} else {
+			src_text+=XS-1;
+			line_font+=XS-1;
+		}
 	}
+
+	free(src_text);
+	free(line_font);
 }
 
 void xlog(char font,char *format,...)
@@ -2092,6 +2144,8 @@ void engine(void)
 		if (wantquit && maynotquit)	maynotquit--;
 
 		if (do_ticker && (ticker&15)==0) cmd1s(CL_CMD_CTICK,ticker);
+
+		if (ticker%4==0) cursedtxt_off = (cursedtxt_off + random(10)) % 10 + cursedtxt_off + 1;
 
 		if (step++>16) {
 			pskip=100.0*(float)skip/(float)frame;

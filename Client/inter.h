@@ -86,6 +86,20 @@
 
 #define GUI_MINIMAP_YOFF	130  // Minimap
 
+// Font macros
+#define FNT_RED			0
+#define FNT_YELLOW		1
+#define FNT_GREEN		2
+#define FNT_BLUE		3
+#define FNT_OBFUSCATED	4
+#define FNT_PURPLE		1960
+#define FNT_TURQUOISE	1961
+#define FNT_PINK		1962
+#define FNT_ORANGE		1963
+#define FNT_AQUA		1964
+#define FNT_SILVER		1965
+#define FNT_EMERALD		1966
+
 struct xbutton
 {
    char name[8];
@@ -227,7 +241,8 @@ struct skilltab
 extern struct skilltab *skilltab;
 extern char *at_name[];
 
-void dd_puttext(int x,int y,int font,char *text);
+void dd_puttext(int x,int y,int *font,char *text);
+void dd_puttext_1f(int x,int y,int font,char *text);
 void dd_gputc(int xpos,int ypos,int font,int c);
 void dd_gputtext(int xpos,int ypos,int font,char *text,int xoff,int yoff);
 void dd_putc(int xpos,int ypos,int font,int c);
@@ -235,5 +250,5 @@ void dd_xputtext(int x,int y,int font,char *format,...);
 void say(char *input);
 void cmd1(int cmd,int x);
 void init_xalloc(void);
-void tlog(char *text,char font);
+void tlog(char *text,int font);
 void do_msg(void);

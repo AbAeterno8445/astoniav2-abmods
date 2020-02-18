@@ -29,6 +29,8 @@ extern int screen_width, screen_height, screen_tilexoff, screen_tileyoff;
 extern short screen_windowed;
 extern short screen_renderdist;
 
+extern int cursedtxt_off;
+
 HANDLE heap=NULL;
 
 int blockcnt=0,blocktot=0,blockgc=0;
@@ -788,7 +790,7 @@ int dd_copytile(int nr,int x,int y,LPDIRECTDRAWSURFACE sur,int mapcheck)
 	int xs=0,ys=0,xe=0,ye=0;
 
 	if (!mapcheck) {
-		if (x<-31 || y<-31 || x>=screen_width || y>=screen_height)	return 0;
+		if (x<0 || y<0 || x>=screen_width || y>=screen_height)	return 0;
 
 		if (x<0) {
 			xs=-x;    x=0;
@@ -800,7 +802,7 @@ int dd_copytile(int nr,int x,int y,LPDIRECTDRAWSURFACE sur,int mapcheck)
 		if (x+32>=screen_width) xe=x-screen_width+32;
 		if (y+32>=screen_height) ye=y-screen_height+32;
 	} else {
-		if (x<-31 || y<-31 || x>=screen_width || y>=screen_height)	return 0;
+		if (x<0 || y<0 || x>=screen_width || y>=screen_height)	return 0;
 
 		if (x<0) {
 			xs=-x;    x=0;
@@ -1796,6 +1798,10 @@ void dd_putc(int xpos,int ypos,int font,int c)
 	if (font<0) return;
 
 	if (font<=3) nr=700+font;
+	else if (font==FNT_OBFUSCATED) {
+		nr=FNT_SILVER;
+		if (c>0) c=(c+cursedtxt_off)%31+1;
+	}
 	else nr=font;
 
 	// image loaded?
@@ -1828,11 +1834,25 @@ void dd_putc(int xpos,int ypos,int font,int c)
 	return;
 }
 
-void dd_puttext(int x,int y,int font,char *text)
+void dd_puttext(int x,int y,int *font,char *text)
 {
+	int f=0;
 	while (*text) {
-		dd_putc(x,y,font,*text);
-		text++; x+=6;
+		dd_putc(x,y,font[f],*text);
+		text++; x+=6; f++;
+	}
+}
+
+// Output text with the same font for all characters
+void dd_puttext_1f(int x,int y,int font,char *text)
+{
+	int flist[60];
+	int i, f=0;
+	for (i=0; i<60; i++) flist[i] = font;
+
+	while (*text) {
+		dd_putc(x,y,flist[f],*text);
+		text++; x+=6; f++;
 	}
 }
 
@@ -1840,10 +1860,13 @@ void dd_xputtext(int x,int y,int font,char *format,...)
 {
 	va_list args;
 	char buf[1024];
+	int i;
+	int f[60];
+	for (i=0; i<60; i++) f[i] = font;
 
 	va_start(args,format);
 	vsprintf(buf,format,args);
-	dd_puttext(x,y,font,buf);
+	dd_puttext(x,y,f,buf);
 	va_end(args);
 }
 
