@@ -2871,9 +2871,11 @@ void check_expire(int cn)
 		if (ch[cn].login_date+6*week<t) erase=1;
 	}
 	if (erase) {
-		xlog("Should have erased player %s, %d exp; however disabled during development",ch[cn].name,ch[cn].points_tot);
-		//god_destroy_items(cn);
-		//ch[cn].used=USE_EMPTY;
+		//xlog("Should have erased player %s, %d exp; however disabled during development",ch[cn].name,ch[cn].points_tot);
+                if (AUTOERASE_ENABLED==1) {
+                        god_destroy_items(cn);
+                        ch[cn].used=USE_EMPTY;
+                }
 	}
 }
 

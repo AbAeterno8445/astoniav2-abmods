@@ -34,6 +34,8 @@ All rights reserved.
 #define TURNING_ENABLED         0       // Whether characters turn when acting (enables/disables turning animations)
 #define ESCAPE_ENABLED          0       // Whether the escape mechanic is enabled during fights
 
+#define AUTOERASE_ENABLED       0       // Whether players get automatically deleted after a while of inactivity (svr_tick.c, func check_expire())
+
 #define HOME_MERCENARY_X        512
 #define HOME_MERCENARY_Y        512
 
