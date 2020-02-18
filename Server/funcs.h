@@ -327,6 +327,8 @@ int cap(int cn,int nr);
 int use_soulstone(int cn,int in);
 int load_mod(void);
 void set_cap(int cn,int nr);
+char *txt_remove_colorcodes(char *text);
+int get_char_fontcode(int cn);
 
 //-- instances --
 void init_instances(void);

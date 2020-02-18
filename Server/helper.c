@@ -1339,6 +1339,46 @@ int load_mod(void)
 	return 1;
 }
 
+// Remember to free the pointer returned
+char *txt_remove_colorcodes(char *text)
+{
+        int rmv_mode = 0, ch_added = 0;
+        char *buf = malloc(strlen(text) + 1);
+        for (int n=0; n<strlen(text); n++) {
+                if (n < strlen(text) - 2) {
+                        if (text[n] == '/' && text[n+1] == '|') {
+                                rmv_mode = 1;
+                                n+=2;
+                        } else if (rmv_mode && text[n-1] == '|') rmv_mode = 0;
+                }
+
+                if (!rmv_mode) {
+                        buf[ch_added] = text[n];
+                        buf[ch_added+1] = '\0';
+                        ch_added++;
+                }
+        }
+        return buf;
+}
+
+
+int get_char_fontcode(int cn)
+{
+        if (ch[cn].used == USE_EMPTY) return FNT_SILVER;
+
+        if (ch[cn].flags&(CF_INVISIBLE|CF_GREATERINV)) return CHFNT_INVIS;
+        if (!(ch[cn].flags&CF_PLAYER)) { // NPC
+                if (ch[cn].alignment >= 0) return CHFNT_NPCGOOD;
+                return CHFNT_NPCEVIL;
+        }
+        if (ch[cn].flags&CF_GREATERGOD) return CHFNT_GGOD;
+        if (ch[cn].flags&CF_GOD) return CHFNT_GOD;
+        if (ch[cn].flags&CF_IMP) return CHFNT_IMP;
+        if (ch[cn].flags&CF_STAFF) return CHFNT_STAFF;
+        if (ch[cn].flags&CF_CREATOR) return CHFNT_BUILDER;
+        return CHFNT_NORMAL;
+}
+
 /*
 #define SIZE 50
 
