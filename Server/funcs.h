@@ -352,6 +352,7 @@ void god_createinst_base(int cn, char *name, char *fname, int wid, int hei);
 void god_createinst_frombase(int cn, char *bname, int nochars);
 void god_deleteinst_base(int cn, char *bname);
 void god_deleteinst(int cn, int inst_id);
+void god_list_instbases(int cn);
 void god_setinsttemp(int cn, int tmp);
 int god_createinstchar(int tmp, int x, int y, int inst_id);
 

@@ -587,6 +587,18 @@ void god_deleteinst(int cn, int inst_id)
         do_char_log(cn, 1, "Unloaded instance %d.\n", inst_id);
 }
 
+void god_list_instbases(int cn)
+{
+        do_char_log(cn, 1, "/|%d|Currently created instance bases:\n", FNT_ORANGE);
+        for (int i = 0; i < INST_MAXBASES; i++) {
+                if (map_instancebases[i].used == USE_EMPTY) continue;
+
+                do_char_log(cn, 1, " /|%d|-\"%s\" (ID %d):/|%d| width=%d height=%d\n",
+                        FNT_ORANGE, map_instancebases[i].name, i, FNT_YELLOW,
+                        map_instancebases[i].width, map_instancebases[i].height);
+        }
+}
+
 void god_goto_inst(int cn, int inst_id, int x, int y)
 {
         int old_inst = ch[cn].instance_id;

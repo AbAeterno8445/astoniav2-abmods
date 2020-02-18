@@ -1740,6 +1740,7 @@ void do_command(int cn, char *ptr)
                 if (prefix(cmd,"instnew") && f_c)      { god_createinst_frombase(cn,arg[1],atoi(arg[2])); return; }
                 if (prefix(cmd,"instnewbase") && f_c)  { god_createinst_base(cn,arg[1],arg[2],atoi(arg[3]),atoi(arg[4])); return; }
                 if (prefix(cmd,"instsave") && f_c)     { save_inst_to_base(ch[cn].instance_id); return; }
+                if (prefix(cmd,"instlistbases") && f_c) { god_list_instbases(cn); return; }
                 if (prefix(cmd,"instdel") && f_c)       { god_deleteinst(cn,atoi(arg[1])); return; }
                 if (prefix(cmd,"instdelbase") && f_c)   { god_deleteinst_base(cn,arg[1]); return; }
                 if (prefix(cmd,"insttemp") && f_c)      { god_setinsttemp(cn,atoi(arg[1])); return; }

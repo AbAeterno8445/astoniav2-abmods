@@ -33,6 +33,8 @@ eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can sen
 
 - **instsave** - Saves the map data of the instance you're currently in to its base.
 
+- **instlistbases** - Lists currently created and available instance bases.
+
 - **instdelbase \<basename>** - Attempts to delete an instance base given its name.
 
 - **insttemp \<temp #>** - Activates instanced character placement mode. Right clicking a tile will create a character of the given template #.
