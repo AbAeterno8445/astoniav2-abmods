@@ -2298,6 +2298,9 @@ void plr_getmap_complete(int nr)
                                 if (light==0 && map_instancedtiles[inst_id][m].ch==cn) light=1;
                         }
 
+                        // see any tile in x-ray
+                        if (ch[cn].flags&CF_XRAY) light = max(1, light);
+
 			// no light, nothing visible
 			if (light==0) { empty_field(smap,n); continue; }
 
@@ -2370,7 +2373,7 @@ void plr_getmap_complete(int nr)
 			    see[cn].vis[tmp-1-VISI_SIZE]) visible=1;
 			else visible=0;
 
-			if (!visible) smap[n].flags|=INVIS;
+			if (!visible && !(ch[cn].flags&CF_XRAY)) smap[n].flags|=INVIS;
 
 			// --- End of Flags ----- - more flags set in character part further down
 			

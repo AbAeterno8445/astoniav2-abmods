@@ -545,6 +545,17 @@ int god_transfer_char(int cn,int x,int y,int inst_id)
         return 0;
 }
 
+void god_toggle_xray(cn)
+{
+        if (ch[cn].flags&CF_XRAY) {
+                ch[cn].flags&=~CF_XRAY;
+                do_char_log(cn, 1, "/|%d|X-ray vision deactivated.\n", FNT_TURQUOISE);
+        } else {
+                ch[cn].flags|=CF_XRAY;
+                do_char_log(cn, 1, "/|%d|X-ray vision activated.\n", FNT_TURQUOISE);
+        }
+}
+
 void god_createinst_base(int cn, char *name, char *fname, int wid, int hei)
 {
         if (strlen(name) < 3) {

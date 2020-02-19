@@ -1853,6 +1853,9 @@ void do_command(int cn, char *ptr)
                 if (prefix(cmd,"withdraw") && !f_m)     { do_withdraw(cn,atoi(arg[1]),atoi(arg[2])); return; };
                 if (prefix(cmd,"write") && f_giu)       { do_create_note(cn,args[0]); return; };
                 break;
+        case 'x':
+                if (prefix(cmd,"xray") && (f_c || f_giu)) { god_toggle_xray(cn); return; };
+                break;
         }
         do_char_log(cn,0,"Unknown command #%s\n",cmd);
 }

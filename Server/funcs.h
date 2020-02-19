@@ -183,6 +183,7 @@ void god_init_badnames(void);
 int god_is_badname(char *name);
 int god_read_banlist(void);
 void god_shutup(int cn,int co);
+void god_toggle_xray(int cn);
 
 // ---- do ----
 void do_log(int cn,int font,char *text);

@@ -327,6 +327,7 @@ struct instcharacter
 
 #define CF_TPMODE       (1ull<<47)      // instantly teleports instead of moving
 #define CF_INST_TEMP    (1ull<<48)      // is an instance template - doesn't react and is removed when looked at
+#define CF_XRAY         (1ull<<49)      // has x-ray vision (sees through walls)
 
 #define AT_BRAVE        0
 #define AT_WILL         1
