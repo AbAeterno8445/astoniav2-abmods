@@ -134,7 +134,7 @@ short inst_isalive(int inst_id)
 }
 
 int inst_totalalive() {
-        int al;
+        int al = 0;
         for (int i=0; i<INST_MAX; i++) {
                 if (map_instances[i].used != USE_EMPTY) al++;
         }
