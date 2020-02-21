@@ -2316,7 +2316,8 @@ void plr_getmap_complete(int nr)
                                                 MF_GFX_EMAGIC|
                                                 MF_GFX_GMAGIC|
                                                 MF_GFX_CMAGIC|
-                                                MF_UWATER)) {
+                                                MF_UWATER|
+                                                MF_PURPLE)) {
                                         if (map[m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
                                         if (map[m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
                                         if (map[m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
@@ -2328,6 +2329,7 @@ void plr_getmap_complete(int nr)
                                         if (map[m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_CMAGIC)>>23;
 
                                         if (map[m].flags&MF_UWATER) smap[n].flags|=UWATER;
+                                        if (map[m].flags&MF_PURPLE) smap[n].flags|=TPURPLE;
                                 }
                         } else {
                                 if (map_instancedtiles[inst_id][m].flags&(MF_GFX_INJURED|
@@ -2338,7 +2340,8 @@ void plr_getmap_complete(int nr)
                                                 MF_GFX_EMAGIC|
                                                 MF_GFX_GMAGIC|
                                                 MF_GFX_CMAGIC|
-                                                MF_UWATER)) {
+                                                MF_UWATER|
+                                                MF_PURPLE)) {
                                         if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
                                         if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
                                         if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
@@ -2350,6 +2353,7 @@ void plr_getmap_complete(int nr)
                                         if (map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC)>>23;
 
                                         if (map_instancedtiles[inst_id][m].flags&MF_UWATER) smap[n].flags|=UWATER;
+                                        if (map_instancedtiles[inst_id][m].flags&MF_PURPLE) smap[n].flags|=TPURPLE;
                                 }
                         }
 
@@ -2981,6 +2985,29 @@ void tick(void)
 			ch[n].flags&=~CF_UPDATE;
 		}
 
+                // Remove stray breach monsters
+                if (ch[n].flags&CF_BREACH) {
+                        int inst_id, m;
+                        inst_id = ch[n].instance_id;
+                        if (inst_id == -1) {
+                                m = ch[n].x + ch[n].y * MAPX;
+                                if (!(map[m].flags&MF_PURPLE)) {
+                                        god_destroy_items(n);
+                                        fx_add_effect(5,0,ch[n].x,ch[n].y,0,inst_id);
+                                        ch[n].used=USE_EMPTY;
+                                        continue;
+                                }
+                        } else {
+                                m = ch[n].x + ch[n].y * map_instances[inst_id].width;
+                                if (!(map_instancedtiles[inst_id][m].flags&MF_PURPLE)) {
+                                        god_destroy_items(n);
+                                        fx_add_effect(5,0,ch[n].x,ch[n].y,0,inst_id);
+                                        ch[n].used=USE_EMPTY;
+                                        continue;
+                                }
+                        }
+                }
+
         	if (ch[n].used==USE_NONACTIVE && (n&1023)==(globs->ticker&1023)) {
                 	check_expire(n);
                 }
@@ -3026,6 +3053,8 @@ void tick(void)
 
         // do global updates like time of day, weather etc.
         prof=prof_start(); global_tick(); prof_stop(26,prof);
+
+        process_breaches(cltick);
 
         ctick++;
         if (ctick>19) ctick=0;

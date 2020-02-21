@@ -1,6 +1,6 @@
 # Extra server content
 
-Remember to extract .dat.tar.xz back into a .dat folder.
+Remember to extract .dat.tar.xz back into a .dat folder. Read "New systems.md" for further information on other new miscellaneous features.
 
 ## New features
 

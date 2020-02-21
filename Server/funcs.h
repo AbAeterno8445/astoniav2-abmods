@@ -357,6 +357,11 @@ void god_list_instbases(int cn);
 void god_setinsttemp(int cn, int tmp);
 int god_createinstchar(int tmp, int x, int y, int inst_id);
 
+// -- breach --
+int new_breach(int brc_id);
+void breach_tick(int brc_in);
+void process_breaches(int cltick);
+
 //-- converter --
 int converter_main();
 

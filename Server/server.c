@@ -778,6 +778,25 @@ int main(int argc,char *args[])
 	init_badwords();
 	god_read_banlist();
 	reset_changed_items();
+
+        //TODO - move somewhere proper
+        // Clean leftover breaches
+        int xx, yy;
+        for (yy=0; yy<MAPY; yy++) {
+                for (xx=0; xx<MAPX; xx++) {
+                        n = xx+yy*MAPX;
+                        if (map[n].flags&MF_PURPLE) {
+                                map[n].flags &=~MF_PURPLE;
+                        }
+                        int cn = map[n].ch;
+                        if (cn) {
+                                if (ch[cn].flags&CF_BREACH) {
+                                        god_destroy_items(cn);
+                                        ch[cn].used = USE_EMPTY;
+                                }
+                        }
+                }
+        }
 	
 	// remove lab items from all players (leave this here for a while!)
 	for (n=1; n<MAXITEM; n++) {

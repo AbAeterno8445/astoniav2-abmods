@@ -174,6 +174,8 @@ struct oldglobal
 /* CS, 991204: NOFIGHT */
 #define MF_NOFIGHT      (1Ull<<14)
 
+#define MF_PURPLE       (1ull<<15)
+
 // plus 32 bits for dynamic flags
 #define MF_GFX_INJURED  (1ULL<<32)
 #define MF_GFX_INJURED1 (1ULL<<33)
@@ -328,6 +330,7 @@ struct instcharacter
 #define CF_TPMODE       (1ull<<47)      // instantly teleports instead of moving
 #define CF_INST_TEMP    (1ull<<48)      // is an instance template - doesn't react and is removed when looked at
 #define CF_XRAY         (1ull<<49)      // has x-ray vision (sees through walls)
+#define CF_BREACH       (1ull<<50)      // belongs to a breach (will immediately despawn once its tile doesnt have the MF_PURPLE flag)
 
 #define AT_BRAVE        0
 #define AT_WILL         1

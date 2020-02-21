@@ -32,7 +32,9 @@ All rights reserved.
 #define GMAGIC                  ((1U<<25)|(1U<<26)|(1U<<27))
 #define GMAGIC1                 (1U<<25)
 #define CMAGIC                  ((1U<<28)|(1U<<29)|(1U<<30))
-#define CMAGIC1                 (1U<<28
+#define CMAGIC1                 (1U<<28)
+
+#define TPURPLE		(1U<<31)
 
 struct cmap
 {

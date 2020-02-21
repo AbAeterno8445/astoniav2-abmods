@@ -2201,6 +2201,7 @@ int teleport_inst_prompt(int cn,int in)
         char buf[16];
 
         if (!cn) return 0;
+        if (!(ch[cn].flags&(CF_PLAYER|CF_USURP))) return 0;
         if (it[in].flags&IF_USEACTIVATE && !(it[in].active)) return 0;
 
         base_id = it[in].data[2];
@@ -2255,6 +2256,22 @@ int teleport_inst_prompt(int cn,int in)
         xsend(nr,buf,3);
 
         return 1;
+}
+
+int step_breach(int cn,int in)
+{
+        if (!cn) return 0;
+        if (!(ch[cn].flags&(CF_PLAYER|CF_USURP))) return 0;
+        if (it[in].active) return 0;
+
+        // Tries to allocate new breach pointer
+        xlog("MR %s (%d) STEPPED ON BREACH... ?", ch[cn].name, cn);
+        if (!new_breach(in)) return 0;
+
+        it[in].active = TICKS * 60;
+        fx_add_effect(5,0,it[in].x,it[in].y,0,it[in].instance_id);
+
+        return 0;
 }
 
 int use_seyan_shrine(int cn,int in)
@@ -3894,6 +3911,7 @@ int step_driver(int cn,int in)
                 case    47:     ret=step_portal_arena(cn,in); break;
                 case    62:     ret=step_teleport(cn,in); break;
                 case	69:	ret=step_firefloor(cn,in); break;
+                case    71:     ret=step_breach(cn,in); break;
                 default:        xlog("unknown step driver %d for item %s (%d)",it[in].driver,it[in].name,in); break;
         }
 
@@ -3909,6 +3927,7 @@ void step_driver_remove(int cn,int in)
                 case    47:     break;
                 case    62:     break;
                 case	69:	step_firefloor_remove(cn,in); break;
-                default:        xlog("unknown step driver %d for item %s (%d)",it[in].driver,it[in].name,in); break;
+                case    71:     break;
+                default:        xlog("unknown step driver %d for item %s (%d) - on removal",it[in].driver,it[in].name,in); break;
         }
 }
