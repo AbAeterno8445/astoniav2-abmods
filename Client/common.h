@@ -65,6 +65,8 @@
 #define CMAGIC                  ((1U<<28)|(1U<<29)|(1U<<30))
 #define CMAGIC1                 (1U<<28)
 
+#define TPURPLE					(1U<<31)
+
 #define MF_MOVEBLOCK    (1U<<0)
 #define MF_SIGHTBLOCK   (1U<<1)
 #define MF_INDOORS      (1U<<2)

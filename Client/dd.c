@@ -1131,7 +1131,7 @@ void *dd_load_bitmap(char *name,int *xs,int *ys,LPDIRECTDRAWSURFACE sur)
 // tiles in the upper left corner of the cache area will be destroyed by loading a new
 // sprite
 
-#define MAXEFFECT	1024
+#define MAXEFFECT	2048
 
 #define current_tick GetTickCount()
 
@@ -1339,7 +1339,7 @@ int gamma=5000;
 #pragma argsused
 unsigned short do_effect(unsigned short val,int effect,int seed1,int seed2,int sprite)
 {
-	int r,g,b,invis=0,tmp,grey=0,infra=0,water=0,red=0,green=0;
+	int r,g,b,invis=0,tmp,grey=0,infra=0,water=0,red=0,green=0,purple=0;
 
 	if (effect&16) { effect-=16; red=1; }//red border
 	if (effect&32) { effect-=32; green=1; }//green border
@@ -1347,6 +1347,7 @@ unsigned short do_effect(unsigned short val,int effect,int seed1,int seed2,int s
 	if (effect&128) { effect-=128; grey=1; } //grey scale
 	if (effect&256) { effect-=256; infra=1; } //grey scale
 	if (effect&512) { effect-=512; water=1; } //grey scale
+	if (effect&1024) { effect-=1024; purple=1; } //purple tint
 
 	switch (RGBM) {
 		case 0:
@@ -1424,6 +1425,12 @@ unsigned short do_effect(unsigned short val,int effect,int seed1,int seed2,int s
 				}
 
 				if (green) { g+=31; if (g>63) g=63; }
+
+				if (purple) {
+					b+=10; if (b>31) b=31;
+					g-=7; if (g<0) g=0;
+					r+=3; if (r>31) r=31;
+				}
 
 				if (invis) {
 					r=g=b=0;

@@ -1040,6 +1040,7 @@ void eng_display(int init)	// optimize me!!!!!
 				if (map[m].flags&INVIS)	tmp|=64;
 				if (map[m].flags&INFRARED) tmp|=256;
 				if (map[m].flags&UWATER) tmp|=512;
+				if (map[m].flags&TPURPLE) tmp|=1024;
 
 				display_floortile(map[m].back,map[m].light|tmp,x*32,y*32,xoff,yoff,map[x+y*screen_renderdist].x,map[x+y*screen_renderdist].y);
 
@@ -1064,6 +1065,7 @@ void eng_display(int init)	// optimize me!!!!!
 
 				if (map[m].flags&INFRARED) tmp|=256;
 				if (map[m].flags&UWATER) tmp|=512;
+				if (map[m].flags&TPURPLE) tmp|=1024;
 
 				// object
                                 if (pdata.hide==0 || (map[m].flags&ISITEM) || autohide(x,y)) {
@@ -1110,6 +1112,7 @@ void eng_display(int init)	// optimize me!!!!!
 				if (map[m].flags&STONED) tmp|=128;
 				if (map[m].flags&INFRARED) tmp|=256;
 				if (map[m].flags&UWATER) tmp|=512;
+				if (map[m].flags&TPURPLE) tmp|=1024;
 
 				if (do_shadow) dd_shadow(map[m].obj2,x*32,y*32,xoff+map[m].obj_xoff,yoff+map[m].obj_yoff+4);
 				copysprite(map[m].obj2,map[m].light|tmp,x*32,y*32,xoff+map[m].obj_xoff,yoff+map[m].obj_yoff);				
