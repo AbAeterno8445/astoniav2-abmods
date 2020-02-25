@@ -50,8 +50,13 @@ void init_instances(void)
 // Take care of having inst_name and fname lengths be lower than the instance base struct's respective fields
 int create_instance_base(char *inst_name, char *fname, int wid, int hei)
 {
-        if (wid < 0 || hei < 0 || wid >= MAPX || hei >= MAPY) {
+        if (wid < 5 || hei < 5 || wid >= MAPX || hei >= MAPY) {
                 xlog("Could not create a new instance base - wrong size (wid=%d hei=%d).", wid, hei);
+                return -1;
+        }
+
+        if (get_instance_base_f(fname) != -1) {
+                xlog("Could not create a new instance base - fname \"%s\" is taken.", fname);
                 return -1;
         }
         
@@ -71,6 +76,8 @@ int create_instance_base(char *inst_name, char *fname, int wid, int hei)
         strcpy(map_instancebases[i].fname, fname);
         map_instancebases[i].width = wid;
         map_instancebases[i].height = hei;
+        map_instancebases[i].spawn_x = 2;
+        map_instancebases[i].spawn_y = 2;
 
         // Set creation time
         time_t now;
@@ -78,7 +85,6 @@ int create_instance_base(char *inst_name, char *fname, int wid, int hei)
         now = time(NULL);
         now_tm = localtime(&now);
         map_instancebases[i].creation_time = now_tm->tm_hour*100 + now_tm->tm_min;
-        xlog("Created base at %d.", map_instancebases[i].creation_time);
 
         // Create file for instance base if it doesn't exist
         int handle, ninst_size;
@@ -94,7 +100,7 @@ int create_instance_base(char *inst_name, char *fname, int wid, int hei)
                 xlog("Creating file for instance base %s(%d): file size=%dK",
                         inst_name,i,ninst_size>>10);
 
-                handle=open(fpath,O_RDWR|O_CREAT,0655);
+                handle=open(fpath,O_RDWR|O_CREAT,0755);
                 bzero(&tmap, sizeof(struct map));
                 tmap.sprite = SPR_GROUND1;
                 if (!extend(handle, ninst_size, sizeof(struct map), &tmap)) {
@@ -107,12 +113,12 @@ int create_instance_base(char *inst_name, char *fname, int wid, int hei)
         return i;
 }
 
-// Looks for an instance base with the given name, and returns its ID, or -1 if not found
-int get_instance_base(char *bname)
+// Looks for an insance base with the given fname, and returns its ID, or -1 if not found
+int get_instance_base_f(char *fname)
 {
         for (int i=0; i<INST_MAXBASES; i++) {
                 if (map_instancebases[i].used == USE_EMPTY) continue;
-                if (strcmp(map_instancebases[i].name, bname) == 0) return i;
+                if (strcmp(map_instancebases[i].fname, fname) == 0) return i;
         }
         return -1;
 }
@@ -120,9 +126,15 @@ int get_instance_base(char *bname)
 // Delete an instance base map, existing instances copied from this map stay alive
 void delete_instance_base(char *bname)
 {
-        int base_id = get_instance_base(bname);
+        int base_id = get_instance_base_f(bname);
         if (base_id == -1) return;
 
+        char fpath[60];
+
+        sprintf(fpath, DATDIR"/inst_basedata/%s.dat", map_instancebases[base_id].fname);
+        remove(fpath);
+        sprintf(fpath, DATDIR"/inst_basedata/%s.chr", map_instancebases[base_id].fname);
+        remove(fpath);
         map_instancebases[base_id].used = USE_EMPTY;
 }
 
@@ -154,8 +166,16 @@ void save_inst_to_base(int inst_id)
 {
         if (!inst_isalive(inst_id)) return;
         
-        int handle;
+        int handle, inst_b;
         char fpath[60];
+
+        inst_b = get_instance_base_f(map_instances[inst_id].fname);
+        if (inst_b != -1) {
+                map_instancebases[inst_b].spawn_x = map_instances[inst_id].spawn_x;
+                map_instancebases[inst_b].spawn_y = map_instances[inst_id].spawn_y;
+        } else {
+                xlog("Could not save spawnpoint for instance \"%s\": base instance not found.", map_instances[inst_id].name);
+        }
 
         // Save map tile data / map items
         sprintf(fpath, DATDIR"/inst_basedata/%s.dat", map_instances[inst_id].fname);
@@ -163,7 +183,7 @@ void save_inst_to_base(int inst_id)
         handle=open(fpath,O_WRONLY|O_TRUNC);
         if (handle==-1) {
                 xlog("Could not open file at (%s), saving instance %d mapdata to base. Creating new file...", fpath, inst_id);
-                handle=open(fpath,O_WRONLY|O_CREAT,0655);
+                handle=open(fpath,O_WRONLY|O_CREAT,0755);
         }
 
         for (int i=0; i<map_instances[inst_id].height; i++) {
@@ -196,7 +216,7 @@ void save_inst_to_base(int inst_id)
         handle=open(fpath,O_WRONLY|O_TRUNC);
         if (handle==-1) {
                 xlog("Could not open file at (%s), saving instance %d chars to base. Creating new file...", fpath, inst_id);
-                handle=open(fpath,O_WRONLY|O_CREAT,0655);
+                handle=open(fpath,O_WRONLY|O_CREAT,0755);
         }
 
         for (int cn=0; cn<MAXCHARS; cn++) {
@@ -221,7 +241,7 @@ int create_instance_frombase(char *mname, short nochars)
         char fpath[60];
         //struct map **tmp_map_ptr;
 
-        base_id = get_instance_base(mname);
+        base_id = get_instance_base_f(mname);
         if (base_id == -1) {
                 xlog("ERROR - could not create instance, base %s not found!", mname);
                 return -1;
@@ -245,6 +265,8 @@ int create_instance_frombase(char *mname, short nochars)
         map_instances[new_id].id = new_id;
         map_instances[new_id].width = map_instancebases[base_id].width;
         map_instances[new_id].height = map_instancebases[base_id].height;
+        map_instances[new_id].spawn_x = map_instancebases[base_id].spawn_x;
+        map_instances[new_id].spawn_y = map_instancebases[base_id].spawn_y;
         strcpy(map_instances[new_id].name, map_instancebases[base_id].name);
         strcpy(map_instances[new_id].fname, map_instancebases[base_id].fname);
         map_instances[new_id].last_activity_time = globs->ticker;

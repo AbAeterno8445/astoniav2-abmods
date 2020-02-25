@@ -33,11 +33,19 @@ void look_spell_scroll(int cn,int in)
 	do_char_log(cn,1,"There are %d charge%s left.\n",n,(n==1 ? "s" : ""));
 }
 
+// For portals with limited charges
+void look_charged_portal(int cn,int in)
+{
+	do_char_log(cn,1,"%s\n",it[in].description);
+	if (it[in].data[3] == 1) do_char_log(cn,1,"/|%d|%d use charges remain.\n", FNT_ORANGE, it[in].data[4]);
+}
+
 void look_driver(int cn,int in)
 {
 	switch(it[in].driver) {
 		case	17:	look_rat_eye(cn,in); break;
 		case	48:	look_spell_scroll(cn,in); break;
+		case	72: look_charged_portal(cn,in); break;
 		default:	xlog("Unknown look_driver %d",it[in].driver); break;
 	}
 }

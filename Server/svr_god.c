@@ -15,6 +15,7 @@ All rights reserved.
 #include <unistd.h>
 
 #include "server.h"
+#include "map-device.h"
 #include "driver.h"
 
 static char *mkp(void)
@@ -533,7 +534,7 @@ int god_transfer_char(int cn,int x,int y,int inst_id)
 
         if (old_inst_id != inst_id) {
                 if (inst_isalive(old_inst_id)) {
-                        if (get_instance_base(map_instances[old_inst_id].name) != get_instance_base(map_instances[inst_id].name) ||
+                        if (get_instance_base_f(map_instances[old_inst_id].fname) != get_instance_base_f(map_instances[inst_id].fname) ||
                         (old_inst_id == -1 && inst_id != -1)) {
                                 do_char_log(cn, 1, "Entering %s.\n", map_instances[inst_id].name);
                         }
@@ -604,8 +605,8 @@ void god_list_instbases(int cn)
         for (int i = 0; i < INST_MAXBASES; i++) {
                 if (map_instancebases[i].used == USE_EMPTY) continue;
 
-                do_char_log(cn, 1, " /|%d|-\"%s\" (ID %d):/|%d| width=%d height=%d\n",
-                        FNT_ORANGE, map_instancebases[i].name, i, FNT_YELLOW,
+                do_char_log(cn, 1, " /|%d|-%s \"%s\" (ID %d):/|%d| width=%d height=%d\n",
+                        FNT_ORANGE, map_instancebases[i].fname, map_instancebases[i].name, i, FNT_YELLOW,
                         map_instancebases[i].width, map_instancebases[i].height);
         }
 }
@@ -1433,6 +1434,19 @@ int god_createinstchar(int tmp, int x, int y, int inst_id)
         return ct;
 }
 
+void god_setinstspawn(int cn)
+{
+        int inst_id = ch[cn].instance_id;
+        if (inst_id == -1) {
+                do_char_log(cn, 0, "You must use this command within an instanced area.\n");
+                return;
+        }
+
+        map_instances[inst_id].spawn_x = ch[cn].x;
+        map_instances[inst_id].spawn_y = ch[cn].y;
+        do_char_log(cn, 1, "Set the spawnpoint for this instance to your position. (%d / %d)\n", ch[cn].x, ch[cn].y);
+}
+
 void god_tpmode(int cn)
 {
         if (ch[cn].flags&CF_TPMODE) {
@@ -1442,6 +1456,26 @@ void god_tpmode(int cn)
                 ch[cn].flags|=CF_TPMODE;
                 do_char_log(cn, 1, "Teleport movement mode active.\n");
         }
+}
+
+void god_setmapcharges(int cn, int amap, int chg)
+{
+        int amap_dev = get_mapdevice(cn);
+        if (amap_dev == -1) {
+                do_char_log(cn, 1, "Could not find your map device data.\n");
+                return;
+        }
+        if (amap < 0 || amap >= AMAP_MAXBASES) {
+                do_char_log(cn, 1, "Areamap number out of bounds.\n");
+                return;
+        }
+        if (amap_bases[amap].used == USE_EMPTY) {
+                do_char_log(cn, 1, "Unused areamap base.\n");
+                return;
+        }
+        amap_devices[amap_dev].map_charges[amap] = max(0, min(250, chg));
+        do_char_log(cn, 1, "/|%d|Set map charges for %d (%s) to %d.\n",
+                FNT_EMERALD, amap, amap_bases[amap].name, amap_devices[amap_dev].map_charges[amap]);
 }
 
 void god_tavern(int cn)
@@ -1917,6 +1951,7 @@ void god_erase(int cn,int co,int erase_player)
         }
         if (erase_player) {
                 if (ch[co].player) plr_logout(co,ch[co].player,LO_SHUTDOWN);
+                delete_mapdevice(co);
                 ch[co].used=USE_EMPTY;
                 chlog(cn, "IMP: Erased player %d (%-.20s).", co, ch[co].name);
                 do_char_log(cn,1,"Player %d (%-.20s) is no more.\n", co, ch[co].name);

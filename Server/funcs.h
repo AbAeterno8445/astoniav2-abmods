@@ -184,6 +184,8 @@ int god_is_badname(char *name);
 int god_read_banlist(void);
 void god_shutup(int cn,int co);
 void god_toggle_xray(int cn);
+void god_setmapcharges(int cn, int amap, int chg);
+void god_setinstspawn(int cn);
 
 // ---- do ----
 void do_log(int cn,int font,char *text);
@@ -276,6 +278,8 @@ void greenlingball(int in);
 void expire_driver(int in);
 void lightage(int in,int multi);
 
+void use_mapdevice_openport(int cn, int amap);
+
 //-- effect --
 void effect_tick(void);
 int fx_add_effect(int type,int duration,int d1,int d2,int d3,int inst_id);
@@ -336,7 +340,7 @@ void init_instances(void);
 void instance_test();
 int create_instance_base(char *inst_name, char *fname, int wid, int hei);
 int create_instance_frombase(char *mname, short nochars);
-int get_instance_base(char *bname);
+int get_instance_base_f(char *fname);
 void delete_instance_base(char *bname);
 void unload_instance(int inst_id);
 void save_inst_to_base(int inst_id);
@@ -356,6 +360,19 @@ void god_deleteinst(int cn, int inst_id);
 void god_list_instbases(int cn);
 void god_setinsttemp(int cn, int tmp);
 int god_createinstchar(int tmp, int x, int y, int inst_id);
+
+// -- map devices --
+int load_mapdevice(int cn);
+int get_mapdevice(int cn);
+void save_mapdevice(int cn);
+void unload_mapdevice(int cn);
+void delete_mapdevice(int cn);
+void send_amapbase(int nr, int amap);
+void send_amapbase_all(int nr);
+void send_amapcharges(int nr, int amap);
+void send_amapcharges_all(int nr);
+void send_mapdev_data(int nr);
+void send_selmap_data(int nr, int amap);
 
 // -- breach --
 int new_breach(int brc_id);
