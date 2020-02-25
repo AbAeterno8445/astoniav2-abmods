@@ -9,6 +9,8 @@ Remember to extract .dat.tar.xz back into a .dat folder. Read "New systems.md" f
 - **Multi-colored text format:** You may have lines with multiple colors using the format '/|\<font code>|'.
 eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can send messages formatted this way directly from the client. Check font macros in **macros.h** for all available fonts.
 
+- **Map device:** akin to Path of Exile's atlas of worlds, this device gives you access to multiple configurable pre-set maps, and lets you enter instances of these. Early in development, description will be updated as the system evolves.
+
 ## New macros/settings
 - **gendefs.h:**
     - **TURNING_ENABLED:** 0 or 1, enables/disables character turning animations.
@@ -28,7 +30,7 @@ eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can sen
 
 - **/xray** - Toggles x-ray vision for builders.
 
-## God instance management commands
+## Builder instance management commands
 - **/gotoinst \<id> \<x> \<y>** - Transports you to instance \<id> at \<x>, \<y>.
 
 - **/instnewbase \<name> \<filename> \<width> \<height>** - Create a new instance base with the given parameters.
@@ -36,6 +38,8 @@ eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can sen
 
 - **/instnew \<basename> \<nochars>** - Attempts to create an instance out of an existing base with name \<basename>.
     If \<nochars> is 1 or higher, the new instance won't load any characters (for easier map editing).
+
+- **/instsetspawn** - Sets the spawn position of the instance you're in to your current position.
 
 - **/instsave** - Saves the map data of the instance you're currently in to its base.
 

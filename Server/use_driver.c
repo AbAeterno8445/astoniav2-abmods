@@ -12,6 +12,7 @@ All rights reserved.
 
 #include "server.h"
 #include "funcs.h"
+#include "map-device.h"
 
 int sub_door_driver(int cn,int in)
 {
@@ -618,7 +619,7 @@ int teleport2(int cn,int in2)
 		get_area_m(it[in2].data[0],it[in2].data[1],0));
 					
 	if (it[in2].data[2] && it[in2].data[2]+TICKS*60*4<globs->ticker) {
-		chlog(cn,"Lag Scroll Time Difference: %d ticks (%.2fs)",
+		chlog(cn,"Lag Scroll Time Difference: %ld ticks (%.2fs)",
 			globs->ticker-it[in2].data[2],
 			(globs->ticker-it[in2].data[2])/(double)TICKS);
 		
@@ -632,7 +633,7 @@ int teleport2(int cn,int in2)
                 if (!inst_isalive(it[in2].data[4])) {
                         do_char_log(cn, 0, "The instance this scroll leads to is no longer active.\n");
                         return 1;
-                } else if (get_instance_base(map_instances[it[in2].data[4]].name) != it[in2].data[5] ||
+                } else if (get_instance_base_f(map_instances[it[in2].data[4]].fname) != it[in2].data[5] ||
                 map_instances[it[in2].data[4]].owner != ch[cn].player) {
                         do_char_log(cn, 0, "The instance this scroll leads to is no longer active.\n");
                         return 1;
@@ -2202,11 +2203,18 @@ int teleport_inst_prompt(int cn,int in)
 
         if (!cn) return 0;
         if (!(ch[cn].flags&(CF_PLAYER|CF_USURP))) return 0;
-        if (it[in].flags&IF_USEACTIVATE && !(it[in].active)) return 0;
 
         base_id = it[in].data[2];
-        if (base_id < 0 || base_id >= INST_MAXBASES) return 0;
-        if (map_instancebases[base_id].used == USE_EMPTY) return 0;
+        if (base_id < 0 || base_id >= INST_MAXBASES) {
+                do_char_log(cn, 0, "This portal is mis-configured. It doesn't lead anywhere.\n");
+                chlog(cn, "Used portal %d but it had the wrong base number.", in);
+                return 0;
+        }
+        if (map_instancebases[base_id].used == USE_EMPTY) {
+                do_char_log(cn, 0, "This portal is mis-configured. It doesn't lead anywhere.\n");
+                chlog(cn, "Used portal %d but it had an unused base number.", in);
+                return 0;
+        }
 
         nr = ch[cn].player;
 
@@ -2231,7 +2239,7 @@ int teleport_inst_prompt(int cn,int in)
         inst = 0;
         for (int i=0; i<INST_MAX; i++) {
                 if (map_instances[i].used == USE_EMPTY) continue;
-                if (map_instances[i].owner != nr || base_id != get_instance_base(map_instances[i].name)) continue;
+                if (map_instances[i].owner != nr || base_id != get_instance_base_f(map_instances[i].fname)) continue;
 
                 buf[0]=SV_AREAINST;
                 *(unsigned char*)(buf+1)=3;
@@ -2256,6 +2264,235 @@ int teleport_inst_prompt(int cn,int in)
         xsend(nr,buf,3);
 
         return 1;
+}
+
+// Teleporter linked to a particular instance, will die if used while instance is no more
+// data[0] is instance id
+// data[1], data[2] are x and y target, respectively
+// data[3] is either 0 or 1. If 1, portal will need charges to be used (data[4])
+// data[4] are remaining portal charges, portal dies if this reaches 0 on use and data[3] is set
+// data[5] if 1, portal will lead back to instance -1 (main map)
+int use_teleport_inst(int cn,int in)
+{
+        if (!cn) return 0;
+
+        int inst_id_it = it[in].instance_id;
+        if (it[in].data[5] != 1) {
+                int inst_id = it[in].data[0];
+                if (!inst_isalive(inst_id)) {
+                        do_char_log(cn, 0, "This portal's translocative energies have expired.\n");
+
+                        it[in].used = USE_EMPTY;
+                        if (inst_id_it == -1) map[it[in].x + it[in].y * MAPX].it = 0;
+                        else map_instancedtiles[inst_id_it][it[in].x + it[in].y * map_instances[inst_id_it].width].it = 0;
+                        if (it[in].light[0]) do_add_light(it[in].x,it[in].y,-it[in].light[0],inst_id_it);
+
+                        fx_add_effect(6,0,it[in].x,it[in].y,0,inst_id_it);
+                        return 0;
+                }
+
+                if (map_instances[inst_id].owner != ch[cn].player) {
+                        do_char_log(cn, 0, "You're not authorized to enter this instance.\n");
+                        return 0;
+                }
+        }
+
+        if (it[in].data[3]) {
+                if (it[in].data[4] <= 0) {
+                        do_char_log(cn, 0, "This portal has no charges remaining.\n");
+
+                        it[in].used = USE_EMPTY;
+                        if (inst_id_it == -1) map[it[in].x + it[in].y * MAPX].it = 0;
+                        else map_instancedtiles[inst_id_it][it[in].x + it[in].y * map_instances[inst_id_it].width].it = 0;
+                        if (it[in].light[0]) do_add_light(it[in].x,it[in].y,-it[in].light[0],inst_id_it);
+
+                        fx_add_effect(6,0,it[in].x,it[in].y,0,inst_id_it);
+                        return 0;
+                }
+
+                it[in].data[4]--;
+                if (it[in].data[4] == 0) {
+                        do_char_log(cn, 2, "As you step through the portal, a quick wind breezes through.\n");
+
+                        it[in].used = USE_EMPTY;
+                        if (inst_id_it == -1) map[it[in].x + it[in].y * MAPX].it = 0;
+                        else map_instancedtiles[inst_id_it][it[in].x + it[in].y * map_instances[inst_id_it].width].it = 0;
+                        if (it[in].light[0]) do_add_light(it[in].x,it[in].y,-it[in].light[0],inst_id_it);
+
+                        fx_add_effect(6,0,it[in].x,it[in].y,0,inst_id_it);
+                }
+        }
+
+        fx_add_effect(6,0,ch[cn].x,ch[cn].y,0,ch[cn].instance_id);
+        if (it[in].data[5] != 1) god_transfer_char(cn,it[in].data[1],it[in].data[2],it[in].data[0]);
+        else god_transfer_char(cn,it[in].data[1],it[in].data[2],-1);
+        fx_add_effect(6,0,ch[cn].x,ch[cn].y,0,ch[cn].instance_id);
+
+        return 1;
+}
+
+int use_mapdevice(int cn,int in)
+{
+        if (!cn) return 0;
+        if (!(ch[cn].flags&(CF_PLAYER|CF_USURP))) return 0;
+
+        int nr = ch[cn].player;
+        send_amapcharges_all(nr);
+        send_mapdev_data(nr);
+        return 1;
+}
+
+void use_mapdevice_openport(int cn, int amap)
+{
+        if (!cn) return;
+        if (amap < 0 || amap >= AMAP_MAXBASES) {
+                do_char_log(cn, 0, "Map base number out of bounds.\n");
+                return;
+        }
+        if (amap_bases[amap].used == USE_EMPTY) {
+                do_char_log(cn, 0, "Unused map base.\n");
+                return;
+        }
+
+        int amap_dev = get_mapdevice(cn);
+        if (amap_dev == -1) {
+                do_char_log(cn, 0, "Could not find your map device data.\n");
+                return;
+        }
+
+        // Verify character is in front of map device
+        int lx, ly, inst_id, in, m;
+
+        inst_id = ch[cn].instance_id;
+        lx = ch[cn].x;
+        ly = ch[cn].y;
+        switch (ch[cn].dir) {
+                case DX_RIGHT:          lx++; break;
+                case DX_RIGHTUP:        lx++; ly--; break;
+                case DX_UP:             ly--; break;
+                case DX_LEFTUP:         lx--; ly--; break;
+                case DX_LEFT:           lx--; break;
+                case DX_LEFTDOWN:       lx--; ly++; break;
+                case DX_DOWN:           ly++; break;
+                case DX_RIGHTDOWN:      ly++; lx++; break;
+        }
+
+        if (inst_id == -1) {
+                m = lx + ly * MAPX;
+                in = map[m].it;
+        } else {
+                m = lx + ly * map_instances[inst_id].width;
+                in = map_instancedtiles[inst_id][m].it;
+        }
+        if (!in || (in && it[in].driver != 71)) {
+                do_char_log(cn, 0, "The map device must be in front of you to do that.\n");
+                return;
+        }
+
+        // Verify map charges
+        if (amap_devices[amap_dev].map_charges[amap] <= 0) {
+                do_char_log(cn, 0, "You have no charges for that map.\n");
+                return;
+        }
+
+        // Verify correct instance base
+        char inst_bname[100];
+        sprintf(inst_bname, "%s%ld", amap_bases[amap].inst_base_name, RANDOM(amap_bases[amap].layouts) + 1);
+        
+        int inst_b = get_instance_base_f(inst_bname);
+        if (inst_b == -1) {
+                do_char_log(cn, 0, "Could not find the instance base configured for this map.\n");
+                chlog(cn, "Error using map device: No instance base for \"%s\" was found.", inst_bname);
+                return;
+        }
+
+        // Verify target for portal is clear
+        int in2;
+        int port_x = it[in].data[0];
+        int port_y = it[in].data[1];
+        int clear = 1;
+
+        if (inst_id == -1) {
+                m = port_x + port_y * MAPX;
+                in2 = map[m].it;
+                if ((in2 && it[in2].driver != 72) || map[m].ch) clear = 0;
+        } else {
+                m = port_x + port_y * map_instances[inst_id].width;
+                in2 = map_instancedtiles[inst_id][m].it;
+                if ((in2 && it[in2].driver != 72) || map_instancedtiles[inst_id][m].ch) clear = 0;
+        }
+
+        if (!clear) {
+                do_char_log(cn, 0, "The portal could not manifest, something must be in the way.\n");
+                return;
+        }
+
+        // Clear previous portal
+        if (in2) {
+                it[in2].used = USE_EMPTY;
+                if (inst_id == -1) map[it[in2].x + it[in2].y * MAPX].it = 0;
+                else map_instancedtiles[inst_id][it[in2].x + it[in2].y * map_instances[inst_id].width].it = 0;
+                if (it[in2].light[0]) do_add_light(it[in2].x,it[in2].y,-it[in2].light[0],it[in2].instance_id);
+        }
+
+        int in_port = god_create_item(1313);
+        if (!in_port) {
+                do_char_log(cn, 0, "Could not create portal item.\n");
+                return;
+        }
+
+        // Create target instance and portal leading there
+        int tgt_inst = create_instance_frombase(map_instancebases[inst_b].fname, 0);
+        if (tgt_inst == -1) {
+                do_char_log(cn, 0, "Could not create target instance.\n");
+                it[in_port].used = USE_EMPTY;
+                return;
+        }
+        map_instances[tgt_inst].owner = ch[cn].player;
+
+        it[in_port].driver = 72;
+        it[in_port].data[0] = tgt_inst;
+        it[in_port].data[1] = map_instances[tgt_inst].spawn_x;
+        it[in_port].data[2] = map_instances[tgt_inst].spawn_y;
+        it[in_port].data[3] = 1;
+        it[in_port].data[4] = 6;
+        it[in_port].flags |= IF_LOOKSPECIAL;
+
+        if (!god_drop_item(in_port, port_x, port_y, inst_id)) {
+                do_char_log(cn, 0, "Could not create portal at target position.\n");
+                it[in_port].used = USE_EMPTY;
+                unload_instance(tgt_inst);
+                return;
+        }
+
+        // Create return portal within instance
+        int in_bport = god_create_item(1313);
+        if (!in_bport) do_char_log(cn, 1, "A returning portal could not manifest within the map. Have a means of recalling at the ready if you wish to go in.\n");
+        else {
+                it[in_bport].driver = 72;
+                it[in_bport].data[1] = port_x;
+                it[in_bport].data[2] = port_y;
+                if (inst_id == -1) it[in_bport].data[5] = 1;
+                else it[in_bport].data[0] = inst_id;
+
+                if (!god_drop_item(in_bport, map_instances[tgt_inst].spawn_x, map_instances[tgt_inst].spawn_y, tgt_inst)) {
+                        do_char_log(cn, 1, "A returning portal could not manifest within the map. Have a means of recalling at the ready if you wish to go in.\n");
+                        it[in_bport].used = USE_EMPTY;
+                }
+        }
+
+        amap_devices[amap_dev].map_charges[amap]--;
+
+        if (inst_id == -1) {
+                do_area_log(0, 0, it[in].x, it[in].y, 1, "/|%d|The map device begins to spin, and with a thunderous clap, a portal manifests.\n", FNT_TURQUOISE);
+                do_area_sound(0, 0, it[in].x, it[in].y, 19);
+        } else {
+                do_area_log_inst(it[in].instance_id, 0, 0, it[in].x, it[in].y, 1, "/|%d|The map device begins to spin, and with a thunderous clap, a portal manifests.\n", FNT_TURQUOISE);
+                do_area_sound_inst(it[in].instance_id, 0, 0, it[in].x, it[in].y, 19);
+        }
+
+        fx_add_effect(6,0,it[in].x,it[in].y,0,it[in].instance_id);
+
 }
 
 int step_breach(int cn,int in)
@@ -2876,6 +3113,8 @@ void use_driver(int cn,int in,int carried)
                                 case 68:	ret=use_soulstone(cn,in); break;
                                 case 69:	ret=0; break;
                                 case 70:        ret=teleport_inst_prompt(cn,in); break;
+                                case 71:        ret=use_mapdevice(cn,in); break;
+                                case 72:        ret=use_teleport_inst(cn,in); break;
                                 default:        xlog("use_driver (use_driver.c): Unknown use_driver %d for item %d",it[in].driver,in);
                                                 ret=0; break;
                         }
@@ -3504,7 +3743,7 @@ void item_tick_gc(void)
                                 }
                         }
                 } else {
-                        if (inst_id == -1) in2=map[it[n].x + it[n].y * MAPX].it;
+                        if (inst_id == -1 || !inst_isalive(inst_id)) in2=map[it[n].x + it[n].y * MAPX].it;
                         else in2 = map_instancedtiles[inst_id][it[n].x + it[n].y * map_instances[inst_id].width].it;
                         if (in2==n) continue;
                 }

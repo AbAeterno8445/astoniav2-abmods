@@ -69,7 +69,7 @@ int converter_char(void) {
     handle[1]=open(DATDIR"/newchar.dat",O_RDWR);
     if (handle[1]==-1) {
             printf("Building new characters\n");
-            handle[1]=open(DATDIR"/newchar.dat",O_RDWR|O_CREAT,0655);
+            handle[1]=open(DATDIR"/newchar.dat",O_RDWR|O_CREAT,0755);
     }
     if (!extend(handle[1], CHARSIZE, sizeof(struct character), NULL)) return -1;
 
@@ -97,7 +97,7 @@ int converter_char(void) {
     handle[3]=open(DATDIR"/newtchar.dat",O_RDWR);
     if (handle[3]==-1) {
             printf("Building new tcharacters\n");
-            handle[3]=open(DATDIR"/newtchar.dat",O_RDWR|O_CREAT,0655);
+            handle[3]=open(DATDIR"/newtchar.dat",O_RDWR|O_CREAT,0755);
     }
     if (!extend(handle[3], TCHARSIZE, sizeof(struct character), NULL)) return -1;
 
@@ -510,7 +510,7 @@ int converter_item(void) {
     handle[1]=open(DATDIR"/newitem.dat",O_RDWR);
     if (handle[1]==-1) {
             printf("Building new items\n");
-            handle[1]=open(DATDIR"/newitem.dat",O_RDWR|O_CREAT,0655);
+            handle[1]=open(DATDIR"/newitem.dat",O_RDWR|O_CREAT,0755);
     }
     if (!extend(handle[1], ITEMSIZE, sizeof(struct item), NULL)) return -1;
 
@@ -538,7 +538,7 @@ int converter_item(void) {
     handle[3]=open(DATDIR"/newtitem.dat",O_RDWR);
     if (handle[3]==-1) {
             printf("Building new titems\n");
-            handle[3]=open(DATDIR"/newtitem.dat",O_RDWR|O_CREAT,0655);
+            handle[3]=open(DATDIR"/newtitem.dat",O_RDWR|O_CREAT,0755);
     }
     if (!extend(handle[3], TITEMSIZE, sizeof(struct item), NULL)) return -1;
 
@@ -770,7 +770,7 @@ int converter_globs(void) {
     handle=open(DATDIR"/newglobal.dat",O_RDWR);
     if (handle==-1) {
         printf("Building new globs\n");
-        handle=open(DATDIR"/newglobal.dat",O_RDWR|O_CREAT,0655);
+        handle=open(DATDIR"/newglobal.dat",O_RDWR|O_CREAT,0755);
     }
     if (!extend(handle, GLOBSIZE, sizeof(struct global), NULL)) return -1;
 

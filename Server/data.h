@@ -242,6 +242,8 @@ struct mapinstance
         unsigned int id;
         unsigned int width;
         unsigned int height;
+        unsigned int spawn_x;
+        unsigned int spawn_y;
 
         unsigned int owner;             // player number of instance creator
 

@@ -17,6 +17,7 @@ All rights reserved.
 #include <errno.h>
 
 #include "server.h"
+#include "map-device.h"
 
 
 struct map *map;
@@ -27,6 +28,8 @@ struct character *ch_temp;
 struct item *it_temp;
 struct effect *fx;
 struct global *globs;
+
+struct areamap_base *amap_bases;
 
 /* Extend a file opened with <handle> to <sizereq> by writing blocks of size <sizeone>, optionally from <templ> */
 int extend(int handle, long sizereq, size_t sizeone, void*templ)
@@ -62,7 +65,7 @@ int load(void)
         handle=open(DATDIR"/map.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building map");
-                handle=open(DATDIR"/map.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/map.dat",O_RDWR|O_CREAT,0755);
         }
         bzero(&tmap, sizeof(struct map));
         tmap.sprite = SPR_GROUND1;
@@ -79,7 +82,7 @@ int load(void)
         handle=open(DATDIR"/char.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building characters");
-                handle=open(DATDIR"/char.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/char.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, CHARSIZE, sizeof(struct character), NULL)) return -1;
 
@@ -94,7 +97,7 @@ int load(void)
         handle=open(DATDIR"/tchar.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building tcharacters");
-                handle=open(DATDIR"/tchar.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/tchar.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, TCHARSIZE, sizeof(struct character), NULL)) return -1;
 
@@ -109,7 +112,7 @@ int load(void)
         handle=open(DATDIR"/item.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building items");
-                handle=open(DATDIR"/item.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/item.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, ITEMSIZE, sizeof(struct item), NULL)) return -1;
 
@@ -125,7 +128,7 @@ int load(void)
         handle=open(DATDIR"/titem.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building titems");
-                handle=open(DATDIR"/titem.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/titem.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, TITEMSIZE, sizeof(struct item), NULL)) return -1;
 
@@ -140,7 +143,7 @@ int load(void)
         handle=open(DATDIR"/effect.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building effects");
-                handle=open(DATDIR"/effect.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/effect.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, EFFECTSIZE, sizeof(struct effect), NULL)) return -1;
 
@@ -155,7 +158,7 @@ int load(void)
         handle=open(DATDIR"/global.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building globals");
-                handle=open(DATDIR"/global.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/global.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, GLOBSIZE, sizeof(struct global), NULL)) return -1;
 
@@ -170,12 +173,27 @@ int load(void)
         handle=open(DATDIR"/inst_bases.dat",O_RDWR);
         if (handle==-1) {
                 xlog("Building instance bases");
-                handle=open(DATDIR"/inst_bases.dat",O_RDWR|O_CREAT,0600);
+                handle=open(DATDIR"/inst_bases.dat",O_RDWR|O_CREAT,0755);
         }
         if (!extend(handle, INST_BASES_SIZE, sizeof(struct mapinstance), NULL)) return -1;
 
         map_instancebases=mmap(NULL,INST_BASES_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
         if (map_instancebases==(void*)-1) return -1;
+        close(handle);
+
+        /** AREAMAP BASES **/
+        xlog ("Loading Areamap bases: Item size=%d, file size=%db",
+                sizeof(struct areamap_base), AMAP_BASES_SIZE);
+        
+        handle=open(DATDIR"/amap_bases.dat",O_RDWR);
+        if (handle==-1) {
+                xlog("Building areamap bases");
+                handle=open(DATDIR"/amap_bases.dat",O_RDWR|O_CREAT,0755);
+        }
+        if (!extend(handle, AMAP_BASES_SIZE, sizeof(struct areamap_base), NULL)) return -1;
+
+        amap_bases=mmap(NULL,AMAP_BASES_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
+        if (amap_bases==(void*)-1) return -1;
         close(handle);
 
         return 0;
@@ -243,4 +261,5 @@ void unload(void)
         if (munmap(fx,EFFECTSIZE)) xlog("ERROR munmap(fx) %s",strerror(errno));
         if (munmap(globs,sizeof(struct global))) xlog("ERROR: munmap(globs) %s",strerror(errno));
         if (munmap(map_instancebases,INST_BASES_SIZE)) xlog("ERROR: munmap(map_instancebases) %s",strerror(errno));
+        if (munmap(amap_bases,AMAP_BASES_SIZE)) xlog("ERROR: munmap(amap_bases) %s",strerror(errno));
 }

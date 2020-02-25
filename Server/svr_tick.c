@@ -21,6 +21,7 @@ All rights reserved.
 //#define TMIDDLEY (RENDERDIST/2)
 
 #include "server.h"
+#include "map-device.h"
 
 int ctick=0;
 
@@ -639,6 +640,25 @@ void plr_cmd_joininst(int nr)
         ch[cn].data[12]=globs->ticker;
 }
 
+void plr_cmd_sel_amap(int nr)
+{
+        int amap=*(unsigned int*)(player[nr].inbuf+1);
+        send_selmap_data(nr, amap);
+}
+
+void plr_cmd_enter_amap(int nr)
+{
+        int amap;
+        int sel_pos=*(unsigned int*)(player[nr].inbuf+1);
+        for (amap=0; amap<AMAP_MAXBASES; amap++) {
+                if (amap_bases[amap].used == USE_EMPTY) continue;
+                if (amap_bases[amap].quadrant == sel_pos%4 && amap_bases[amap].tier == floor(sel_pos/4)) break;
+        }
+        if (amap >= AMAP_MAXBASES) return;
+
+        use_mapdevice_openport(player[nr].usnr, amap);
+}
+
 void plr_cmd_attack(int nr)
 {
         int cn,co;
@@ -1020,6 +1040,8 @@ void plr_cmd(int nr)
                 case CL_CMD_EXIT:       plr_cmd_exit(nr); return;
 
                 case CL_CMD_JOININST:   plr_cmd_joininst(nr); return;
+                case CL_CMD_SELECTAMAP: plr_cmd_sel_amap(nr); return;
+                case CL_CMD_ENTERAMAP:  plr_cmd_enter_amap(nr); return;
         }
 
         if (ch[cn].stunned) return;
@@ -1097,6 +1119,9 @@ void plr_newlogin(int nr)
                                 ch[cn].used=0;
                                 return;
                         }
+        
+        load_mapdevice(cn);
+        send_amapbase_all(nr);
 
         ch[cn].creation_date=time(NULL);
         ch[cn].login_date=time(NULL);
@@ -1267,6 +1292,9 @@ void plr_login(int nr)
 		}
 	}
 
+        load_mapdevice(cn);
+        send_amapbase_all(nr);
+
         do_update_char(cn);
         ch[cn].tavern_x=ch[cn].temple_x;
         ch[cn].tavern_y=ch[cn].temple_y;
@@ -1365,11 +1393,15 @@ void plr_logout(int cn,int nr,int reason)
                                 if (inst_id != -1) {
                                         it[in].data[3] = 1;
                                         it[in].data[4] = inst_id;
-                                        it[in].data[5] = get_instance_base(map_instances[inst_id].name);
+                                        it[in].data[5] = get_instance_base_f(map_instances[inst_id].fname);
                                 }
                                 if (in) god_give_char(in,cn);
                         }
                 }
+
+                // Save their mapdevice data
+                save_mapdevice(cn);
+                unload_mapdevice(cn);
 
                 ch[cn].x=ch[cn].y=ch[cn].tox=ch[cn].toy=ch[cn].frx=ch[cn].fry=0;
 
@@ -2966,6 +2998,15 @@ void tick(void)
                 if (player[n].state!=ST_NORMAL) continue;
 		prof=prof_start(); plr_getmap(n); prof_stop(10,prof);
 		prof=prof_start(); plr_change(n); prof_stop(11,prof);
+        }
+
+        if ((globs->ticker&1023)==0) {
+                // Auto-save map devices
+                for (n=1; n<MAXPLAYER; n++) {
+                        if (!player[n].sock) continue;
+                        if (player[n].state!=ST_NORMAL) continue;
+                        save_mapdevice(player[n].usnr);
+                }
         }
 
         // let characters act

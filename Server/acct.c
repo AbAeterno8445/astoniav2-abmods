@@ -18,12 +18,15 @@ All rights reserved.
 #include "html-lib.h" /* include the html-lib.h header file */
 #include "gendefs.h"
 #include "data.h"
+#include "map-device.h"
 
 /* CS, 991113: TCHARSIZE and TITEMSIZE now in data.h */
 
 struct character *ch;
 struct item *it;
 struct global *globs;
+
+struct areamap_base *amap_bases;
 
 #if 0
 unsigned long long atoll(char *string)
@@ -86,6 +89,13 @@ static int load(void)
 
         globs=mmap(NULL,sizeof(struct global),PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
         if (globs==(void*)-1) return -1;
+        close(handle);
+
+        handle=open("../"DATDIR"/amap_bases.dat",O_RDWR);
+        if (handle==-1) return -1;
+
+        amap_bases=mmap(NULL,AMAP_BASES_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
+        if (amap_bases==(void*)-1) return -1;
         close(handle);
 
         return 0;
@@ -1275,6 +1285,212 @@ void list_object_drivers(LIST *head)
         printf("\n</ul>\n");
 }
 
+void list_amap_bases(LIST *head)
+{
+        int n;
+
+        printf("<table cellpadding=\"5\">");
+
+        for (n=0; n<AMAP_MAXBASES; n++) {
+                if (amap_bases[n].used==USE_EMPTY) continue;
+
+                printf("<tr>");
+                printf("<td>%d:</td>", n);
+                printf("<td><a href=/cgi-imp/acct.cgi?step=61&amap=%d>%30.30s</a></td>", n, amap_bases[n].name);
+                printf("<td>Tier: %d - Quad: %d - Base: %s</td>", amap_bases[n].tier, amap_bases[n].quadrant, amap_bases[n].inst_base_name);
+                printf("<td><a href=/cgi-imp/acct.cgi?step=62&amap=%d>Copy</a></td>", n);
+                printf("<td><a href=/cgi-imp/acct.cgi?step=63&amap=%d>Delete</a></td>", n);
+                printf("</tr>");
+        }
+
+        printf("</table>");
+
+        printf("<a href=/cgi-imp/acct.cgi?step=65>New areamap</a><br>");
+}
+
+void view_amap(LIST *head)
+{
+        int amap;
+        char *tmp;
+
+        tmp=find_val(head,"amap");
+        if (tmp) amap=atoi(tmp);
+        else { printf("No number specified."); return; }
+
+        if (amap<0 || amap>=AMAP_MAXBASES) { printf("Number out of bounds."); return; }
+
+        printf("<form method=post action=/cgi-imp/acct.cgi>");
+        printf("<table>");
+
+        printf("<tr><td valign=top>Name:</td><td><input type=text name=name value=\"%s\" size=35 maxlength=35></td></tr>",
+                amap_bases[amap].name);
+        printf("<tr><td>Description:</td><td><input type=text name=description value=\"%s\" size=35 maxlength=195></td></tr><br>",
+                amap_bases[amap].description);
+        
+        printf("<tr><td>Instance base name:</td><td><input type=text name=instbasename value=\"%s\" size=35 maxlength=35></td></tr>",
+                amap_bases[amap].inst_base_name);
+        printf("<tr><td># of layouts:</td><td><input type=text name=layouts value=\"%d\" size=10 maxlength=10></td></tr><br>",
+                amap_bases[amap].layouts);
+        
+        printf("<tr><td>Map tier:</td><td><input type=text name=tier value=\"%d\" size=10 maxlength=10></td></tr>",
+                amap_bases[amap].tier);
+        printf("<tr><td>Map quadrant:</td><td><input type=text name=quadrant value=\"%d\" size=10 maxlength=10></td></tr><br>",
+                amap_bases[amap].quadrant);
+        
+        // Map connections
+        printf("<tr><td>Map connections:</td></tr>");
+        printf("<tr><td><table><tr>");
+
+        printf("<td><input type=checkbox name=conn value=%d %s>NW</td>",
+                AMAP_CONN_NW,(amap_bases[amap].conn_flags&AMAP_CONN_NW) ? "checked" : "");
+        printf("<td><input type=checkbox name=conn value=%d %s>N</td>",
+                AMAP_CONN_N,(amap_bases[amap].conn_flags&AMAP_CONN_N) ? "checked" : "");
+        printf("<td><input type=checkbox name=conn value=%d %s>NE</td>",
+                AMAP_CONN_NE,(amap_bases[amap].conn_flags&AMAP_CONN_NE) ? "checked" : "");
+        printf("</tr>");
+
+        printf("<tr>");
+        printf("<td><input type=checkbox name=conn value=%d %s>W</td>",
+                AMAP_CONN_W,(amap_bases[amap].conn_flags&AMAP_CONN_W) ? "checked" : "");
+        printf("<td></td>");
+        printf("<td><input type=checkbox name=conn value=%d %s>E</td>",
+                AMAP_CONN_E,(amap_bases[amap].conn_flags&AMAP_CONN_E) ? "checked" : "");
+        printf("</tr>");
+
+        printf("<tr>");
+        printf("<td><input type=checkbox name=conn value=%d %s>SW</td>",
+                AMAP_CONN_SW,(amap_bases[amap].conn_flags&AMAP_CONN_SW) ? "checked" : "");
+        printf("<td><input type=checkbox name=conn value=%d %s>S</td>",
+                AMAP_CONN_S,(amap_bases[amap].conn_flags&AMAP_CONN_S) ? "checked" : "");
+        printf("<td><input type=checkbox name=conn value=%d %s>SE</td>",
+                AMAP_CONN_SE,(amap_bases[amap].conn_flags&AMAP_CONN_SE) ? "checked" : "");
+        printf("</tr></table></td></tr>");
+        
+        printf("<tr><td>Sprite #:</td><td><input type=text name=sprite value=\"%d\" size=10 maxlength=10></td></tr><br>",
+                amap_bases[amap].sprite);
+        
+        printf("<tr><td><input type=submit value=Update></td></tr>");
+        printf("<input type=hidden name=step value=64>");
+        printf("<input type=hidden name=amap value=%d>",amap);
+        printf("</table>");
+        printf("<a href=/cgi-imp/acct.cgi?step=60>Back</a><br>");
+}
+
+void copy_amap(LIST *head)
+{
+        int amap, n;
+        char *tmp;
+
+        tmp=find_val(head,"amap");
+        if (tmp) amap=atoi(tmp);
+        else { printf("AMAP not specified."); return; }
+
+        if (amap<0 || amap>AMAP_MAXBASES) { printf("Number out of bounds."); return; }
+
+        for (n=0; n<AMAP_MAXBASES; n++)
+                if (amap_bases[n].used == USE_EMPTY) break;
+        if (n==AMAP_MAXBASES) { printf("AMAP_MAXBASES reached!"); return; }
+        amap_bases[n]=amap_bases[amap];
+
+        printf("Done.");
+}
+
+void new_amap(LIST *head)
+{
+        int amap;
+        
+        for (amap=0; amap<AMAP_MAXBASES; amap++) {
+                if (amap_bases[amap].used == USE_EMPTY) break;
+        }
+        if (amap >= AMAP_MAXBASES) { printf("Maximum number reached!"); return; }
+
+        bzero(&amap_bases[amap], sizeof(struct areamap_base));
+        amap_bases[amap].used = USE_ACTIVE;
+        strcpy(amap_bases[amap].name, "N/A");
+
+        printf("Done.");
+}
+
+void update_amap(LIST *head)
+{
+        int amap, n, val, cnt;
+        char *tmp;
+        char **tmps;
+
+        tmp=find_val(head,"amap");
+        if (tmp) amap=atoi(tmp);
+        else { printf("AMAP not specified."); return; }
+
+        bzero(&amap_bases[amap], sizeof(struct areamap_base));
+        amap_bases[amap].used = USE_ACTIVE;
+
+        tmp=find_val(head,"name");
+        if (tmp) {
+                strncpy(amap_bases[amap].name,tmp,35);
+                amap_bases[amap].name[35] = 0;
+        } else {
+                printf("NAME not specified");
+                return;
+        }
+
+        tmp=find_val(head,"description");
+        if (tmp) {
+                strncpy(amap_bases[amap].description,tmp,195);
+                amap_bases[amap].description[195] = 0;
+        } else {
+                printf("DESCRIPTION not specified");
+                return;
+        }
+
+        tmp=find_val(head,"instbasename");
+        if (tmp) {
+                strncpy(amap_bases[amap].inst_base_name,tmp,35);
+                amap_bases[amap].inst_base_name[35] = 0;
+        } else {
+                printf("Base instance name not specified");
+                return;
+        }
+
+        tmp=find_val(head,"layouts");
+        if (tmp) amap_bases[amap].layouts=atoi(tmp);
+        else { printf("LAYOUTS not specified"); return; }
+
+        tmp=find_val(head,"tier");
+        if (tmp) amap_bases[amap].tier=atoi(tmp);
+        else { printf("TIER not specified"); return; }
+
+        tmp=find_val(head,"quadrant");
+        if (tmp) amap_bases[amap].quadrant=atoi(tmp);
+        else { printf("QUADRANT not specified"); return; }
+
+        cnt=find_val_multi(head,"conn",&tmps);
+        if (cnt) {
+                for (n=val=0; n<cnt; n++)
+                        val|=atoi(tmps[n]);
+                amap_bases[amap].conn_flags=val;
+        }
+
+        tmp=find_val(head,"sprite");
+        if (tmp) amap_bases[amap].sprite=atoi(tmp);
+        else { printf("SPRITE not specified"); return; }
+
+        printf("Done.");
+}
+
+void delete_amap(LIST *head)
+{
+        int amap;
+        char *tmp;
+
+        tmp=find_val(head,"amap");
+        if (tmp) amap=atoi(tmp);
+        else { printf("AMAP not specified."); return; }
+
+        amap_bases[amap].used = USE_EMPTY;
+
+        printf("Done.");
+}
+
 int main(int argc, char *args[])
 {
         int step=0;
@@ -1348,8 +1564,14 @@ int main(int argc, char *args[])
 
                 case    31:     list_object_drivers(head); break;
                 case    41:     list_characters2(head); break;
-			    case    51:     list_new_characters(head); break;
+		case    51:     list_new_characters(head); break;
 
+                case    60:     list_amap_bases(head); break;
+                case    61:     view_amap(head); break;
+                case    62:     copy_amap(head); break;
+                case    63:     delete_amap(head); break;
+                case    64:     update_amap(head); break;
+                case    65:     new_amap(head); break;
 
                 default:
 						printf("Together those lists include all character-templates<br>");
@@ -1358,7 +1580,8 @@ int main(int argc, char *args[])
 						printf("This list includes only characters with high IDs for fast access<br>");
 						printf("<a href=/cgi-imp/acct.cgi?step=51>New characters (only if they got a high ID)</a><br><br>");
 				        printf("<a href=/cgi-imp/acct.cgi?step=21>Object Templates</a><br>");
-				        printf("<a href=/cgi-imp/acct.cgi?step=31>Object Driver List</a><br>");
+				        printf("<a href=/cgi-imp/acct.cgi?step=31>Object Driver List</a><br><br>");
+                                        printf("<a href=/cgi-imp/acct.cgi?step=60>Areamap bases list</a><br>");
                         break;
         }
 
@@ -1370,6 +1593,7 @@ int main(int argc, char *args[])
         printf("<table width=\"100%%\"><tr>");
         if (step>11 && step<20) printf("<td align=center><a href=/cgi-imp/acct.cgi?step=11>Back to main page</a></td>");
         else if (step>21 && step<30) printf("<td align=center><a href=/cgi-imp/acct.cgi?step=21>Back to main page</a></td>");
+        else if (step>60 && step<=65) printf("<td align=center><a href=/cgi-imp/acct.cgi?step=60>Back to main page</a></td>");
         else printf("<td align=center><a href=/cgi-imp/acct.cgi>Back to main page</a></td>");
         printf("<td align=right><table><tr><td>");
 

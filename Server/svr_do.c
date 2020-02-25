@@ -1744,6 +1744,7 @@ void do_command(int cn, char *ptr)
                 if (prefix(cmd,"instdel") && f_c)       { god_deleteinst(cn,atoi(arg[1])); return; }
                 if (prefix(cmd,"instdelbase") && f_c)   { god_deleteinst_base(cn,arg[1]); return; }
                 if (prefix(cmd,"insttemp") && f_c)      { god_setinsttemp(cn,atoi(arg[1])); return; }
+                if (prefix(cmd,"instsetspawn") && f_c)  { god_setinstspawn(cn); return; }
                 break;
         case 'k':
                 if (prefix(cmd,"kick") && f_giu)        { god_kick(cn,dbatoi(arg[1])); return; };
@@ -1830,6 +1831,7 @@ void do_command(int cn, char *ptr)
                 if (prefix(cmd,"staff") && f_g)         { god_set_flag(cn,dbatoi_self(cn,arg[1]),CF_STAFF); return; };
 		if (prefix(cmd,"steal") && f_gg)	{ do_steal_player(cn,arg[1],arg[2]); return; };
                 if (prefix(cmd,"summon") && f_g)        { god_summon(cn,arg[1],arg[2],arg[3]); return; };
+                if (prefix(cmd,"setmapcharges") && f_g) { god_setmapcharges(cn,atoi(arg[1]),atoi(arg[2])); return; };
                 break;
         case 't':
                 if (prefix(cmd,"tell"))            	{ do_tell(cn,arg[1],args[1]); return; };
@@ -4564,7 +4566,7 @@ void do_joininst(int cn, int inst_id)
                 if (inst_id == -1) {
                         // Create new instance
                         if (map_instancebases[it[in].data[2]].used != USE_EMPTY) {
-                                int new_inst_id = create_instance_frombase(map_instancebases[it[in].data[2]].name, 0);
+                                int new_inst_id = create_instance_frombase(map_instancebases[it[in].data[2]].fname, 0);
                                 if (new_inst_id == -1) {
                                         do_char_log(cn, 0, "Could not create a new instance of that area.\n");
                                         return;
@@ -4579,7 +4581,7 @@ void do_joininst(int cn, int inst_id)
                                 }
                         }
 
-                } else if (get_instance_base(map_instances[inst_id].name) == it[in].data[2]) {
+                } else if (get_instance_base_f(map_instances[inst_id].fname) == it[in].data[2]) {
                         if (!god_transfer_char(cn, it[in].data[0], it[in].data[1], inst_id)) {
                                 do_char_log(cn, 0, "Could not drop you in that instance, please try again later.\n");
                         } else {
