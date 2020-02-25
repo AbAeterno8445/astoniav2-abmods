@@ -853,6 +853,7 @@ void reset_item(int n)
 				tmp.y=it[in].y;
 				tmp.carried=it[in].carried;
 				tmp.temp=n;
+				tmp.instance_id=it[in].instance_id;
 				// do we need to copy more ? !!!
 				it[in]=tmp;
 			} else {
