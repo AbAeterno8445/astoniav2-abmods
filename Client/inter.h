@@ -74,6 +74,7 @@
 #define GUI_OVERLAY_1600	372
 
 #define GUI_INSTMENU		373
+#define GUI_AMAPSMENU		374
 
 // Offsets from screen width/screen height for positioning GUI elements
 #define GUI_QSPELLS_XOFF	198  // Spells quickbar
@@ -99,6 +100,11 @@
 #define FNT_AQUA		1964
 #define FNT_SILVER		1965
 #define FNT_EMERALD		1966
+
+// Sub-window modes
+#define SUBWND_SHOP			1
+#define SUBWND_INSTMNG		2
+#define SUBWND_AMAPS		3
 
 struct xbutton
 {
@@ -197,8 +203,7 @@ struct areainst
 
 extern struct look look;
 extern struct look shop;
-extern unsigned int show_shop;
-extern unsigned int show_instmenu;
+extern unsigned int subwindow_mode;
 
 extern struct areainst area_insts[7];
 extern unsigned int loaded_insts;
@@ -240,6 +245,43 @@ struct skilltab
 
 extern struct skilltab *skilltab;
 extern char *at_name[];
+
+#define AMAP_CONN_NW            (1<<0)
+#define AMAP_CONN_N             (1<<1)
+#define AMAP_CONN_NE            (1<<2)
+#define AMAP_CONN_E             (1<<3)
+#define AMAP_CONN_SE            (1<<4)
+#define AMAP_CONN_S             (1<<5)
+#define AMAP_CONN_SW            (1<<6)
+#define AMAP_CONN_W             (1<<7)
+
+#define AMAP_MAXBASES			100
+
+struct areamap_base
+{
+	unsigned char used;
+
+	int tier;
+	int quadrant;
+
+	unsigned char conn_flags;
+
+	unsigned char charges;
+
+	unsigned int sprite;
+};
+
+#define AMAP_MAXMODS			40
+
+struct areamap_selected
+{
+	char name[40];
+
+	int mods[AMAP_MAXMODS];
+};
+
+extern struct areamap_base *amap_bases;
+extern struct areamap_selected amap_sel;
 
 void dd_puttext(int x,int y,int *font,char *text);
 void dd_puttext_1f(int x,int y,int font,char *text);

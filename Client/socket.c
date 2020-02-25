@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <winsock.h>
 #include <zlib.h>
+#include <math.h>
 
 struct z_stream_s zs;
 
@@ -35,7 +36,7 @@ struct look shop;
 char area_instname[40];
 unsigned int loaded_insts=0;
 struct areainst area_insts[7]={0};
-extern unsigned int show_instmenu;
+extern unsigned int subwindow_mode;
 
 extern int show_look,look_timer;
 
@@ -80,6 +81,13 @@ char *logout_reason[]={
 };
 
 extern HWND desk_hwnd;
+
+extern struct areamap_base *amap_bases;
+extern struct areamap_selected amap_sel;
+extern int maptiers;
+extern int mapdev_level;
+extern long mapdev_exp;
+extern long mapdev_expreq;
 
 int xrecv(int sock,char *buf,int len,int flags)
 {
@@ -818,7 +826,7 @@ void sv_look6(unsigned char *buf)
 		tmplook.price[n]=*(unsigned int *)(buf+4+(n-s)*6);
 	}
 	if (n==62) {
-		show_shop=1;
+		subwindow_mode = SUBWND_SHOP;
 		shop=tmplook;
 	}
 }
@@ -847,7 +855,7 @@ int sv_areainst(unsigned char *buf)
 		return 16;
 	}
 	else if (mode == 2) {
-		show_instmenu = 1;
+		subwindow_mode = SUBWND_INSTMNG;
 		return 3;
 	}
 	else if (loaded_insts < 7) {
@@ -859,6 +867,88 @@ int sv_areainst(unsigned char *buf)
 		loaded_insts++;
 	}
 	return 8;
+}
+
+int sv_set_amapbase(unsigned char *buf)
+{
+	int amap;
+
+	DEBUG("SV SET AMAPBASE");
+
+	amap=*(unsigned short*)(buf+1);
+	if (amap < 0 || amap >= AMAP_MAXBASES) return 8;
+
+	amap_bases[amap].used = 1;
+	amap_bases[amap].tier = (int)(floor(amap / 4));
+	amap_bases[amap].quadrant = amap % 4;
+	amap_bases[amap].conn_flags = *(unsigned char*)(buf+3);
+	amap_bases[amap].sprite = *(unsigned int*)(buf+4);
+
+	if (amap_bases[amap].tier > maptiers) {
+		maptiers = amap_bases[amap].tier;
+	}
+
+	return 8;
+}
+
+int sv_set_amapcharges(unsigned char *buf)
+{
+	int amap;
+
+	DEBUG("SV SET AMAPCHARGES");
+
+	amap=*(unsigned short*)(buf+1);
+	if (amap < 0 || amap >= AMAP_MAXBASES) return 4;
+
+	amap_bases[amap].charges = *(unsigned char*)(buf+3);
+	return 4;
+}
+
+int sv_set_mapdevdata(unsigned char *buf)
+{
+	DEBUG("SV SET MAPDEVDATA");
+
+	mapdev_level = *(unsigned short*)(buf+1);
+	mapdev_exp = *(unsigned long*)(buf+3);
+
+	// Formula should match server-side (in server file map-device.c)
+	mapdev_expreq = 200 + (mapdev_level - 1) * (200 * (mapdev_level / 2));
+
+	if (subwindow_mode != SUBWND_AMAPS) subwindow_mode = SUBWND_AMAPS;
+
+	return 11;
+}
+
+int sv_set_selmapdata(unsigned char *buf)
+{
+	int mode, n;
+
+	DEBUG("SV SELMAPDATA");
+
+	mode = *(unsigned char*)(buf+1);
+	switch(mode) {
+		case 0:
+			// Setting name part 1
+			for (n=0; n<14; n++) {
+				amap_sel.name[n] = buf[n+2];
+			}
+			return 16;
+		
+		case 1:
+			// Setting name part 2
+			for (n=0; n<14; n++) {
+				amap_sel.name[n+14] = buf[n+2];
+			}
+			return 16;
+		
+		case 2:
+			// Setting name part 3
+			for (n=0; n<12; n++) {
+				amap_sel.name[n+28] = buf[n+2];
+			}
+			return 14;
+	}
+	return 16;
 }
 
 void sv_settarget(unsigned char *buf)
@@ -1014,6 +1104,10 @@ int sv_cmd(unsigned char *buf)
 		case  	SV_UNIQUE:             	sv_unique(buf); return 9;
 		case 	SV_IGNORE:		return sv_ignore(buf);
 		case	SV_AREAINST:	return sv_areainst(buf);
+		case	SV_AMAPBASE:	return sv_set_amapbase(buf);
+		case	SV_AMAPCHG:		return sv_set_amapcharges(buf);
+		case	SV_MAPDEVDATA:	return sv_set_mapdevdata(buf);
+		case	SV_SELMAPDATA:	return sv_set_selmapdata(buf);
 
 		default: 			xlog(0,"Unknown SV: %d",buf[0]); return -1;
 	}

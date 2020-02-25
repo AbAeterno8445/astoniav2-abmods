@@ -28,6 +28,15 @@ extern short screen_renderdist;
 
 int cursedtxt_off = 0;
 
+struct areamap_base *amap_bases;
+struct areamap_selected amap_sel = {0};
+int maptiers = 5;
+int mapdev_level = 1;
+long mapdev_exp = 0;
+long mapdev_expreq = 200;
+int amap_hovering = -1;
+int amap_selected = -1;
+
 // from dd.c
 int copysprite(int nr,int effect,int x,int y,int xoff,int yoff);
 void dd_flip(void);
@@ -557,11 +566,17 @@ void eng_init_player(void)
 	memset(&pl,0,sizeof(struct cplayer));
 }
 
+void eng_init_amap(void)
+{
+	amap_bases = calloc(AMAP_MAXBASES, sizeof(struct areamap_base));
+}
+
 // ************* DISPLAY ******************
 
-unsigned int    inv_pos=0,			// scrolling position of small inventory
-show_shop=0,
-show_instmenu=0;					// Instance manager menu
+unsigned int 	subwindow_mode=0;		// For sub-menus (shop, instance manager, etc.)
+
+unsigned int    inv_pos=0;				// scrolling position of small inventory
+unsigned int	amap_pos=0;				// scrolling position of map manager
 
 unsigned int    skill_pos=0;
 
@@ -587,7 +602,7 @@ int load=0;
 
 void eng_display_win(int plr_sprite,int init)
 {
-	int y,n,m;
+	int y,n,n1,m;
 	int mid_x,mid_y;
 	int inst_tcolor;
 	char *tmp,buf[50];
@@ -708,7 +723,7 @@ void eng_display_win(int plr_sprite,int init)
 	dd_putc(screen_width-GUI_CHAT_XOFF+6*(cur_pos-view_pos),9+10*LL,FNT_YELLOW,127);
 
 	if (init) {
-		if (show_shop) show_look=0;
+		if (subwindow_mode == SUBWND_SHOP) show_look=0;
 		if (!show_look) {
 			for (n=0; n<12; n++) {
 				if (pl.worn[wntab[n]]) {
@@ -748,13 +763,11 @@ void eng_display_win(int plr_sprite,int init)
 			dd_showbar(373,141,n,6,(unsigned short)0x0B00);
 
 			//experience bar
-			dd_showbar(screen_width-GUI_XTRADATA_XOFF-4,GUI_XTRADATA_YOFF+43,153,3,(unsigned short)0x00B0);
-			
 			if (pl.points_tot>0) n=min(153,(pl.points_tot-rank2points(points2rank(pl.points_tot)))*153/(pl.points_tot+points_tolevel(pl.points_tot)-rank2points(points2rank(pl.points_tot))));
 			else n=0;
 			dd_showbar(screen_width-GUI_XTRADATA_XOFF-4,GUI_XTRADATA_YOFF+43,n,3,(unsigned short)0xBB00);
 
-			if (!show_shop) {
+			if (subwindow_mode != SUBWND_SHOP) {
 				copyspritex(10+min(20,points2rank(pl.points_tot)),463,54-16,0);
 				copyspritex(plr_sprite,402,32,0);
 				dd_xputtext(374+(125-strlen(pl.name)*6)/2,152,1,pl.name);
@@ -805,8 +818,8 @@ void eng_display_win(int plr_sprite,int init)
 			copyspritex(10+min(20,points2rank(look.points)),463,54-16,0);
 		}
 
-		if (show_shop) {
-			// orig x 220, y 260
+		if (subwindow_mode == SUBWND_SHOP) {
+			// Shop sub-window
 			mid_x = screen_width / 2 - 160;
 			mid_y = screen_height / 2 - 80;
 			copyspritex(92,mid_x,mid_y,0);
@@ -826,7 +839,8 @@ void eng_display_win(int plr_sprite,int init)
 			dd_xputtext(374+(125-strlen(rank[points2rank(shop.points)])*6)/2,172,1,rank[points2rank(shop.points)]);
 			dd_xputtext(374+(125-strlen(shop.name)*6)/2,152,1,shop.name);
 		}
-		else if (show_instmenu) {
+		else if (subwindow_mode == SUBWND_INSTMNG) {
+			// Instance manager sub-window
 			mid_x = screen_width / 2 - 160;
 			mid_y = screen_height / 2 - 80;
 			copyspritex(GUI_INSTMENU,mid_x,mid_y,0);
@@ -856,6 +870,84 @@ void eng_display_win(int plr_sprite,int init)
 				dd_xputtext(mid_x+17+(48-strlen("New")*6)/2,mid_y+n*36+71,1,"New");
 				dd_xputtext(mid_x+77,mid_y+n*36+66,1,"This option will put you in a new");
 				dd_xputtext(mid_x+77,mid_y+n*36+78,1,"instance of %s.", area_instname);
+			}
+		}
+		else if (subwindow_mode == SUBWND_AMAPS) {
+			// Areamap manager sub-window
+			mid_x = screen_width / 2 - 256;
+			mid_y = screen_height / 2 - 80;
+			copyspritex(GUI_AMAPSMENU,mid_x,mid_y,0);
+
+			dd_xputtext(mid_x+364,mid_y+5,FNT_ORANGE,"Map manager");
+
+			if (amap_selected != -1) {
+				dd_xputtext(mid_x+364,mid_y+103,FNT_YELLOW,amap_sel.name);
+
+				dd_xputtext(mid_x+379,mid_y+250,FNT_YELLOW,"Enter");
+			} else {
+				dd_xputtext(mid_x+379,mid_y+250,FNT_SILVER,"Enter");
+			}
+
+			if (mapdev_level < 10) dd_xputtext(mid_x+393,mid_y+33,FNT_ORANGE,"%d",mapdev_level);
+			else if (mapdev_level < 100) dd_xputtext(mid_x+390,mid_y+33,FNT_ORANGE,"%d",mapdev_level);
+			else if (mapdev_level < 1000) dd_xputtext(mid_x+387,mid_y+33,FNT_ORANGE,"%d",mapdev_level);
+			else dd_xputtext(mid_x+384,mid_y+33,FNT_ORANGE,"%d",mapdev_level);
+
+			if (mapdev_exp>0) n=min(156,156*(mapdev_exp/mapdev_expreq));
+			else n=0;
+			dd_showbar(mid_x+317,mid_y+25,n,3,(unsigned short)0xBB00);
+
+			for (n=0; n<5; n++) {
+				for (n1=0; n1<4; n1++) {
+					m = n1 + (n + amap_pos) * 4;
+					if (m >= AMAP_MAXBASES) continue;
+					if (!amap_bases[m].used) continue;
+
+					// Draw connections
+					// Horizontal
+					if (n1<3) {
+						if (amap_bases[m].conn_flags&AMAP_CONN_E && amap_bases[m+1].used == 1 && amap_bases[m+1].conn_flags&AMAP_CONN_W) {
+							copyspritex(6600, mid_x + 50 + n1 * 68, mid_y + 25 + n * 54, 0);
+						}
+					}
+					// Vertical
+					if (n<4) {
+						if (m+4 < AMAP_MAXBASES) {
+							if (amap_bases[m].conn_flags&AMAP_CONN_S && amap_bases[m+4].used == 1 && amap_bases[m+4].conn_flags&AMAP_CONN_N) {
+								copyspritex(6603, mid_x + 50 + n1 * 68, mid_y + 25 + n * 54, 0);
+							}
+						}
+						// Diagonal (SE)
+						if (m+5 < AMAP_MAXBASES) {
+							if (amap_bases[m].conn_flags&AMAP_CONN_SE && amap_bases[m+5].used == 1 && amap_bases[m+5].conn_flags&AMAP_CONN_NW) {
+								copyspritex(6601, mid_x + 50 + n1 * 68, mid_y + 25 + n * 54, 0);
+							}
+						}
+						// Diagonal (SW)
+						if (n1>0 && m+3 < AMAP_MAXBASES) {
+							if (amap_bases[m].conn_flags&AMAP_CONN_SW && amap_bases[m+3].used == 1 && amap_bases[m+3].conn_flags&AMAP_CONN_NE) {
+								copyspritex(6602, mid_x - 43 + n1 * 68, mid_y + 25 + n * 54, 0);
+							}
+						}
+					}
+
+					copyspritex(amap_bases[m].sprite, mid_x + 36 + n1 * 68, mid_y + 11 + n * 54, 0);
+
+					// Hovering
+					if (amap_hovering == m && amap_selected != m) {
+						dd_showbox(mid_x + 35 + n1 * 68, mid_y + 10 + n * 54, 34, 34, (unsigned short)0xB000);
+					}
+					// Selected
+					if (amap_selected == m) {
+						dd_showbox(mid_x + 35 + n1 * 68, mid_y + 10 + n * 54, 34, 34, (unsigned short)0xD900);
+					}
+
+					// Charges
+					copyspritex(6604, mid_x + 36 + n1 * 68, mid_y + 11 + n * 54, 0);
+					if (amap_bases[m].charges < 10) dd_xputtext(mid_x + 49 + n1 * 68, mid_y + 41 + n * 54, FNT_SILVER, "%d", amap_bases[m].charges);
+					else if (amap_bases[m].charges < 100) dd_xputtext(mid_x + 46 + n1 * 68, mid_y + 41 + n * 54, FNT_SILVER, "%d", amap_bases[m].charges);
+					else dd_xputtext(mid_x + 43 + n1 * 68, mid_y + 41 + n * 54, FNT_SILVER, "%d", amap_bases[m].charges);
+				}
 			}
 		}
 	}
@@ -1338,6 +1430,7 @@ void init_engine(void)
 {
 	eng_init_map();
 	eng_init_player();
+	eng_init_amap();
 }
 
 void do_msg(void)
@@ -2171,7 +2264,7 @@ void engine(void)
 		if (look_timer)	look_timer--;
 		else show_look=0;
 
-		if (show_shop && lookstep>QSIZE) {
+		if (subwindow_mode == SUBWND_SHOP && lookstep>QSIZE) {
 			cmd1s(CL_CMD_LOOK,shop.nr);
 			lookstep=0;
 		}
@@ -2216,7 +2309,7 @@ void engine(void)
 
 		if (noshop>0) {
 			noshop--;
-			show_shop=0;
+			subwindow_mode=0;
 		}
 		if (t>GetTickCount() || skipinrow>100) {	// display frame only if we've got enough time
 			eng_display(init);

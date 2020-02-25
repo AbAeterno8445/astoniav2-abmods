@@ -790,7 +790,7 @@ int dd_copytile(int nr,int x,int y,LPDIRECTDRAWSURFACE sur,int mapcheck)
 	int xs=0,ys=0,xe=0,ye=0;
 
 	if (!mapcheck) {
-		if (x<0 || y<0 || x>=screen_width || y>=screen_height)	return 0;
+		if (x<-31 || y<0 || x>=screen_width || y>=screen_height)	return 0;
 
 		if (x<0) {
 			xs=-x;    x=0;
@@ -802,7 +802,7 @@ int dd_copytile(int nr,int x,int y,LPDIRECTDRAWSURFACE sur,int mapcheck)
 		if (x+32>=screen_width) xe=x-screen_width+32;
 		if (y+32>=screen_height) ye=y-screen_height+32;
 	} else {
-		if (x<0 || y<0 || x>=screen_width || y>=screen_height)	return 0;
+		if (x<-31 || y<0 || x>=screen_width || y>=screen_height)	return 0;
 
 		if (x<0) {
 			xs=-x;    x=0;
@@ -2133,7 +2133,7 @@ unsigned short *dd_load_png(FILE *fp,int *xs,int *ys,unsigned char **alpha_ptr,i
     tmp=png_get_rowbytes(png_ptr,info_ptr);
     if (tmp==x*3) { noalpha=1; mul=3; }
     else if (tmp!=x*4) {
-	png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL); xlog(0,"rowbytes!=x*4 (%d)",tmp); return 0;
+	png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL); xlog(0,"rowbytes!=x*4 (%d vs %d)",tmp,x*4); return 0;
     }
     if (png_get_bit_depth(png_ptr,info_ptr)!=8) {
 	png_destroy_read_struct(&png_ptr,&info_ptr,(png_infopp)NULL); xlog(0,"bit depth!=8"); return 0;

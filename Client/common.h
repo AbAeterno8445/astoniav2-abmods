@@ -205,6 +205,8 @@ struct cplayer {
 #define CL_PASSWD			33
 
 #define CL_CMD_JOININST		34
+#define CL_CMD_SELECTAMAP	35
+#define CL_CMD_ENTERAMAP	36
 
 #define CL_CMD_CTICK      255
 
@@ -285,6 +287,10 @@ struct cplayer {
 #define SV_IGNORE		73
 
 #define SV_AREAINST		74
+#define SV_AMAPBASE		75
+#define SV_AMAPCHG		76
+#define SV_MAPDEVDATA	77
+#define SV_SELMAPDATA	78
 
 #define SV_SETMAP	128
 

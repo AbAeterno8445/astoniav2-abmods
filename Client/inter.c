@@ -6,6 +6,8 @@
 
 extern int init_done;
 extern unsigned int inv_pos,skill_pos;
+extern int amap_pos,maptiers,amap_hovering,amap_selected;
+extern struct areamap_base *amap_bases;
 extern unsigned int look_nr,look_type;
 extern unsigned char inv_block[];
 extern int tile_x,tile_y,tile_type;
@@ -1070,14 +1072,14 @@ int mouse_shop(int x,int y,int mode)
 	int tx,ty;
 	int mid_x,mid_y;
 
-	if (!show_shop) return 0;
+	if (subwindow_mode != SUBWND_SHOP) return 0;
 
 	// orig x 220, y 260
 	mid_x = screen_width / 2 - 160;
 	mid_y = screen_height / 2 - 80;
 
 	if (x>mid_x+279 && x<mid_x+296 && y>mid_y && y<mid_y+14) {
-		if (mode==MS_LB_UP) { show_shop=0; noshop=QSIZE*36; }
+		if (mode==MS_LB_UP) { subwindow_mode=0; noshop=QSIZE*36; }
 		return 1;
 	}
 
@@ -1103,14 +1105,13 @@ int mouse_instmenu(int x,int y,int mode)
 	int n;
 	int mid_x,mid_y;
 
-	if (!show_instmenu) return 0;
+	if (subwindow_mode != SUBWND_INSTMNG) return 0;
 
-	// orig x 220, y 260
 	mid_x = screen_width / 2 - 160;
 	mid_y = screen_height / 2 - 80;
 
 	if (x>mid_x+301 && x<mid_x+317 && y>mid_y-1 && y<mid_y+15) {
-		if (mode==MS_LB_UP) { show_instmenu=0; }
+		if (mode==MS_LB_UP) { subwindow_mode=0; }
 		return 1;
 	}
 
@@ -1120,7 +1121,7 @@ int mouse_instmenu(int x,int y,int mode)
 				for (n=0; n<loaded_insts; n++) {
 					if (y > mid_y + 68 + n*36 && y < mid_y + 82 + n*36) {
 						cmd1(CL_CMD_JOININST, n);
-						show_instmenu = 0;
+						subwindow_mode = 0;
 						break;
 					}
 				}
@@ -1128,8 +1129,66 @@ int mouse_instmenu(int x,int y,int mode)
 				if (n == loaded_insts && loaded_insts < 7) {
 					if (y > mid_y + 68 + n*36 && y < mid_y + 82 + n*36) {
 						cmd1(CL_CMD_JOININST, n);
-						show_instmenu = 0;
+						subwindow_mode = 0;
 					}
+				}
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+int mouse_amapsmenu(int x,int y,int mode)
+{
+	int n,n1;
+	int mid_x, mid_y;
+
+	amap_hovering = -1;
+	if (subwindow_mode != SUBWND_AMAPS) return 0;
+
+	mid_x = screen_width / 2 - 256;
+	mid_y = screen_height / 2 - 80;
+
+	if (x>mid_x+470 && x<mid_x+487 && y>mid_y && y<mid_y+15) {
+		if (mode==MS_LB_UP) { subwindow_mode=0; }
+		return 1;
+	}
+
+	if (x>mid_x && x<mid_x+487 && y>mid_y && y<mid_y+270) {
+		// Mouse hovering over maps
+		for (n=0; n<5; n++) {
+			for (n1=0; n1<4; n1++) {
+				if (x>mid_x + 36 + n1 * 68 && x<mid_x + 68 + n1 * 68 && y>mid_y + 11 + n * 54 && y<mid_y + 43 + n * 54) {
+					amap_hovering = n1 + (n + amap_pos) * 4;
+					if (mode == MS_LB_UP) {
+						// Map selection
+						amap_selected = amap_hovering;
+						cmd1(CL_CMD_SELECTAMAP, amap_selected);
+					}
+					break;
+				}
+			}
+		}
+
+		if (mode==MS_LB_UP) {
+			// Scrollbar buttons
+			if (x>mid_x+297 && x<mid_x+311) {
+				if (y>mid_y+4 && y<mid_y+37) { // Scroll up
+					amap_pos = max(0, amap_pos - 1);
+				}
+				else if (y>mid_y+229 && y<mid_y+263) { // Scroll down
+					amap_pos = min(maptiers - 4, amap_pos + 1);
+				}
+			}
+
+			// Enter button
+			if (x>mid_x+371 && x<mid_x+419 && y>mid_y+247 && y<mid_y+262) {
+				if (amap_selected != -1) {
+					cmd1(CL_CMD_ENTERAMAP, amap_selected);
+					subwindow_mode = 0;
+				} else {
+					xlog(FNT_RED, "You must select a map first.");
 				}
 			}
 		}
@@ -1149,6 +1208,7 @@ void mouse(int x,int y,int state)
 	if (mouse_inventory(x,y,state)) ;
 	else if (mouse_shop(x,y,state)) ;
 	else if (mouse_instmenu(x,y,state)) ;
+	else if (mouse_amapsmenu(x,y,state)) ;
 	else if (mouse_buttonbox(x,y,state)) ;
 	else if (mouse_statbox(x,y,state)) ;
 	else if (mouse_statbox2(x,y,state)) ;

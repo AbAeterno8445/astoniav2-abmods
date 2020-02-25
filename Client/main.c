@@ -204,7 +204,7 @@ LRESULT FAR PASCAL _export MainWndProc(HWND hWnd, UINT message,WPARAM wParam, LP
 		case    WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			switch ((int)wParam) {
-				case    27:         cmd(CL_CMD_RESET,0,0); show_shop=0; show_instmenu=0; noshop=QSIZE*12; xmove=0; break;	//ESC
+				case    27:         cmd(CL_CMD_RESET,0,0); subwindow_mode=0; noshop=QSIZE*12; xmove=0; break;	//ESC
 				case    'p':            if (keys) button_command(16);
 					else cmd(CL_CMD_MODE,2,0); break;		//F1
 				case    'q':            if (keys) button_command(17);
