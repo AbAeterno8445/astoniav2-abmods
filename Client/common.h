@@ -392,4 +392,45 @@ struct cplayer {
 #define DR_AREABUILD1   9
 #define DR_AREABUILD2   10
 
+// Sound effect macros
+#define SFX_SPELL		1
+#define SFX_DIE			2
+#define SFX_DODGE		3
+#define SFX_HIT			4
+#define SFX_MISS		5
+#define SFX_BLAST		6
+#define SFX_CURSE		7
+#define SFX_SPELL		8
+#define SFX_YELL		9
+#define SFX_DOOR		10
+#define SFX_MINE		11
+#define SFX_YWILLDIE	12
+#define SFX_PTODIE		13
+#define SFX_GCDIE		14
+#define SFX_GLASTGATE	15
+#define SFX_DUSRA		16
+#define SFX_GROLMDIE	17
+#define SFX_GARGDIE		18
+#define SFX_CURSE2		19
+#define SFX_SPELLXC		20
+#define SFX_SPELLARMOR	21
+#define SFX_SUMMON		22
+#define SFX_MANACLEAVE	23
+#define SFX_BLINK		24
+#define SFX_MANABURN	25
+#define SFX_FREEZE		26
+#define SFX_SPELLGOOD	27
+#define SFX_SPELLAM		28
+#define SFX_PARRY		29
+#define SFX_FIREBALL	30
+#define SFX_EXPLOSION	31
+#define SFX_BLOCK		32
+#define SFX_ANVIL		33
+#define SFX_SECRETDOOR	34
+#define SFX_TRAPTICK	35
+#define SFX_TRAPRELEASE	36
+#define SFX_GOLD		37
+#define SFX_RARE		38
+#define SFX_SPELLGOOD2	39
+
 extern int ctick;
