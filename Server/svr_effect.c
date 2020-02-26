@@ -41,11 +41,8 @@ void effect_tick(void)
 		if (fx[n].used!=USE_ACTIVE) continue;
 
 		inst_id=fx[n].instance_id;
-		if (inst_id == -1) {
-			m_wid = MAPX;
-		} else {
-			m_wid = map_instances[inst_id].width;
-		}
+		if (inst_id == -1) m_wid = MAPX;
+		else m_wid = map_instances[inst_id].width;
 
 		if (fx[n].type==1) {	// remove injury flag from map
 			fx[n].duration--;
@@ -426,12 +423,23 @@ void effect_tick(void)
 					map_instancedtiles[inst_id][m].flags|=((unsigned long long)fx[n].duration)<<40;
 				}
             }
+		}
 
+		if (fx[n].type >= 13 && fx[n].type <= 16) {  // Floor warning effects
+			fx[n].duration--;
+			if (fx[n].duration <= 0) {
+				fx[n].used = USE_EMPTY;
+
+				m = fx[n].data[0] + fx[n].data[1] * m_wid;
+				if (inst_id == -1) map[m].flags&=~(MF_GFX_FLRWARN_SQ|MF_GFX_FLRWARN_TR|MF_GFX_FLRWARN_CR1|MF_GFX_FLRWARN_CR2);
+				else map_instancedtiles[inst_id][m].flags&=~(MF_GFX_FLRWARN_SQ|MF_GFX_FLRWARN_TR|MF_GFX_FLRWARN_CR1|MF_GFX_FLRWARN_CR2);
+			}
 		}
 	}
 	globs->effect_cnt=cnt;
 }
 
+// Returns the ID of the new effect, or 0 if max reached
 int fx_add_effect(int type,int duration,int d1,int d2,int d3,int inst_id)
 {
 	int n;
@@ -452,6 +460,37 @@ int fx_add_effect(int type,int duration,int d1,int d2,int d3,int inst_id)
 	fx[n].data[2]=d3;
 
 	fx[n].instance_id=inst_id;
+
+	// Special cases for effects added to map directly through this function
+	int m_wid, m;
+	if (inst_id == -1) m_wid = MAPX;
+	else m_wid = map_instances[inst_id].width;
+
+	switch(type) {
+		case FX_FLRWARN_SQ:
+			m = fx[n].data[0] + fx[n].data[1] * m_wid;
+			if (inst_id == -1) map[m].flags|=MF_GFX_FLRWARN_SQ;
+			else map_instancedtiles[inst_id][m].flags|=MF_GFX_FLRWARN_SQ;
+		break;
+
+		case FX_FLRWARN_TR:
+			m = fx[n].data[0] + fx[n].data[1] * m_wid;
+			if (inst_id == -1) map[m].flags|=MF_GFX_FLRWARN_TR;
+			else map_instancedtiles[inst_id][m].flags|=MF_GFX_FLRWARN_TR;
+		break;
+
+		case FX_FLRWARN_CR1:
+			m = fx[n].data[0] + fx[n].data[1] * m_wid;
+			if (inst_id == -1) map[m].flags|=MF_GFX_FLRWARN_CR1;
+			else map_instancedtiles[inst_id][m].flags|=MF_GFX_FLRWARN_CR1;
+		break;
+
+		case FX_FLRWARN_CR2:
+			m = fx[n].data[0] + fx[n].data[1] * m_wid;
+			if (inst_id == -1) map[m].flags|=MF_GFX_FLRWARN_CR2;
+			else map_instancedtiles[inst_id][m].flags|=MF_GFX_FLRWARN_CR2;
+		break;
+	}
 
 	return n;
 }

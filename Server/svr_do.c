@@ -1840,6 +1840,30 @@ void do_command(int cn, char *ptr)
                 if (prefix(cmd,"tinfo") && f_g)         { god_tinfo(cn,atoi(arg[1])); return; };
                 if (prefix(cmd,"top") && f_g)           { god_top(cn); return; };
                 if (prefix(cmd,"tpmode") && f_c)        { god_tpmode(cn); return; };
+                if (prefix(cmd,"test") && f_g) {
+                        for (int i=ch[cn].y-1; i<=ch[cn].y+1; i++)
+                                for (int j=ch[cn].x-1; j<=ch[cn].x+1; j++)
+                                        fx_add_effect(FX_FLRWARN_SQ, TICKS*2, j, i, 0, ch[cn].instance_id);
+                        return;
+                }
+                if (prefix(cmd,"test2") && f_g) {
+                        for (int i=ch[cn].y-1; i<=ch[cn].y+1; i++)
+                                for (int j=ch[cn].x-1; j<=ch[cn].x+1; j++)
+                                        fx_add_effect(FX_FLRWARN_TR, TICKS*2, j, i, 0, ch[cn].instance_id);
+                        return;
+                }
+                if (prefix(cmd,"test3") && f_g) {
+                        for (int i=ch[cn].y-1; i<=ch[cn].y+1; i++)
+                                for (int j=ch[cn].x-1; j<=ch[cn].x+1; j++)
+                                        fx_add_effect(FX_FLRWARN_CR1, TICKS*2, j, i, 0, ch[cn].instance_id);
+                        return;
+                }
+                if (prefix(cmd,"test4") && f_g) {
+                        for (int i=ch[cn].y-1; i<=ch[cn].y+1; i++)
+                                for (int j=ch[cn].x-1; j<=ch[cn].x+1; j++)
+                                        fx_add_effect(FX_FLRWARN_CR2, TICKS*2, j, i, 0, ch[cn].instance_id);
+                        return;
+                }
                 break;
         case 'u':
                 if (prefix(cmd,"u"))                    { break; };
