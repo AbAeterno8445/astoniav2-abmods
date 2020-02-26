@@ -30,6 +30,7 @@ extern short screen_windowed;
 extern short screen_renderdist;
 
 extern int cursedtxt_off;
+extern int col_eff_ticker;
 
 HANDLE heap=NULL;
 
@@ -1429,7 +1430,12 @@ unsigned short do_effect(unsigned short val,int effect,int seed1,int seed2,int s
 					r=g=b=0;
 				}
 
-                                return(unsigned short)((r<<11)+(g<<5)+b);
+				// Floor warning sprite flashing
+				if (sprite >= 6620 && sprite <= 6623 && (r != 0 || g !=0 || b != 0)) {
+					g = min(63, col_eff_ticker);
+				}
+
+                return(unsigned short)((r<<11)+(g<<5)+b);
 			} else return val;
 
 		case 1:
@@ -1568,6 +1574,14 @@ int tile2cache(int tile,int sprite,int xpos,int ypos,int xs,int effect)
 	return visible;
 }
 
+// Returns 1 if the given sprite should be re-drawn constantly, thus re-applying dynamic effects
+// Add sprites with effects that change over time (eg. color flashing back and forth)
+int spr_constantupdate(int sprite)
+{
+	if (sprite >= 6620 && sprite <= 6623) return 1;
+	return 0;
+}
+
 int gettile(unsigned int sprite,unsigned int effect,int x,int y,int xs)
 {
 	int n,old=0;
@@ -1576,13 +1590,15 @@ int gettile(unsigned int sprite,unsigned int effect,int x,int y,int xs)
 	nr=(sprite<<16)+x+y*xs;
 
 	n=sprtab[sprite].cache[(x+y*xs)*MAXEFFECT+effect];
-	if (cachetab[n].sprite==nr && cachetab[n].effect==effect) {
-		cachetab[n].ticker=0;
-		dd_cache_hit++;
-		if (!cachetab[n].visible) {
-			invisible++; return -1;
+	if (!spr_constantupdate(sprite)) {
+		if (cachetab[n].sprite==nr && cachetab[n].effect==effect) {
+			cachetab[n].ticker=0;
+			dd_cache_hit++;
+			if (!cachetab[n].visible) {
+				invisible++; return -1;
+			}
+			return n;
 		}
-		return n;
 	}
 
 	for (n=0; n<MAXCACHE; n++) {

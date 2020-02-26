@@ -27,6 +27,8 @@ extern short screen_windowed;
 extern short screen_renderdist;
 
 int cursedtxt_off = 0;
+int col_eff_ticker = 0;
+int col_eff_flag = 0;
 
 // from dd.c
 int copysprite(int nr,int effect,int x,int y,int xoff,int yoff);
@@ -1049,7 +1051,13 @@ void eng_display(int init)	// optimize me!!!!!
 						xmap[map[m].y+map[m].x*MAPX_MAX]=(unsigned short)get_avgcol(map[m].back);
 				}
 
-				if (pl.goto_x==map[m].x && pl.goto_y==map[m].y)
+				// Floor warning effects
+				if (map[m].flags3&F3_FLRWARN_SQ) copysprite(6621,0,x*32,y*32,xoff,yoff);
+				if (map[m].flags3&F3_FLRWARN_TR) copysprite(6620,0,x*32,y*32,xoff,yoff);
+				if (map[m].flags3&F3_FLRWARN_CR1) copysprite(6622,0,x*32,y*32,xoff,yoff);
+				if (map[m].flags3&F3_FLRWARN_CR2) copysprite(6623,0,x*32,y*32,xoff,yoff);
+
+				if (pl.goto_x > 0 && pl.goto_y > 0 && pl.goto_x==map[m].x && pl.goto_y==map[m].y)
 					copysprite(31,0,x*32,y*32,xoff,yoff);
 			}
 		}
@@ -2146,6 +2154,15 @@ void engine(void)
 		if (do_ticker && (ticker&15)==0) cmd1s(CL_CMD_CTICK,ticker);
 
 		if (ticker%4==0) cursedtxt_off = (cursedtxt_off + random(10)) % 10 + cursedtxt_off + 1;
+
+		// For colors that flash back and forth
+		if (!col_eff_flag) {
+			col_eff_ticker+=7;
+			if (col_eff_ticker >= 46) col_eff_flag = 1;
+		} else {
+			col_eff_ticker-=7;
+			if (col_eff_ticker <= 0) col_eff_flag = 0;
+		}
 
 		if (step++>16) {
 			pskip=100.0*(float)skip/(float)frame;

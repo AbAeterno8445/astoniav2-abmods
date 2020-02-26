@@ -554,6 +554,7 @@ int sv_setmap(unsigned char *buf,int off)
 	}
 	if (buf[1]&2) {
 		map[n].flags=*(unsigned int*)(buf+p); p+=4;
+		map[n].flags3=*(unsigned int*)(buf+p); p+=4;
 		cnt[1]++;
 	}
 	if (buf[1]&4) {
@@ -583,7 +584,7 @@ int sv_setmap(unsigned char *buf,int off)
 	if (buf[1]&128) {
 		map[n].ch_proz=*(unsigned char*)(buf+p); p+=1;
 		cnt[7]++;
-	}	
+	}
 	return p;
 }
 
