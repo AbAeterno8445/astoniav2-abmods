@@ -1809,9 +1809,11 @@ void skill_driver(int cn,int nr)
 {
 //      ch[cn].errno=ERR_FAILED;        // will be overriden later if another result is desired
 
-        if (!ch[cn].skill[nr][0]) {
-                do_char_log(cn,0,"You cannot use this skill/spell.\n");
-                return;
+        if (nr < SSK_BLASTCLAW) { // For special npc spells, should be the first defined macro of the group
+                if (!ch[cn].skill[nr][0]) {
+                        do_char_log(cn,0,"You cannot use this skill/spell.\n");
+                        return;
+                }
         }
 
         switch(nr) {
@@ -1854,6 +1856,9 @@ void skill_driver(int cn,int nr)
                 			break;
                 			
                 case	SK_WARCRY:	skill_warcry(cn); break;
+
+                // Special NPC-only spells
+                case    SSK_BLASTCLAW:  skill_blastclaw(cn); break;
 
                 default:                do_char_log(cn,0,"You cannot use this skill/spell.\n"); break;
         }

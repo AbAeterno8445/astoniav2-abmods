@@ -433,6 +433,29 @@ void effect_tick(void)
 				m = fx[n].data[0] + fx[n].data[1] * m_wid;
 				if (inst_id == -1) map[m].flags&=~(MF_GFX_FLRWARN_SQ|MF_GFX_FLRWARN_TR|MF_GFX_FLRWARN_CR1|MF_GFX_FLRWARN_CR2);
 				else map_instancedtiles[inst_id][m].flags&=~(MF_GFX_FLRWARN_SQ|MF_GFX_FLRWARN_TR|MF_GFX_FLRWARN_CR1|MF_GFX_FLRWARN_CR2);
+
+				// Spellcast when effect done
+				if (fx[n].data[4]) {
+					int tgt;
+					if (inst_id == -1) tgt = map[m].ch;
+					else tgt = map_instancedtiles[inst_id][m].ch;
+
+					switch(fx[n].data[4]) {
+						case FXS_BLAST: // Blast
+							if (tgt && tgt != fx[n].data[3] && may_attack_msg(fx[n].data[5], tgt, 0)) {
+								int pow = fx[n].data[5];
+								do_hurt(fx[n].data[3], tgt, pow, 1);
+							}
+							fx_add_effect(FX_EVILMAGIC, 0, fx[n].data[0], fx[n].data[1], 0, inst_id);
+						break;
+					}
+
+					// Sound effect
+					if (fx[n].data[6]) {
+						if (inst_id == -1) do_area_sound(0, 0, fx[n].data[0], fx[n].data[1], fx[n].data[6]);
+						else do_area_sound_inst(inst_id, 0, 0, fx[n].data[0], fx[n].data[1], fx[n].data[6]);
+					}
+				}
 			}
 		}
 	}
@@ -493,4 +516,18 @@ int fx_add_effect(int type,int duration,int d1,int d2,int d3,int inst_id)
 	}
 
 	return n;
+}
+
+// Add effect that casts a spell at the given position when complete; should be used with floor warning effects
+int add_spellfx(int type, int duration, int x, int y, int caster, int spell_type, int spell_power, int sfx, int inst_id)
+{
+	int n_fx = fx_add_effect(type, duration, x, y, 0, inst_id);
+	if (!n_fx) return 0;
+
+	fx[n_fx].data[3] = caster;
+	fx[n_fx].data[4] = spell_type;
+	fx[n_fx].data[5] = spell_power;
+	fx[n_fx].data[6] = sfx;
+
+	return n_fx;
 }

@@ -119,3 +119,6 @@ All rights reserved.
 #define FX_FLRWARN_SQ       14
 #define FX_FLRWARN_CR1      15
 #define FX_FLRWARN_CR2      16
+
+// Effect spell types
+#define FXS_BLAST           1

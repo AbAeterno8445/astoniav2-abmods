@@ -1194,6 +1194,8 @@ int npc_driver_high(int cn)
                 if (npc_quaff_potion(cn,833,254)) return 1;         // use greenling pot if available
                 if (npc_quaff_potion(cn,267,254)) return 1;         // use ratling pot if available
 
+                if (npc_heartbeat_fight(cn)) return 1;
+
                 if (co && (ch[cn].a_hp<ch[cn].hp[5]*600 || !RANDOM(10))) { // we're losing
                         if (npc_try_spell(cn,co,SK_BLAST)) return 1;
                 }

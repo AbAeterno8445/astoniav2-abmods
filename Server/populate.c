@@ -781,8 +781,8 @@ void reset_char(int n)
 		xlog("AUTO-RESPAWN: Found %d instances of %s (%d)",cnt,ch_temp[n].name,n);
 	}
 
-	if (ch_temp[n].used==USE_ACTIVE && ch[cn].instance_id == -1) { // schedule respawn
-		fx_add_effect(2,TICKS*10,ch_temp[n].x,ch_temp[n].y,n,ch[cn].instance_id);
+	if (ch_temp[n].used==USE_ACTIVE) { // schedule respawn
+		fx_add_effect(2,TICKS*10,ch_temp[n].x,ch_temp[n].y,n,-1);
 	}
 }
 

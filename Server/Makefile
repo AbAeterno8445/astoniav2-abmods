@@ -12,7 +12,8 @@ OBJS=.obj/server.o .obj/svr_disk.o .obj/svr_tick.o .obj/svr_act.o \
 .obj/helper.o .obj/skill.o .obj/skill_driver.o .obj/talk.o \
 .obj/area.o .obj/path.o .obj/stunrun.o .obj/cityattack.o \
 .obj/npc_malte.o .obj/lab9.o .obj/rdtsc.o .obj/ccp_driver.o \
-.obj/instances.o .obj/map-device.o .obj/breach.o .obj/converter.o
+.obj/instances.o .obj/map-device.o .obj/breach.o .obj/converter.o \
+.obj/driver_hbeat.o
 
 SHEADER=client.h data.h funcs.h gendefs.h globals.h server.h driver.h \
 lab9.h map-device.h
@@ -48,6 +49,9 @@ password: password.c $(SHEADER)
 
 .obj/breach.o:	breach.c $(SHEADER)
 	$(CC) $(CFLAGS) -o .obj/breach.o -c breach.c
+
+.obj/driver_hbeat.o:	driver_hbeat.c $(SHEADER)
+	$(CC) $(CFLAGS) -o .obj/driver_hbeat.o -c driver_hbeat.c
 
 .obj/converter.o:	converter.c $(SHEADER)
 	$(CC) $(CFLAGS) -o .obj/converter.o -c converter.c

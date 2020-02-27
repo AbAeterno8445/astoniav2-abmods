@@ -2485,14 +2485,11 @@ void use_mapdevice_openport(int cn, int amap)
 
         if (inst_id == -1) {
                 do_area_log(0, 0, it[in].x, it[in].y, 1, "/|%d|The map device begins to spin, and with a thunderous clap, a portal manifests.\n", FNT_TURQUOISE);
-                do_area_sound(0, 0, it[in].x, it[in].y, 19);
         } else {
                 do_area_log_inst(it[in].instance_id, 0, 0, it[in].x, it[in].y, 1, "/|%d|The map device begins to spin, and with a thunderous clap, a portal manifests.\n", FNT_TURQUOISE);
-                do_area_sound_inst(it[in].instance_id, 0, 0, it[in].x, it[in].y, 19);
         }
 
-        fx_add_effect(6,0,it[in].x,it[in].y,0,it[in].instance_id);
-
+        fx_add_effect(6,0,port_x,port_y,0,it[in].instance_id);
 }
 
 int step_breach(int cn,int in)

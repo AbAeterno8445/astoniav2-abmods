@@ -284,6 +284,8 @@ void use_mapdevice_openport(int cn, int amap);
 void effect_tick(void);
 int fx_add_effect(int type,int duration,int d1,int d2,int d3,int inst_id);
 
+int add_spellfx(int type, int duration, int x, int y, int caster, int spell_type, int spell_power, int sfx, int inst_id);
+
 // -- look --
 void look_driver(int cn,int in);
 
@@ -378,6 +380,11 @@ void send_selmap_data(int nr, int amap);
 int new_breach(int brc_id);
 void breach_tick(int brc_in);
 void process_breaches(int cltick);
+
+// -- npc heartbeat --
+int npc_heartbeat_fight(int cn);
+
+void skill_blastclaw(int cn);
 
 //-- converter --
 int converter_main();
