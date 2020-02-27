@@ -9,6 +9,7 @@ Client/gfx/*.bmp
 Client/.*
 Client/saves
 Client/merc.exe
+Client/merc.dat
 Client/gx00.dat
 Client/gx00.idx
 Client/pnglib.dat
