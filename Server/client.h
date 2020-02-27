@@ -373,7 +373,7 @@ struct cplayer
 #define SFX_MISS		5
 #define SFX_BLAST		6
 #define SFX_CURSE		7
-#define SFX_SPELL		8
+#define SFX_SPELL2		8
 #define SFX_YELL		9
 #define SFX_DOOR		10
 #define SFX_MINE		11
