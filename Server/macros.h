@@ -96,7 +96,7 @@ All rights reserved.
 // Chat font schemes
 #define CFNT_LOCAL      (FNT_SILVER)    // Area chat (say)
 #define CFNT_GLOBAL     (FNT_SILVER)    // Global chat (shout)
-#define CFNT_TELLSEND   (FNT_YELLOW)   // Tell send
+#define CFNT_TELLSEND   (FNT_YELLOW)    // Tell send
 #define CFNT_TELLRECV   (FNT_YELLOW)    // Tell receive
 
 // Character font schemes
@@ -107,5 +107,15 @@ All rights reserved.
 #define CHFNT_BUILDER   (FNT_AQUA)      // Builder
 #define CHFNT_INVIS     (FNT_AQUA)      // Invisible
 #define CHFNT_NORMAL    (FNT_BLUE)      // Normal player
-#define CHFNT_NPCGOOD   (FNT_EMERALD)    // Good npc (alignment > 0)
+#define CHFNT_NPCGOOD   (FNT_EMERALD)   // Good npc (alignment > 0)
 #define CHFNT_NPCEVIL   (FNT_RED)       // Evil npc (alignment < 0)
+
+// Effect ID macros
+#define FX_EVILMAGIC        5
+#define FX_GOODMAGIC        6
+#define FX_CASTMAGIC        7
+#define FX_DEATHMIST        12
+#define FX_FLRWARN_TR       13
+#define FX_FLRWARN_SQ       14
+#define FX_FLRWARN_CR1      15
+#define FX_FLRWARN_CR2      16

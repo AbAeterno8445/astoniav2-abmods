@@ -2004,11 +2004,11 @@ void plr_change(int nr)
                 if (cmap[n].ba_sprite!=smap[n].ba_sprite) {
 			buf[1]|=1;
 			*(unsigned short*)(buf+p)=smap[n].ba_sprite; p+=2;
-			
 		}
-                if (cmap[n].flags!=smap[n].flags) {
+                if (cmap[n].flags!=smap[n].flags || cmap[n].flags3!=smap[n].flags3) {
 			buf[1]|=2;
 			*(unsigned int*)(buf+p)=smap[n].flags; p+=4;
+                        *(unsigned int*)(buf+p)=smap[n].flags3; p+=4;
 		}
                 if (cmap[n].flags2!=smap[n].flags2) {
 			buf[1]|=4;
@@ -2140,6 +2140,7 @@ void empty_field(struct cmap *smap,int n)
 	smap[n].ba_sprite=SPR_EMPTY;
         smap[n].flags=0;
         smap[n].flags2=0;
+        smap[n].flags3=0;
         smap[n].light=0;
 
         smap[n].ch_sprite=0;
@@ -2338,55 +2339,44 @@ void plr_getmap_complete(int nr)
 
 			// --- Begin of Flags -----
 			smap[n].flags=0;
+                        smap[n].flags3=0;
 
                         if (inst_id == -1) {
-                                if (map[m].flags&(MF_GFX_INJURED|
-                                                MF_GFX_INJURED1|
-                                                MF_GFX_INJURED2|
-                                                MF_GFX_DEATH|
-                                                MF_GFX_TOMB|
-                                                MF_GFX_EMAGIC|
-                                                MF_GFX_GMAGIC|
-                                                MF_GFX_CMAGIC|
-                                                MF_UWATER|
-                                                MF_PURPLE)) {
-                                        if (map[m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
-                                        if (map[m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
-                                        if (map[m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
+                                if (map[m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
+                                if (map[m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
+                                if (map[m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
 
-                                        if (map[m].flags&MF_GFX_DEATH)  smap[n].flags|=(map[m].flags&MF_GFX_DEATH)>>23;
-                                        if (map[m].flags&MF_GFX_TOMB)   smap[n].flags|=(map[m].flags&MF_GFX_TOMB)>>23;
-                                        if (map[m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_EMAGIC)>>23;
-                                        if (map[m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_GMAGIC)>>23;
-                                        if (map[m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_CMAGIC)>>23;
+                                if (map[m].flags&MF_GFX_DEATH)  smap[n].flags|=(map[m].flags&MF_GFX_DEATH)>>23;
+                                if (map[m].flags&MF_GFX_TOMB)   smap[n].flags|=(map[m].flags&MF_GFX_TOMB)>>23;
+                                if (map[m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_EMAGIC)>>23;
+                                if (map[m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_GMAGIC)>>23;
+                                if (map[m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_CMAGIC)>>23;
 
-                                        if (map[m].flags&MF_UWATER) smap[n].flags|=UWATER;
-                                        if (map[m].flags&MF_PURPLE) smap[n].flags|=TPURPLE;
-                                }
+                                if (map[m].flags&MF_UWATER) smap[n].flags|=UWATER;
+                                if (map[m].flags&MF_PURPLE) smap[n].flags|=TPURPLE;
+
+                                if (map[m].flags&MF_GFX_FLRWARN_SQ) smap[n].flags3|=F3_FLRWARN_SQ;
+                                if (map[m].flags&MF_GFX_FLRWARN_TR) smap[n].flags3|=F3_FLRWARN_TR;
+                                if (map[m].flags&MF_GFX_FLRWARN_CR1) smap[n].flags3|=F3_FLRWARN_CR1;
+                                if (map[m].flags&MF_GFX_FLRWARN_CR2) smap[n].flags3|=F3_FLRWARN_CR2;
                         } else {
-                                if (map_instancedtiles[inst_id][m].flags&(MF_GFX_INJURED|
-                                                MF_GFX_INJURED1|
-                                                MF_GFX_INJURED2|
-                                                MF_GFX_DEATH|
-                                                MF_GFX_TOMB|
-                                                MF_GFX_EMAGIC|
-                                                MF_GFX_GMAGIC|
-                                                MF_GFX_CMAGIC|
-                                                MF_UWATER|
-                                                MF_PURPLE)) {
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
 
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)  smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)   smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)  smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)   smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC)>>23;
 
-                                        if (map_instancedtiles[inst_id][m].flags&MF_UWATER) smap[n].flags|=UWATER;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_PURPLE) smap[n].flags|=TPURPLE;
-                                }
+                                if (map_instancedtiles[inst_id][m].flags&MF_UWATER) smap[n].flags|=UWATER;
+                                if (map_instancedtiles[inst_id][m].flags&MF_PURPLE) smap[n].flags|=TPURPLE;
+
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_SQ) smap[n].flags3|=F3_FLRWARN_SQ;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_TR) smap[n].flags3|=F3_FLRWARN_TR;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_CR1) smap[n].flags3|=F3_FLRWARN_CR1;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_CR2) smap[n].flags3|=F3_FLRWARN_CR2;
                         }
 
 			if (infra) smap[n].flags|=INFRARED;
@@ -2591,49 +2581,42 @@ void plr_getmap_fast(int nr)
 			// Flags
 			smap[n].flags=0;
 			smap[n].flags2=0;
+                        smap[n].flags3=0;
 
                         if (inst_id == -1) {
-                                if (map[m].flags&(MF_GFX_INJURED|
-                                                MF_GFX_INJURED1|
-                                                MF_GFX_INJURED2|
-                                                MF_GFX_DEATH|
-                                                MF_GFX_TOMB|
-                                                MF_GFX_EMAGIC|
-                                                MF_GFX_GMAGIC|
-                                                MF_GFX_CMAGIC)) {
-                                        if (map[m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
-                                        if (map[m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
-                                        if (map[m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
+                                if (map[m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
+                                if (map[m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
+                                if (map[m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
 
-                                        if (map[m].flags&MF_GFX_DEATH)  smap[n].flags|=(map[m].flags&MF_GFX_DEATH)>>23;
-                                        if (map[m].flags&MF_GFX_TOMB)   smap[n].flags|=(map[m].flags&MF_GFX_TOMB)>>23;
-                                        if (map[m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_EMAGIC)>>23;
-                                        if (map[m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_GMAGIC)>>23;
-                                        if (map[m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_CMAGIC)>>23;
-                                }
+                                if (map[m].flags&MF_GFX_DEATH)  smap[n].flags|=(map[m].flags&MF_GFX_DEATH)>>23;
+                                if (map[m].flags&MF_GFX_TOMB)   smap[n].flags|=(map[m].flags&MF_GFX_TOMB)>>23;
+                                if (map[m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_EMAGIC)>>23;
+                                if (map[m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_GMAGIC)>>23;
+                                if (map[m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map[m].flags&MF_GFX_CMAGIC)>>23;
 
                                 if (map[m].flags&MF_UWATER) smap[n].flags|=UWATER;
-                        } else {
-                                if (map_instancedtiles[inst_id][m].flags&(MF_GFX_INJURED|
-                                                MF_GFX_INJURED1|
-                                                MF_GFX_INJURED2|
-                                                MF_GFX_DEATH|
-                                                MF_GFX_TOMB|
-                                                MF_GFX_EMAGIC|
-                                                MF_GFX_GMAGIC|
-                                                MF_GFX_CMAGIC)) {
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
 
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)  smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)   smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC)>>23;
-                                        if (map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC)>>23;
-                                }
+                                if (map[m].flags&MF_GFX_FLRWARN_SQ) smap[n].flags3|=F3_FLRWARN_SQ;
+                                if (map[m].flags&MF_GFX_FLRWARN_TR) smap[n].flags3|=F3_FLRWARN_TR;
+                                if (map[m].flags&MF_GFX_FLRWARN_CR1) smap[n].flags3|=F3_FLRWARN_CR1;
+                                if (map[m].flags&MF_GFX_FLRWARN_CR2) smap[n].flags3|=F3_FLRWARN_CR2;
+                        } else {
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED) smap[n].flags|=INJURED;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED1) smap[n].flags|=INJURED1;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_INJURED2) smap[n].flags|=INJURED2;
+
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)  smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_DEATH)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)   smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_TOMB)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_EMAGIC)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_GMAGIC)>>23;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC) smap[n].flags|=(map_instancedtiles[inst_id][m].flags&MF_GFX_CMAGIC)>>23;
 
                                 if (map_instancedtiles[inst_id][m].flags&MF_UWATER) smap[n].flags|=UWATER;
+
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_SQ) smap[n].flags3|=F3_FLRWARN_SQ;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_TR) smap[n].flags3|=F3_FLRWARN_TR;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_CR1) smap[n].flags3|=F3_FLRWARN_CR1;
+                                if (map_instancedtiles[inst_id][m].flags&MF_GFX_FLRWARN_CR2) smap[n].flags3|=F3_FLRWARN_CR2;
                         }
 
 			if (infra) smap[n].flags|=INFRARED;

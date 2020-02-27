@@ -11,22 +11,22 @@ All rights reserved.
 // Must match client-side render distance
 #define RENDERDIST		54
 
-#define INJURED		(1u<<0)
-#define INJURED1	(1u<<1)
-#define INJURED2	(1u<<2)
-#define STONED		(1u<<3)
-#define INFRARED	(1u<<4)
-#define UWATER		(1u<<5)
+#define INJURED		(1U<<0)
+#define INJURED1	(1U<<1)
+#define INJURED2	(1U<<2)
+#define STONED		(1U<<3)
+#define INFRARED	(1U<<4)
+#define UWATER		(1U<<5)
 
-#define ISUSABLE	(1u<<7)
-#define ISITEM		(1u<<8)
-#define ISCHAR		(1u<<9)
-#define INVIS		(1<<10)
-#define STUNNED		(1<<11)
-#define TOMB                    ((1u<<12)|(1u<<13)|(1u<<14)|(1u<<15)|(1u<<16))
-#define TOMB1                   (1u<<12)
-#define DEATH                   ((1u<<17)|(1u<<18)|(1u<<19)|(1u<<20)|(1u<<21))
-#define DEATH1                  (1u<<17)
+#define ISUSABLE	(1U<<7)
+#define ISITEM		(1U<<8)
+#define ISCHAR		(1U<<9)
+#define INVIS		(1U<<10)
+#define STUNNED		(1U<<11)
+#define TOMB                    ((1U<<12)|(1U<<13)|(1U<<14)|(1U<<15)|(1U<<16))
+#define TOMB1                   (1U<<12)
+#define DEATH                   ((1U<<17)|(1U<<18)|(1U<<19)|(1U<<20)|(1U<<21))
+#define DEATH1                  (1U<<17)
 #define EMAGIC                  ((1U<<22)|(1U<<23)|(1U<<24))
 #define EMAGIC1                 (1U<<22)
 #define GMAGIC                  ((1U<<25)|(1U<<26)|(1U<<27))
@@ -36,6 +36,12 @@ All rights reserved.
 
 #define TPURPLE		(1U<<31)
 
+// F3 must be compared to flags3 field in cmap
+#define F3_FLRWARN_SQ	(1U<<0)
+#define F3_FLRWARN_TR	(1U<<1)
+#define F3_FLRWARN_CR1	(1U<<2)
+#define F3_FLRWARN_CR2	(1U<<3)
+
 struct cmap
 {
 	// for background
@@ -43,6 +49,7 @@ struct cmap
 	unsigned char light;
 	unsigned int flags;
 	unsigned int flags2;
+	unsigned int flags3;
 
 	// for character
 	short int ch_sprite;		// basic sprite of character

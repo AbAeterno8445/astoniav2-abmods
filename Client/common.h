@@ -67,6 +67,12 @@
 
 #define TPURPLE					(1U<<31)
 
+// F3 macros should be compared to flags3 field
+#define F3_FLRWARN_SQ	(1U<<0)
+#define F3_FLRWARN_TR	(1U<<1)
+#define F3_FLRWARN_CR1	(1U<<2)
+#define F3_FLRWARN_CR2	(1U<<3)
+
 #define MF_MOVEBLOCK    (1U<<0)
 #define MF_SIGHTBLOCK   (1U<<1)
 #define MF_INDOORS      (1U<<2)
@@ -92,6 +98,7 @@ struct cmap {
 	unsigned char light;
 	unsigned int flags;
 	unsigned int flags2;
+	unsigned int flags3;
 
 	// for character
 	unsigned short ch_sprite;			// basic sprite of character

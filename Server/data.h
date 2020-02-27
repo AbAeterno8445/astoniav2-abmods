@@ -193,6 +193,11 @@ struct oldglobal
 #define MF_GFX_CMAGIC   ((1ULL<<51)|(1ULL<<52)|(1ULL<<53))
 #define MF_GFX_CMAGIC1  (1ULL<<51)
 
+#define MF_GFX_FLRWARN_SQ       (1ULL<<54)
+#define MF_GFX_FLRWARN_TR       (1ULL<<55)
+#define MF_GFX_FLRWARN_CR1      (1ULL<<56)
+#define MF_GFX_FLRWARN_CR2      (1ULL<<57)
+
 /* CS, 991113: SIZEs in one header */
 #define MAPSIZE         (sizeof(struct map)*MAPX*MAPY)
 
