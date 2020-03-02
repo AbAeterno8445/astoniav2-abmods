@@ -546,7 +546,7 @@ int god_transfer_char(int cn,int x,int y,int inst_id)
         return 0;
 }
 
-void god_toggle_xray(cn)
+void god_toggle_xray(int cn)
 {
         if (ch[cn].flags&CF_XRAY) {
                 ch[cn].flags&=~CF_XRAY;
@@ -559,6 +559,7 @@ void god_toggle_xray(cn)
 
 void god_createinst_base(int cn, char *name, char *fname, int wid, int hei)
 {
+        xlog("name=%s fname=%s", name, fname);
         if (strlen(name) < 3) {
                 do_char_log(cn, 0, "Instance base name should be longer than 2 characters.\n");
                 return;
@@ -589,14 +590,16 @@ void god_createinst_frombase(int cn, char *bname, int nochars)
 
 void god_deleteinst_base(int cn, char *bname)
 {
-        delete_instance_base(bname);
-        do_char_log(cn, 1, "Deleted instance base %s.\n", bname);
+        int ret=delete_instance_base(bname);
+        if (ret) do_char_log(cn, 1, "Deleted instance base %s.\n", bname);
+        else do_char_log(cn, 0, "No instance base \"%s\" found.\n", bname);
 }
 
 void god_deleteinst(int cn, int inst_id)
 {
-        unload_instance(inst_id);
-        do_char_log(cn, 1, "Unloaded instance %d.\n", inst_id);
+        int ret=unload_instance(inst_id);
+        if (ret) do_char_log(cn, 1, "Unloaded instance %d.\n", inst_id);
+        else do_char_log(cn, 1, "No instance %d to unload.\n", inst_id);
 }
 
 void god_list_instbases(int cn)
@@ -1442,19 +1445,25 @@ void god_setinstspawn(int cn)
                 return;
         }
 
-        map_instances[inst_id].spawn_x = ch[cn].x;
-        map_instances[inst_id].spawn_y = ch[cn].y;
-        do_char_log(cn, 1, "Set the spawnpoint for this instance to your position. (%d / %d)\n", ch[cn].x, ch[cn].y);
+        int inst_b = get_instance_base_f(map_instances[inst_id].fname);
+        if (inst_b == -1) {
+                do_char_log(cn, 0, "Could not find base instance for this area.\n");
+                return;
+        }
+
+        map_instancebases[inst_b].spawn_x = ch[cn].x;
+        map_instancebases[inst_b].spawn_y = ch[cn].y;
+        do_char_log(cn, 1, "Set the spawnpoint for this instance's base (%s) to your position. (%d / %d)\n", map_instancebases[inst_b].name, ch[cn].x, ch[cn].y);
 }
 
 void god_tpmode(int cn)
 {
         if (ch[cn].flags&CF_TPMODE) {
                 ch[cn].flags&=~CF_TPMODE;
-                do_char_log(cn, 1, "Teleport movement mode inactive.\n");
+                do_char_log(cn, 1, "/|%d|Teleport movement mode inactive.\n", FNT_TURQUOISE);
         } else {
                 ch[cn].flags|=CF_TPMODE;
-                do_char_log(cn, 1, "Teleport movement mode active.\n");
+                do_char_log(cn, 1, "/|%d|Teleport movement mode active.\n", FNT_TURQUOISE);
         }
 }
 
@@ -1462,20 +1471,37 @@ void god_setmapcharges(int cn, int amap, int chg)
 {
         int amap_dev = get_mapdevice(cn);
         if (amap_dev == -1) {
-                do_char_log(cn, 1, "Could not find your map device data.\n");
+                do_char_log(cn, 0, "Could not find your map device data.\n");
                 return;
         }
         if (amap < 0 || amap >= AMAP_MAXBASES) {
-                do_char_log(cn, 1, "Areamap number out of bounds.\n");
+                do_char_log(cn, 0, "Areamap number out of bounds.\n");
                 return;
         }
         if (amap_bases[amap].used == USE_EMPTY) {
-                do_char_log(cn, 1, "Unused areamap base.\n");
+                do_char_log(cn, 0, "Unused areamap base.\n");
                 return;
         }
         amap_devices[amap_dev].map_charges[amap] = max(0, min(250, chg));
+        send_amapcharges(ch[cn].player, amap);
         do_char_log(cn, 1, "/|%d|Set map charges for %d (%s) to %d.\n",
                 FNT_EMERALD, amap, amap_bases[amap].name, amap_devices[amap_dev].map_charges[amap]);
+}
+
+void god_setmaporb(int cn, int orb, int amt)
+{
+        int amap_dev = get_mapdevice(cn);
+        if (amap_dev == -1) {
+                do_char_log(cn, 0, "Could not find your map device data.\n");
+                return;
+        }
+        if (orb < 0 || orb >= 5) {
+                do_char_log(cn, 0, "Orb ID out of bounds.\n");
+                return;
+        }
+        amap_devices[amap_dev].orbs[orb] = amt;
+        send_mapdev_data(ch[cn].player, 0);
+        do_char_log(cn, 1, "/|%d|Set orb #%d amount to %d.\n", FNT_EMERALD, orb, amt);
 }
 
 void god_tavern(int cn)

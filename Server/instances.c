@@ -124,10 +124,10 @@ int get_instance_base_f(char *fname)
 }
 
 // Delete an instance base map, existing instances copied from this map stay alive
-void delete_instance_base(char *bname)
+int delete_instance_base(char *bname)
 {
         int base_id = get_instance_base_f(bname);
-        if (base_id == -1) return;
+        if (base_id == -1) return 0;
 
         char fpath[60];
 
@@ -136,6 +136,8 @@ void delete_instance_base(char *bname)
         sprintf(fpath, DATDIR"/inst_basedata/%s.chr", map_instancebases[base_id].fname);
         remove(fpath);
         map_instancebases[base_id].used = USE_EMPTY;
+        xlog("Instance base %s removed.\n", bname);
+        return 1;
 }
 
 short inst_isalive(int inst_id)
@@ -162,9 +164,9 @@ int inst_getnewid()
 }
 
 // Saves the given instance state to its base map
-void save_inst_to_base(int inst_id)
+int save_inst_to_base(int inst_id)
 {
-        if (!inst_isalive(inst_id)) return;
+        if (!inst_isalive(inst_id)) return 0;
         
         int handle, inst_b;
         char fpath[60];
@@ -232,6 +234,8 @@ void save_inst_to_base(int inst_id)
                 write(handle, &tmp_char, sizeof(struct instcharacter));
         }
         close(handle);
+
+        return 1;
 }
 
 // Create an instance from the given map base, returns its new id, or -1 if it failed
@@ -349,9 +353,9 @@ int create_instance_frombase(char *mname, short nochars)
         return new_id;
 }
 
-void unload_instance(int inst_id)
+int unload_instance(int inst_id)
 {
-        if (!inst_isalive(inst_id)) return;
+        if (!inst_isalive(inst_id)) return 0;
 
         xlog("Unloading instance %d (%s).", inst_id, map_instances[inst_id].name);
 
@@ -394,6 +398,8 @@ void unload_instance(int inst_id)
 
         map_instances[inst_id].used = USE_EMPTY;
         free(map_instancedtiles[inst_id]);
+
+        return 1;
 }
 
 // Item expiration for instances

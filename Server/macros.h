@@ -92,6 +92,7 @@ All rights reserved.
 #define FNT_AQUA		1964
 #define FNT_SILVER		1965
 #define FNT_EMERALD		1966
+#define FNT_DEMON       1967
 
 // Chat font schemes
 #define CFNT_LOCAL      (FNT_SILVER)    // Area chat (say)

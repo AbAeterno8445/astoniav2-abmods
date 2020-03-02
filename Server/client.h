@@ -166,6 +166,8 @@ struct cplayer
 #define CL_CMD_JOININST			34
 #define CL_CMD_SELECTAMAP		35
 #define CL_CMD_ENTERAMAP		36
+#define CL_CMD_MAPORB			37
+#define CL_CMD_MAPMOD			38
 
 #define CL_CMD_CTICK			255
 

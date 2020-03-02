@@ -338,6 +338,7 @@ struct instcharacter
 #define CF_INST_TEMP    (1ull<<48)      // is an instance template - doesn't react and is removed when looked at
 #define CF_XRAY         (1ull<<49)      // has x-ray vision (sees through walls)
 #define CF_BREACH       (1ull<<50)      // belongs to a breach (will immediately despawn once its tile doesnt have the MF_PURPLE flag)
+#define CF_MAPBORN      (1ull<<51)      // spawned in an areamap instance
 
 #define AT_BRAVE        0
 #define AT_WILL         1

@@ -24,3 +24,4 @@ Breach portals are on-step items that use driver 71. Their data usage is as foll
 
 ### Associated commands:
 - **/setmapcharges \<base map id> \<amount>** - God only, sets the charges for the given map to the given amount.
+- **/setmaporb \<orb id> \<amount>** - God only, sets the amounts of the given orb to the given amount.

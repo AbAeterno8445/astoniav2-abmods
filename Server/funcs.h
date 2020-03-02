@@ -185,6 +185,7 @@ int god_read_banlist(void);
 void god_shutup(int cn,int co);
 void god_toggle_xray(int cn);
 void god_setmapcharges(int cn, int amap, int chg);
+void god_setmaporb(int cn, int orb, int amt);
 void god_setinstspawn(int cn);
 
 // ---- do ----
@@ -343,9 +344,9 @@ void instance_test();
 int create_instance_base(char *inst_name, char *fname, int wid, int hei);
 int create_instance_frombase(char *mname, short nochars);
 int get_instance_base_f(char *fname);
-void delete_instance_base(char *bname);
-void unload_instance(int inst_id);
-void save_inst_to_base(int inst_id);
+int delete_instance_base(char *bname);
+int unload_instance(int inst_id);
+int save_inst_to_base(int inst_id);
 short inst_isalive(int inst_id);
 
 int plr_check_target_inst(int inst_id,int m);
@@ -369,12 +370,20 @@ int get_mapdevice(int cn);
 void save_mapdevice(int cn);
 void unload_mapdevice(int cn);
 void delete_mapdevice(int cn);
+void mapdev_addexp(int cn, int xp);
+int amap_coords_to_ind(int coords);
 void send_amapbase(int nr, int amap);
 void send_amapbase_all(int nr);
 void send_amapcharges(int nr, int amap);
 void send_amapcharges_all(int nr);
-void send_mapdev_data(int nr);
+void send_mapdev_data(int nr, int open_gui);
 void send_selmap_data(int nr, int amap);
+
+int amap_getmod(int cn, int amap, int mod);
+void orb_description(int cn, int orb);
+void amap_mod_description(int cn, int amap, int mod_n);
+int amap_useorb(int cn, int amap, int orb);
+void instance_makemap(int cn, int inst_id, int amap);
 
 // -- breach --
 int new_breach(int brc_id);
