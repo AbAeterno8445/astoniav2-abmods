@@ -100,6 +100,7 @@
 #define FNT_AQUA		1964
 #define FNT_SILVER		1965
 #define FNT_EMERALD		1966
+#define FNT_DEMON       1967
 
 // Sub-window modes
 #define SUBWND_SHOP			1
@@ -254,6 +255,12 @@ extern char *at_name[];
 #define AMAP_CONN_S             (1<<5)
 #define AMAP_CONN_SW            (1<<6)
 #define AMAP_CONN_W             (1<<7)
+
+#define AMAP_ORB_ADD1			0
+#define AMAP_ORB_ADD2			1
+#define AMAP_ORB_ADD3			2
+#define AMAP_ORB_SCOUR			3
+#define AMAP_ORB_SHIVA			4
 
 #define AMAP_MAXBASES			100
 

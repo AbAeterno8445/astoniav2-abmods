@@ -36,7 +36,10 @@ int maptiers = 5;
 int mapdev_level = 1;
 long mapdev_exp = 0;
 long mapdev_expreq = 200;
+int amap_orbs[5] = {0};
 int amap_hovering = -1;
+int amap_orbhover = -1;
+int amap_modhover = -1;
 int amap_selected = -1;
 
 // from dd.c
@@ -272,196 +275,6 @@ int rank2points(int v)
 	return 0;
 }
 
-int points2EL(int v)
-{
-	if (v<	525)			return 1;
-	if (v<	1760)			return 2;
-	if (v<	3781)			return 3;
-	if (v<	7184)			return 4;
-	if (v<	12186)			return 5;
-	if (v<	19324)			return 6;
-	if (v<	29377)			return 7;
-	if (v<	43181)			return 8;
-	if (v<	61693)			return 9;
-	if (v<	85990)			return 10;
-	if (v<	117506)			return 11;
-	if (v<	157384)			return 12;
-	if (v<	207736)			return 13;
-	if (v<	269997)			return 14;
-	if (v<	346462)			return 15;
-	if (v<	439268)			return 16;
-	if (v<	551295)			return 17;
-	if (v<	685171)			return 18;
-	if (v<	843709)			return 19;
-	if (v<	1030734)		return 20;
-	if (v<	1249629)		return 21;
-	if (v<	1504995)		return 22;
-	if (v<	1800847)		return 23;
-	if (v<	2142652)		return 24;
-	if (v<	2535122)		return 25;
-	if (v<	2984677)		return 26;
-	if (v<	3496798)		return 27;
-	if (v<	4080655)		return 28;
-	if (v<	4742836)		return 29;
-	if (v<	5490247)		return 30;
-	if (v<	6334393)		return 31;
-	if (v<	7283446)		return 32;
-	if (v<	8384398)		return 33;
-	if (v<	9541110)		return 34;
-	if (v<	10874351)		return 35;
-	if (v<	12361842)		return 36;
-	if (v<	14018289)		return 37;
-	if (v<	15859432)		return 38;
-	if (v<	17905634)		return 39;
-	if (v<	20171471)		return 40;
-	if (v<	22679999)		return 41;
-	if (v<	25456123)		return 42;
-	if (v<	28517857)		return 43;
-	if (v<	31897771)		return 44;
-	if (v<	35621447)		return 45;
-	if (v<	39721017)		return 46;
-	if (v<	44225461)		return 47;
-	if (v<	49176560)		return 48;
-	if (v<	54607467)		return 49;
-	if (v<	60565335)		return 50;
-	if (v<	67094245)		return 51;
-	if (v<	74247659)		return 52;
-	if (v<	82075627)		return 53;
-	if (v<	90631041)		return 54;
-	if (v<	99984974)		return 55;
-	if (v<	110197515)		return 56;
-	if (v<	121340161)		return 57;
-	if (v<	133497202)		return 58;
-	if (v<	146749362)		return 59;
-	if (v<	161191120)		return 60;
-	if (v<	176922628)		return 61;
-	if (v<	194049893)		return 62;
-	if (v<	212684946)		return 63;
-	if (v<	232956711)		return 64;
-	if (v<	255001620)		return 65;
-	if (v<	278952403)		return 66;
-	if (v<	304972236)		return 67;
-	if (v<	333233648)		return 68;
-	if (v<	363906163)		return 69;
-	if (v<	397194041)		return 70;
-	if (v<	433312945)		return 71;
-	if (v<	472476370)		return 72;
-	if (v<	514937180)		return 73;
-	if (v<	560961898)		return 74;
-	if (v<	610815862)		return 75;
-	if (v<	664824416)		return 76;
-	if (v<	723298169)		return 77;
-	if (v<	786612664)		return 78;
-	if (v<	855129128)		return 79;
-	if (v<	929261318)		return 80;
-	if (v<	1009443795)		return 81;
-	if (v<	1096169525)		return 82;
-	if (v<	1189918242)		return 83;
-	if (v<	1291270350)		return 84;
-	if (v<	1400795257)		return 85;
-	if (v<	1519130326)		return 86;
-	if (v<	1646943474)		return 87;
-	if (v<	1784977296)		return 88;
-	if (v<	1934009687)		return 89;
-	
-	return 90;
-}
-
-int EL2points(int v)
-{
-	if (v==	2)		return 525;
-	if (v==	3)		return 1760;
-	if (v==	4)		return 3781;
-	if (v==	5)		return 7184;
-	if (v==	6)		return 12186;
-	if (v==	7)		return 19324;
-	if (v==	8)		return 29377;
-	if (v==	9)		return 43181;
-	if (v==	10)		return 61693;
-	if (v==	11)		return 85990;
-	if (v==	12)		return 117506;
-	if (v==	13)		return 157384;
-	if (v==	14)		return 207736;
-	if (v==	15)		return 269997;
-	if (v==	16)		return 346462;
-	if (v==	17)		return 439268;
-	if (v==	18)		return 551295;
-	if (v==	19)		return 685171;
-	if (v==	20)		return 843709;
-	if (v==	21)		return 1030734;
-	if (v==	22)		return 1249629;
-	if (v==	23)		return 1504995;
-	if (v==	24)		return 1800847;
-	if (v==	25)		return 2142652;
-	if (v==	26)		return 2535122;
-	if (v==	27)		return 2984677;
-	if (v==	28)		return 3496798;
-	if (v==	29)		return 4080655;
-	if (v==	30)		return 4742836;
-	if (v==	31)		return 5490247;
-	if (v==	32)		return 6334393;
-	if (v==	33)		return 7283446;
-	if (v==	34)		return 8384398;
-	if (v==	35)		return 9541110;
-	if (v==	36)		return 10874351;
-	if (v==	37)		return 12361842;
-	if (v==	38)		return 14018289;
-	if (v==	39)		return 15859432;
-	if (v==	40)		return 17905634;
-	if (v==	41)		return 20171471;
-	if (v==	42)		return 22679999;
-	if (v==	43)		return 25456123;
-	if (v==	44)		return 28517857;
-	if (v==	45)		return 31897771;
-	if (v==	46)		return 35621447;
-	if (v==	47)		return 39721017;
-	if (v==	48)		return 44225461;
-	if (v==	49)		return 49176560;
-	if (v==	50)		return 54607467;
-	if (v==	51)		return 60565335;
-	if (v==	52)		return 67094245;
-	if (v==	53)		return 74247659;
-	if (v==	54)		return 82075627;
-	if (v==	55)		return 90631041;
-	if (v==	56)		return 99984974;
-	if (v==	57)		return 110197515;
-	if (v==	58)		return 121340161;
-	if (v==	59)		return 133497202;
-	if (v==	60)		return 146749362;
-	if (v==	61)		return 161191120;
-	if (v==	62)		return 176922628;
-	if (v==	63)		return 194049893;
-	if (v==	64)		return 212684946;
-	if (v==	65)		return 232956711;
-	if (v==	66)		return 255001620;
-	if (v==	67)		return 278952403;
-	if (v==	68)		return 304972236;
-	if (v==	69)		return 333233648;
-	if (v==	70)		return 363906163;
-	if (v==	71)		return 397194041;
-	if (v==	72)		return 433312945;
-	if (v==	73)		return 472476370;
-	if (v==	74)		return 514937180;
-	if (v==	75)		return 560961898;
-	if (v==	76)		return 610815862;
-	if (v==	77)		return 664824416;
-	if (v==	78)		return 723298169;
-	if (v==	79)		return 786612664;
-	if (v==	80)		return 855129128;
-	if (v==	81)		return 929261318;
-	if (v==	82)		return 1009443795;
-	if (v==	83)		return 1096169525;
-	if (v==	84)		return 1189918242;
-	if (v==	85)		return 1291270350;
-	if (v==	86)		return 1400795257;
-	if (v==	87)		return 1519130326;
-	if (v==	88)		return 1646943474;
-	if (v==	89)		return 1784977296;
-	if (v==	90)		return 1934009687;
-
-	return 0;
-}
-
 /* Calculates experience to next level from current experience and the
    points2rank() function. As no inverse function is supplied we use a
    binary search to determine the experience for the next level.
@@ -496,21 +309,6 @@ int points_tolevel(int curr_exp)
         if (p0 > (20*curr_exp)) return 0;       // Can't do it
         p5++;
         return p5;*/
-}
-
-int points_tolevel_EL(int curr_exp)
-{
-        int curr_level, next_level, r, j;  //, p0, p5, p9;
-
-		if (!curr_exp) return 525;	//0 exp
-        curr_level = points2EL(curr_exp);
-        if (curr_level == 90) return 0;
-        next_level = curr_level + 1;
-
-		r = EL2points(next_level);
-		j = r-curr_exp;
-		
-		return j;
 }
 
 int attrib_needed(int n,int v)
@@ -548,8 +346,6 @@ int skill_needed(int n,int v)
 	return max(v,v*v*v*pl.skill[n][3]/40);
 }
 
-
-
 // ************* MAP **********************
 
 struct cmap *map=NULL;
@@ -572,6 +368,42 @@ void eng_init_amap(void)
 {
 	amap_bases = calloc(AMAP_MAXBASES, sizeof(struct areamap_base));
 }
+
+// ************* AREAMAP MODIFIERS ********
+
+// Try to keep the character count <23
+const char *amap_modtxt[] = {
+	"Skeletal",				//1 (inhabited by skeletons)
+	"Undead",				//2 (inhabited by undead)
+	"Demonic",				//3 (inhabited by gargoyles)
+	"Rock-strewn",			//4 (inhabited by golems)
+	"Haunted",				//5 (inhabited by ghosts)
+	"Twinned",				//6 (two unique bosses)
+	"Stalwart",				//7 (increased mob life)
+	"Enfeebling",			//8 (decreased player WV)
+	"Savage",				//9 (increased monster damage)
+	"Immune",				//10 (monsters gain immunity)
+	"Robust",				//11 (monsters gain BWI)
+	"Overlord's presence",	//12 (unique boss damage)
+	"Titan's presence",		//13 (unique boss life)
+	"Armoured",				//14 (increased monster AV)
+	"Empowered bless",		//15 (monsters gain bless)
+	"Venomous",				//16 (monsters cause poison)
+	"Dangerous",			//17 (monsters can critically strike)
+	"Smothering",			//18 (reduced player recovery of life/end/mana)
+	"Burned",				//19 (area has patches of burning ground)
+	"Frozen",				//20 (area has patches of freezing ground)
+	"Shocked",				//21 (area has patches of shocking ground)
+	"Drying",				//22 (reduced effectiveness of player healing effects)
+	"Deadly",				//23 (area contains deathtraps)
+	"Vulnerating",			//24 (players have reduced immunity and resistance)
+	"Excruciating",			//25 (players have a chance of losing maximum hp on hit)
+	"Otherworldly",			//26 (area contains breaches)
+	"Glacial",				//27 (inhabited by ice gargoyles)
+	"Scaly"					//28 (inhabited by lizards)
+};
+
+#define amap_modtxt_size	(sizeof(amap_modtxt) / sizeof(const char *))
 
 // ************* DISPLAY ******************
 
@@ -883,7 +715,7 @@ void eng_display_win(int plr_sprite,int init)
 			dd_xputtext(mid_x+364,mid_y+5,FNT_ORANGE,"Map manager");
 
 			if (amap_selected != -1) {
-				dd_xputtext(mid_x+364,mid_y+103,FNT_YELLOW,amap_sel.name);
+				dd_xputtext(mid_x+395-strlen(amap_sel.name)*3,mid_y+71,FNT_YELLOW,amap_sel.name);
 
 				dd_xputtext(mid_x+379,mid_y+250,FNT_YELLOW,"Enter");
 			} else {
@@ -898,6 +730,37 @@ void eng_display_win(int plr_sprite,int init)
 			if (mapdev_exp>0) n=min(156,156*(mapdev_exp/mapdev_expreq));
 			else n=0;
 			dd_showbar(mid_x+317,mid_y+25,n,3,(unsigned short)0xBB00);
+
+			// Map-modifying orbs
+			for (n=0; n<5; n++) {
+				if (amap_orbhover == n) copyspritex(6606 + n, mid_x + 480, mid_y + 114 + n * 31, 16);
+				else copyspritex(6606 + n, mid_x + 480, mid_y + 114 + n * 31, 0);
+
+				n1 = 0;
+				if (amap_orbs[n] > 9) n1++;
+				if (amap_orbs[n] > 99) n1++;
+				dd_xputtext(mid_x+498-n1*6,mid_y+135+n*31,FNT_ORANGE,"x%d",amap_orbs[n]);
+			}
+
+			// Selected map mods
+			if (amap_selected != -1) {
+				n1 = 0;
+				for (n=0; n<6; n++) {
+					while (n1 < AMAP_MAXMODS) {
+						if (amap_sel.mods[n1] != 0) {
+							if (amap_modhover == n) copyspritex(6611, mid_x + 317, mid_y + 94 + n * 19, 16);
+							else copyspritex(6611, mid_x + 317, mid_y + 94 + n * 19, 0);
+
+							if (n1 < amap_modtxt_size) dd_xputtext(mid_x + 335, mid_y + 97 + n * 19, FNT_BLUE, amap_modtxt[n1]);
+							else dd_xputtext(mid_x + 335, mid_y + 97 + n * 19, FNT_BLUE, "%d", amap_sel.mods[n1]);
+							n1++;
+							break;
+						}
+						n1++;
+					}
+					if (n1 >= AMAP_MAXMODS) break;
+				}
+			}
 
 			for (n=0; n<5; n++) {
 				for (n1=0; n1<4; n1++) {

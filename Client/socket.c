@@ -84,6 +84,7 @@ extern HWND desk_hwnd;
 
 extern struct areamap_base *amap_bases;
 extern struct areamap_selected amap_sel;
+extern int amap_orbs[];
 extern int maptiers;
 extern int mapdev_level;
 extern long mapdev_exp;
@@ -907,17 +908,41 @@ int sv_set_amapcharges(unsigned char *buf)
 
 int sv_set_mapdevdata(unsigned char *buf)
 {
+	int mode, ret=0;
+
 	DEBUG("SV SET MAPDEVDATA");
 
-	mapdev_level = *(unsigned short*)(buf+1);
-	mapdev_exp = *(unsigned long*)(buf+3);
+	mode = *(unsigned char*)(buf+1);
+	switch(mode) {
+		case 0: // Set experience & level
+			mapdev_level = *(unsigned short*)(buf+2);
+			mapdev_exp = *(unsigned long*)(buf+4);
+			ret = 12;
+		break;
+
+		case 1: // Set map-modifying orbs
+			amap_orbs[AMAP_ORB_ADD1] = *(unsigned short*)(buf+2);
+			amap_orbs[AMAP_ORB_ADD2] = *(unsigned short*)(buf+4);
+			amap_orbs[AMAP_ORB_ADD3] = *(unsigned short*)(buf+6);
+			amap_orbs[AMAP_ORB_SCOUR] = *(unsigned short*)(buf+8);
+			amap_orbs[AMAP_ORB_SHIVA] = *(unsigned short*)(buf+10);
+			ret = 12;
+		break;
+
+		case 2: // Whether to open gui
+			if (*(unsigned char*)(buf+2) == 1 && subwindow_mode != SUBWND_AMAPS) {
+				subwindow_mode = SUBWND_AMAPS;
+			}
+			ret = 3;
+		break;
+
+		default: ret = 12; break;
+	}
 
 	// Formula should match server-side (in server file map-device.c)
 	mapdev_expreq = 200 + (mapdev_level - 1) * (200 * (mapdev_level / 2));
 
-	if (subwindow_mode != SUBWND_AMAPS) subwindow_mode = SUBWND_AMAPS;
-
-	return 11;
+	return ret;
 }
 
 int sv_set_selmapdata(unsigned char *buf)
@@ -948,6 +973,14 @@ int sv_set_selmapdata(unsigned char *buf)
 				amap_sel.name[n+28] = buf[n+2];
 			}
 			return 14;
+		
+		case 3:
+			// Setting mods
+			n = *(unsigned char*)(buf+2);
+			if (n < AMAP_MAXMODS) {
+				amap_sel.mods[n] = *(unsigned int*)(buf+3);
+			}
+			return 7;
 	}
 	return 16;
 }

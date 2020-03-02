@@ -6,7 +6,7 @@
 
 extern int init_done;
 extern unsigned int inv_pos,skill_pos;
-extern int amap_pos,maptiers,amap_hovering,amap_selected;
+extern int amap_pos,maptiers,amap_hovering,amap_selected,amap_orbhover,amap_modhover;
 extern struct areamap_base *amap_bases;
 extern unsigned int look_nr,look_type;
 extern unsigned char inv_block[];
@@ -851,6 +851,18 @@ void cmd1s(int cmd,int x)
 	xsend(buf);
 }
 
+void cmd2(int cmd,int x,int y,int s)
+{
+	unsigned char buf[16];
+
+	if (!s) play_sound("sfx\\click.wav",-1000,0);
+
+	buf[0]=(char)cmd;
+	*(unsigned int*)(buf+1)=x;
+	*(unsigned int*)(buf+5)=y;
+	xsend(buf);
+}
+
 void mouse_mapbox(int x,int y,int state)
 {
 	int mx,my,m,keys,dist_diff;
@@ -1145,17 +1157,19 @@ int mouse_amapsmenu(int x,int y,int mode)
 	int mid_x, mid_y;
 
 	amap_hovering = -1;
+	amap_orbhover = -1;
+	amap_modhover = -1;
 	if (subwindow_mode != SUBWND_AMAPS) return 0;
 
 	mid_x = screen_width / 2 - 256;
 	mid_y = screen_height / 2 - 80;
 
-	if (x>mid_x+470 && x<mid_x+487 && y>mid_y && y<mid_y+15) {
+	if (x>mid_x+470 && x<mid_x+512 && y>mid_y && y<mid_y+15) {
 		if (mode==MS_LB_UP) { subwindow_mode=0; }
 		return 1;
 	}
 
-	if (x>mid_x && x<mid_x+487 && y>mid_y && y<mid_y+270) {
+	if (x>mid_x && x<mid_x+512 && y>mid_y && y<mid_y+270) {
 		// Mouse hovering over maps
 		for (n=0; n<5; n++) {
 			for (n1=0; n1<4; n1++) {
@@ -1167,6 +1181,47 @@ int mouse_amapsmenu(int x,int y,int mode)
 						cmd1(CL_CMD_SELECTAMAP, amap_selected);
 					}
 					break;
+				}
+			}
+
+			// Mouse hovering over map-modifying orbs
+			if (x>mid_x + 480 && x<mid_x + 512 && y>mid_y + 114 + n * 31 && y<mid_y + 146 + n * 31) {
+				amap_orbhover = n;
+				cursor_type=CT_USE;
+
+				if (mode==MS_LB_UP) {
+					if (GetAsyncKeyState(VK_SHIFT)&0x8000) {
+						if (amap_selected != -1) {
+							// Use orb
+							cmd2(CL_CMD_MAPORB, n, amap_selected, 0);
+						} else {
+							xlog(0, "You must select a map first.");
+						}
+					} else {
+						// Get orb description
+						cmd1(CL_CMD_MAPORB, n+100);
+					}
+				}
+			}
+		}
+
+		// Mouse hovering over map mods
+		if (amap_selected != -1) {
+			if (x>mid_x + 317 && x<mid_x + 333) {
+				for (n=0; n<6; n++) {
+					if (y>mid_y + 94 + n * 19 && y<mid_y + 110 + n * 19) {
+						amap_modhover = n;
+						cursor_type=CT_USE;
+						if (mode==MS_LB_UP) {
+							if (GetAsyncKeyState(VK_SHIFT)&0x8000) {
+								// Get all mods' description
+								cmd2(CL_CMD_MAPMOD, n+100, amap_selected, 0);
+							} else {
+								// Get mod description
+								cmd2(CL_CMD_MAPMOD, n, amap_selected, 0);
+							}
+						}
+					}
 				}
 			}
 		}
