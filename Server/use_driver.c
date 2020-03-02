@@ -93,8 +93,10 @@ int use_door(int cn,int in)
         reset_go(it[in].x,it[in].y,inst_id);
         remove_lights(it[in].x,it[in].y,inst_id);
 
-        if (inst_id == -1) do_area_sound(0,0,it[in].x,it[in].y,10);
-        else do_area_sound_inst(inst_id,0,0,it[in].x,it[in].y,10);
+        int door_sfx = 10;
+        if (it[in].data[4]) door_sfx = it[in].data[4];
+        if (inst_id == -1) do_area_sound(0,0,it[in].x,it[in].y,door_sfx);
+        else do_area_sound_inst(inst_id,0,0,it[in].x,it[in].y,door_sfx);
 
         if (!it[in].active) {
                 it[in].flags&=~(IF_MOVEBLOCK|IF_SIGHTBLOCK);
@@ -2338,7 +2340,7 @@ int use_mapdevice(int cn,int in)
 
         int nr = ch[cn].player;
         send_amapcharges_all(nr);
-        send_mapdev_data(nr);
+        send_mapdev_data(nr, 1);
         return 1;
 }
 
@@ -2397,13 +2399,22 @@ void use_mapdevice_openport(int cn, int amap)
 
         // Verify correct instance base
         char inst_bname[100];
-        sprintf(inst_bname, "%s%ld", amap_bases[amap].inst_base_name, RANDOM(amap_bases[amap].layouts) + 1);
+        int chosen_lay = RANDOM(amap_bases[amap].layouts) + 1;
+        sprintf(inst_bname, "%s%d", amap_bases[amap].inst_base_name, chosen_lay);
         
         int inst_b = get_instance_base_f(inst_bname);
         if (inst_b == -1) {
-                do_char_log(cn, 0, "Could not find the instance base configured for this map.\n");
-                chlog(cn, "Error using map device: No instance base for \"%s\" was found.", inst_bname);
-                return;
+                if (chosen_lay == 1) {
+                        // Try base name without appended number if layout 1 chosen
+                        sprintf(inst_bname, "%s", amap_bases[amap].inst_base_name);
+                        inst_b = get_instance_base_f(inst_bname);
+                }
+
+                if (inst_b == -1) {
+                        do_char_log(cn, 0, "Could not find the instance base configured for this map.\n");
+                        chlog(cn, "Error using map device: No instance base for \"%s\" was found.", inst_bname);
+                        return;
+                }
         }
 
         // Verify target for portal is clear
@@ -2449,6 +2460,8 @@ void use_mapdevice_openport(int cn, int amap)
                 return;
         }
         map_instances[tgt_inst].owner = ch[cn].player;
+
+        instance_makemap(cn, tgt_inst, amap);
 
         it[in_port].driver = 72;
         it[in_port].data[0] = tgt_inst;

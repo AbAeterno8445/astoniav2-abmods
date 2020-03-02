@@ -39,7 +39,7 @@ eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can sen
 - **/instnew \<basename> \<nochars>** - Attempts to create an instance out of an existing base with name \<basename>.
     If \<nochars> is 1 or higher, the new instance won't load any characters (for easier map editing).
 
-- **/instsetspawn** - Sets the spawn position of the instance you're in to your current position.
+- **/instsetspawn** - Sets the spawn position of the instance base you're in to your current position.
 
 - **/instsave** - Saves the map data of the instance you're currently in to its base.
 

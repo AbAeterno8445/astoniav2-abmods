@@ -17,6 +17,7 @@ All rights reserved.
 #include <math.h>
 
 #include "server.h"
+#include "map-device.h"
 
 #define KILLERONLY
 
@@ -1832,6 +1833,7 @@ void do_command(int cn, char *ptr)
 		if (prefix(cmd,"steal") && f_gg)	{ do_steal_player(cn,arg[1],arg[2]); return; };
                 if (prefix(cmd,"summon") && f_g)        { god_summon(cn,arg[1],arg[2],arg[3]); return; };
                 if (prefix(cmd,"setmapcharges") && f_g) { god_setmapcharges(cn,atoi(arg[1]),atoi(arg[2])); return; };
+                if (prefix(cmd,"setmaporb") && f_g)     { god_setmaporb(cn,atoi(arg[1]),atoi(arg[2])); return; }
                 break;
         case 't':
                 if (prefix(cmd,"tell"))            	{ do_tell(cn,arg[1],args[1]); return; };
@@ -2048,7 +2050,9 @@ void do_sayx(int cn,char *format,...)
 
 int do_char_score(int cn)
 {
-        return (int)(sqrt(ch[cn].points_tot))/7+7;
+        int mapmult = 1;
+        if (ch[cn].flags&CF_MAPBORN) mapmult = AMAP_XPMULT;
+        return (int)((sqrt(ch[cn].points_tot))/7+7)*mapmult;
 }
 
 void remove_enemy(int co)
@@ -2733,8 +2737,10 @@ int do_hurt(int cn,int co,int dam,int type)
                 }
                 do_char_killed(cn,co);
 
-
-                if (type!=2 && cn && cn!=co && !(mf&MF_ARENA) && !noexp) do_give_exp(cn,tmp,1,rank);
+                if (type!=2 && cn && cn!=co && !(mf&MF_ARENA) && !noexp) {
+                        do_give_exp(cn,tmp,1,rank);
+                        if (ch[co].flags&CF_MAPBORN) mapdev_addexp(cn, (int)floor((float)tmp / AMAP_XPMULT));
+                }
 
                 ch[cn].cerrno=ERR_SUCCESS;
         } else {
@@ -3189,13 +3195,13 @@ void really_update_char(int cn)
                 if (it[m].active) {
                         armor+=it[m].armor[1];
                         gethit+=it[m].gethit_dam[1];
-                        if (it[m].weapon[1]>weapon) weapon=it[m].weapon[1];
+                        weapon+=it[m].weapon[1];
                         if (it[m].light[1]>light) light=it[m].light[1];
                         else if (it[m].light[1]<0) sublight-=it[m].light[1];
                 } else {
                         armor+=it[m].armor[0];
                         gethit+=it[m].gethit_dam[0];
-                        if (it[m].weapon[0]>weapon) weapon=it[m].weapon[0];
+                        weapon+=it[m].weapon[0];
                         if (it[m].light[0]>light) light=it[m].light[0];
                         else if (it[m].light[0]<0) sublight-=it[m].light[0];
                 }
@@ -3359,6 +3365,7 @@ void do_regenerate(int cn)
         if (ch[cn].flags&CF_NOMANAREG) nomana=1;
 
         inst_id = ch[cn].instance_id;
+        if (!inst_isalive(inst_id)) return;
 
         if (inst_id == -1) {
                 if (map[ch[cn].x + ch[cn].y * MAPX].flags&MF_UWATER) uwater=1;

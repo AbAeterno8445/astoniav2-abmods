@@ -659,6 +659,54 @@ void plr_cmd_enter_amap(int nr)
         use_mapdevice_openport(player[nr].usnr, amap);
 }
 
+void plr_cmd_maporb(int nr)
+{
+        int cn = player[nr].usnr;
+        int orb=*(unsigned int*)(player[nr].inbuf+1);
+
+        if (floor(orb / 100) == 1) {
+                orb_description(cn, orb-100);
+                return;
+        }
+
+        int amap_pos=*(unsigned int*)(player[nr].inbuf+5);
+        int amap = amap_coords_to_ind(amap_pos);
+        if (amap == -1) {
+                do_char_log(cn, 0, "Could not find that map's index.\n");
+                return;
+        }
+
+        if (amap_useorb(cn, amap, orb)) {
+                send_selmap_data(nr, amap_pos);
+        }
+}
+
+void plr_cmd_mapmod(int nr)
+{
+        int cn = player[nr].usnr;
+
+        int all = 0;
+        int mod_n=*(unsigned int*)(player[nr].inbuf+1);
+        if (floor(mod_n / 100) == 1) {
+                all = 1;
+        }
+        int amap_pos=*(unsigned int*)(player[nr].inbuf+5);
+        int amap = amap_coords_to_ind(amap_pos);
+        if (amap == -1) {
+                do_char_log(cn, 0, "Could not find that map's index.\n");
+                return;
+        }
+
+        if (all) {
+                do_char_log(cn, 2, "Map modifier list:\n");
+                for (int i=0; i<6; i++) {
+                        amap_mod_description(cn, amap, i);
+                }
+        } else {
+                amap_mod_description(cn, amap, mod_n);
+        }
+}
+
 void plr_cmd_attack(int nr)
 {
         int cn,co;
@@ -1042,6 +1090,8 @@ void plr_cmd(int nr)
                 case CL_CMD_JOININST:   plr_cmd_joininst(nr); return;
                 case CL_CMD_SELECTAMAP: plr_cmd_sel_amap(nr); return;
                 case CL_CMD_ENTERAMAP:  plr_cmd_enter_amap(nr); return;
+                case CL_CMD_MAPORB:     plr_cmd_maporb(nr); return;
+                case CL_CMD_MAPMOD:     plr_cmd_mapmod(nr); return;
         }
 
         if (ch[cn].stunned) return;
@@ -2301,7 +2351,7 @@ void plr_getmap_complete(int nr)
         for (n=YSCUT*RENDERDIST+XSCUT,m=xs+ys*m_wid,y=ys; y<ye; y++,m+=m_wid-RENDERDIST+XSCUT+XECUT,n+=XSCUT+XECUT) {
                 for (x=xs; x<xe; x++,n++,m++) {
 
-                        if (inst_id == -1) {
+                        /*if (inst_id == -1) {
                                 if (do_all || map[m].it || map[m].ch || mcmp(&player[nr].xmap[n],&map[m],sizeof(struct map))) {	// any change on map data?
                                         mcpy(&player[nr].xmap[n],&map[m],sizeof(struct map)); 		// remember changed values
                                 } else continue;
@@ -2309,7 +2359,7 @@ void plr_getmap_complete(int nr)
                                 if (do_all || map_instancedtiles[inst_id][m].it || map_instancedtiles[inst_id][m].ch || mcmp(&player[nr].xmap[n],&map_instancedtiles[inst_id][m],sizeof(struct map))) {
                                         mcpy(&player[nr].xmap[n],&map_instancedtiles[inst_id][m],sizeof(struct map));
                                 } else continue;
-                        }
+                        }*/ //TODO - performance test with this commented block; instanced version caused segfault when jumping from one instance to another, both with an enemy on sight
 
 			//player[nr].changed_field[p++]=n;
 
