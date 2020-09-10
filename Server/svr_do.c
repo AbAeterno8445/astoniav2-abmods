@@ -3357,6 +3357,7 @@ void do_regenerate(int cn)
         if (ch[cn].flags&CF_NOMANAREG) nomana=1;
 
         inst_id = ch[cn].instance_id;
+        if (inst_id != -1 && !inst_isalive(inst_id)) return;
 
         if (inst_id == -1) {
                 if (map[ch[cn].x + ch[cn].y * MAPX].flags&MF_UWATER) uwater=1;
