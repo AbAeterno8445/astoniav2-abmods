@@ -11,6 +11,7 @@ All rights reserved.
 #include <string.h>
 
 #include "server.h"
+#include "npc.h"
 
 int friend_is_enemy(int cn,int cc)
 {
@@ -1859,6 +1860,7 @@ void skill_driver(int cn,int nr)
 
                 // Special NPC-only spells
                 case    SSK_BLASTCLAW:  skill_blastclaw(cn); break;
+                case    SSK_BLASTSTAR:  skill_blaststar(cn); break;
 
                 default:                do_char_log(cn,0,"You cannot use this skill/spell.\n"); break;
         }

@@ -384,9 +384,6 @@ struct instcharacter
 #define SK_WARCRY	35
 #define SK_WARCRY2	(SK_WARCRY+100)
 
-// For special NPC-only spells
-#define SSK_BLASTCLAW   200
-
 /* ch.data[] definitions */
 /* (this list is growing very slowly;
    see definitions at the beginning of driver.c for NPCs and

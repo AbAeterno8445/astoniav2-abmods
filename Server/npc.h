@@ -24,3 +24,16 @@ void npc_cityattack_low(int cn);
 int npc_malte_msg(int cn,int type,int dat1,int dat2,int dat3,int dat4);
 int npc_malte_high(int cn);
 void npc_malte_low(int cn);
+
+// -- npc heartbeat --
+int npc_hbeat_msg(int cn);
+int npc_hbeat_fight(int cn);
+int npc_hbeat_high(int cn);
+void npc_hbeat_low(int cn);
+
+// -- special npc skills --
+void skill_blastclaw(int cn);
+void skill_blaststar(int cn);
+
+#define SSK_BLASTCLAW   200
+#define SSK_BLASTSTAR   201

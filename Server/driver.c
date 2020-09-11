@@ -871,9 +871,8 @@ int npc_msg(int cn,int type,int dat1,int dat2,int dat3,int dat4)
                         case    1:      return npc_stunrun_msg(cn,type,dat1,dat2,dat3,dat4);
                         case    2:      return npc_cityattack_msg(cn,type,dat1,dat2,dat3,dat4);
                         case    3:      return npc_malte_msg(cn,type,dat1,dat2,dat3,dat4);
-                        default:        chlog(cn,"unknown special driver %d",ch[cn].data[25]); break;
+                        default:        if (npc_hbeat_msg(cn)) return 1;
                 }
-                return 0;
         }
         switch(type) {
                 case    NT_GOTHIT:      return npc_gothit(cn,dat1,dat2);
@@ -1019,6 +1018,18 @@ void die_companion(int cn)
         do_char_killed(0,cn);
 }
 
+void npc_reset_orders(int cn)
+{
+        // reset former orders
+        ch[cn].use_nr=0;
+        ch[cn].skill_nr=0;
+        ch[cn].attack_cn=0;
+        ch[cn].goto_x=0;
+        ch[cn].goto_y=0;
+        ch[cn].misc_action=0;
+        ch[cn].cerrno=0;
+}
+
 int npc_driver_high(int cn)
 {
         int x,y,in,co,indoor1,indoor2,cc,in2;
@@ -1029,9 +1040,8 @@ int npc_driver_high(int cn)
                         case    1:      return npc_stunrun_high(cn);
                         case    2:      return npc_cityattack_high(cn);
                         case    3:      return npc_malte_high(cn);
-                        default:        chlog(cn,"unknown special driver %d",ch[cn].data[25]); break;
+                        default:        if (npc_hbeat_high(cn)) return 1; break; // Heartbeat system
                 }
-                return 0;
         }
 
         inst_id = ch[cn].instance_id;
@@ -1194,7 +1204,7 @@ int npc_driver_high(int cn)
                 if (npc_quaff_potion(cn,833,254)) return 1;         // use greenling pot if available
                 if (npc_quaff_potion(cn,267,254)) return 1;         // use ratling pot if available
 
-                if (npc_heartbeat_fight(cn)) return 1;
+                if (npc_hbeat_fight(cn)) return 1;
 
                 if (co && (ch[cn].a_hp<ch[cn].hp[5]*600 || !RANDOM(10))) { // we're losing
                         if (npc_try_spell(cn,co,SK_BLAST)) return 1;
@@ -1629,7 +1639,7 @@ void npc_driver_low(int cn)
                         case    1:      npc_stunrun_low(cn); return;
                         case    2:      npc_cityattack_low(cn); return;
                         case    3:      npc_malte_low(cn); return;
-                        default:        chlog(cn,"unknown special driver %d",ch[cn].data[25]); break;
+                        default:        npc_hbeat_low(cn); break;
                 }
                 return;
         }

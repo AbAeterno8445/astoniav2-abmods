@@ -299,6 +299,7 @@ void pop_tick(void);
 int extend(int handle, long sizereq, size_t sizeone, void*templ);
 
 //-- helper --
+int check_map_go(int x,int y,int inst_id);
 void reset_go(int x,int y,int inst_id);
 void remove_lights(int x,int y,int inst_id);
 void add_lights(int x,int y,int inst_id);
@@ -390,11 +391,6 @@ int new_breach(int brc_id);
 void breach_tick(int brc_in);
 void process_breaches(int cltick);
 
-// -- npc heartbeat --
-int npc_heartbeat_fight(int cn);
-
-void skill_blastclaw(int cn);
-
 //-- converter --
 int converter_main();
 
@@ -407,6 +403,8 @@ void item_info(int cn,int in,int look);
 void spell_from_item(int cn,int in2);
 int add_spell(int cn,int in);
 void remove_spells(int cn);
+void add_exhaust(int cn,int len);
+int is_exhausted(int cn);
 int is_facing(int cn,int co);
 int is_back(int cn,int co);
 int spell_light(int cn,int co,int power);
@@ -424,6 +422,7 @@ int player_or_ghost(int cn,int co);
 // -- driver --
 int npc_driver_high(int cn);
 void npc_driver_low(int cn);
+void npc_reset_orders(int cn);
 int npc_msg(int cn,int type,int dat1,int dat2,int dat3,int dat4);
 void update_shop(int cn);
 int step_driver(int cn,int in);

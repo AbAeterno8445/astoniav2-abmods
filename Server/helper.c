@@ -58,7 +58,7 @@ static inline int check_map_see(int x,int y,int inst_id)
         return 1;
 }
 
-static inline int check_map_go(int x,int y,int inst_id)
+int check_map_go(int x,int y,int inst_id)
 {
         int m;
 
