@@ -21,6 +21,7 @@ All rights reserved.
 
 struct map *map;
 struct mapinstance *map_instancebases;
+struct mapedit_queue *maped_queue;
 struct character *ch;
 struct item *it;
 struct character *ch_temp;
@@ -70,6 +71,21 @@ int load(void)
 
         map=mmap(NULL,MAPSIZE,PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
         if (map==(void*)-1) return -1;
+        close(handle);
+
+        /** MAP EDITOR QUEUE **/
+        xlog("Loading MAPED_QUEUE: Item size=%d, file size %dK",
+                sizeof(struct mapedit_queue), MAPED_QUEUE_SIZE>>10);
+
+        handle=open(DATDIR"/mapedQ.dat",O_RDWR);
+        if (handle==-1) {
+                xlog("Building map editor queue");
+                handle=open(DATDIR"/mapedQ.dat",O_RDWR|O_CREAT,0655);
+        }
+        if (!extend(handle, MAPED_QUEUE_SIZE, sizeof(struct mapedit_queue), &maped_queue)) return -1;
+
+        maped_queue=mmap(NULL,MAPED_QUEUE_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,handle,0);
+        if (maped_queue==(void*)-1) return -1;
         close(handle);
 
         /** CHAR **/
@@ -243,4 +259,5 @@ void unload(void)
         if (munmap(fx,EFFECTSIZE)) xlog("ERROR munmap(fx) %s",strerror(errno));
         if (munmap(globs,sizeof(struct global))) xlog("ERROR: munmap(globs) %s",strerror(errno));
         if (munmap(map_instancebases,INST_BASES_SIZE)) xlog("ERROR: munmap(map_instancebases) %s",strerror(errno));
+        if (munmap(maped_queue,MAPED_QUEUE_SIZE)) xlog("ERROR: munmap(maped_queue) %s",strerror(errno));
 }

@@ -4,6 +4,8 @@ Server/info.cgi
 Server/server
 Server/password
 Server/server.pid
+Server/cgi/assets/*.bmp
+Server/cgi/assets/*.png
 Client/gfx/*.png
 Client/gfx/*.bmp
 Client/.*

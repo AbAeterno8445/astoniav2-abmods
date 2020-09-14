@@ -1359,6 +1359,7 @@ int main(int argc, char *args[])
 						printf("<a href=/cgi-imp/acct.cgi?step=51>New characters (only if they got a high ID)</a><br><br>");
 				        printf("<a href=/cgi-imp/acct.cgi?step=21>Object Templates</a><br>");
 				        printf("<a href=/cgi-imp/acct.cgi?step=31>Object Driver List</a><br>");
+                                        printf("<br><a href=/cgi-imp/mapper.cgi>Online Map Editor</a><br>");
                         break;
         }
 

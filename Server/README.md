@@ -9,6 +9,8 @@ Remember to extract .dat.tar.xz back into a .dat folder.
 - **Multi-colored text format:** You may have lines with multiple colors using the format '/|\<font code>|'.
 eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can send messages formatted this way directly from the client. Check font macros in **macros.h** for all available fonts.
 
+- **CGI map editor:** found as mapper.cgi, you can use it to edit rectangular areas of the map directly from the web. Changes are reflected live if the server is up, or get queued if it's offline. Make sure to include any new graphics you use into the cgi/assets folder, and set it as static in your webserver.
+
 ## New macros/settings
 - **gendefs.h:**
     - **TURNING_ENABLED:** 0 or 1, enables/disables character turning animations.

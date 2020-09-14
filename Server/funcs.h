@@ -284,6 +284,7 @@ int fx_add_effect(int type,int duration,int d1,int d2,int d3,int inst_id);
 void look_driver(int cn,int in);
 
 //-- build --
+int build_item(int nr,int x,int y,int inst_id,short silent);
 void build_drop(int x,int y,int in,int inst_id,short silent);
 void build_remove(int x,int y,int inst_id);
 void pop_tick(void);

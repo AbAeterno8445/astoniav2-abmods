@@ -1,4 +1,4 @@
-all: server cgi/info.cgi respawn password cgi/acct.cgi 
+all: server cgi/info.cgi respawn password cgi/acct.cgi cgi/mapper.cgi 
 
 CC=gcc -m32
 DEBUG=-g
@@ -27,6 +27,10 @@ cgi/info.cgi: info.c gendefs.h data.h
 cgi/acct.cgi: acct.c gendefs.h data.h .obj/skill.o
 	$(CC) $(CFLAGS) -Icgilib -o acct.cgi acct.c .obj/skill.o cgilib/cgi-lib.a
 	cp acct.cgi cgi/acct.cgi
+
+cgi/mapper.cgi: mapper.c gendefs.h data.h
+	$(CC) $(CFLAGS) -Icgilib -o mapper.cgi mapper.c cgilib/cgi-lib.a
+	cp mapper.cgi cgi/mapper.cgi
 
 respawn: respawn.c $(SHEADER)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o respawn respawn.c
@@ -122,7 +126,7 @@ password: password.c $(SHEADER)
 	$(CC) $(CFLAGS) -o .obj/rdtsc.o -c rdtsc.S
 
 clean:
-	- rm server acct.cgi info.cgi .obj/*.o *~
+	- rm server acct.cgi info.cgi mapper.cgi .obj/*.o *~
 
 dist:
 	rm -f merc2.tgz
