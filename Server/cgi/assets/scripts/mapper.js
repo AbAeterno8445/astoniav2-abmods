@@ -253,7 +253,12 @@ function itemTempClick(temp_id) {
     if (selected_item_elem) {
         selected_item_elem.style.border = "1px blue solid";
     }
-    document.getElementById("span-seltemp").innerHTML = "Selected: " + selected_item.temp_id;
+
+    var tmp_spantxt = "Selected: " + selected_item.temp_id;
+    if (selected_item.type == "flag") tmp_spantxt = "Selected: " + temp_id;
+    document.getElementById("span-seltemp").innerHTML = tmp_spantxt;
+    
+    renderGrid();
 }
 
 function applyTempFilter() {

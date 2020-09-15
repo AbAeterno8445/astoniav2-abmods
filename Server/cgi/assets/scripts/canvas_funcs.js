@@ -285,16 +285,30 @@ function renderGrid() {
 
             // Draw flags
             if (drawFlags) {
+                // Outline flag if it matches selected item template
+                var matchFlag = "";
+                if (selected_item && selected_item.type == "flag") {
+                    for (var flag in selected_item.flags) {
+                        if (selected_item.flags[flag]) matchFlag = flag;
+                    }
+                }
+
                 var flagSize = Math.ceil(gridTileSize / 6);
                 var fpos = 0;
                 for (var flag in tile.flags) {
                     if (tile.flags[flag]) {
                         if (item_templates.hasOwnProperty("flag_" + flag)) {
                             gridCanvas.ctx.fillStyle = item_templates["flag_" + flag].color;
+                            gridCanvas.ctx.strokeStyle = item_templates["flag_" + flag].color;
                         }
                         var fpos_x = (fpos % 5) * flagSize;
                         var fpos_y = gridTileSize - (1 + Math.floor(fpos / 5)) * flagSize;
                         gridCanvas.ctx.fillRect(draw_x + fpos_x, draw_y + fpos_y, flagSize, flagSize);
+
+                        if (flag == matchFlag) {
+                            gridCanvas.ctx.lineWidth = 2;
+                            gridCanvas.ctx.strokeRect(draw_x + 1, draw_y + 1, gridTileSize - 2, gridTileSize - 2);
+                        }
                     }
                     fpos++;
                 }
