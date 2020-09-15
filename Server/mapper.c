@@ -577,6 +577,9 @@ void scriptMapper()
     printf("}, this.redrawTimeout);\n");
     printf("return;\n");
     printf("}\n");
+    printf("if (x + 100 < img.width || y + 100 < img.height || x > this.cv.width || y > this.cv.height) {\n");
+    printf("return;\n");
+    printf("}\n");
     printf("this.ctx.drawImage(img, x, y);\n");
     printf("}\n");
     
@@ -732,13 +735,13 @@ void scriptMapper()
         if (it_temp[i].used == USE_EMPTY) continue;
         if (it_temp[i].flags&(IF_TAKE)) continue;
 
-        char *it_type = "item";
-        char *it_color = "yellow";
+        char *it_type = "wall";
+        char *it_color = "gray";
 
-        // Generally assumes that items with both moveblock and sightblock, that can't be used, are walls
-        if (it_temp[i].flags&(IF_MOVEBLOCK) && it_temp[i].flags&(IF_SIGHTBLOCK) && !(it_temp[i].flags&(IF_USE))) {
-            it_type = "wall";
-            it_color = "gray";
+        // Considers templates with any of these flags as 'item' type
+        if (it_temp[i].flags&(IF_TAKE|IF_LOOK|IF_LOOKSPECIAL|IF_USE|IF_USESPECIAL) || !(it_temp[i].flags&(IF_MOVEBLOCK))) {
+            it_type = "item";
+            it_color = "yellow";
         }
         printf("item_templates[\"it_temp\" + %d] = new ItemTemp(%d, %d, \"%s\", \"%s\");\n", i, i, it_temp[i].sprite[0], it_type, it_color);
     }
@@ -997,12 +1000,21 @@ void scriptMapper()
     printf("hideWalls = !hideWalls;\n");
     printf("renderPreview();\n");
     printf("}\n");
-    
+
     printf("function renderPreview() {\n");
     printf("prevCanvas.clearContext();\n");
-    printf("for (var i = 0; i < tilemap_height; i++) {\n");
-    printf("for (var j = tilemap_width - 1; j >= 0; j--) {\n");
+
+    printf("var cam_x = prevCanvas.cv.width / 2 - prevCanvas.drawXOffset;\n");
+    printf("var cam_y = prevCanvas.cv.height / 2 - prevCanvas.drawYOffset;\n");
+    printf("var x1 = Math.max(0, Math.round((cam_x - prevCanvas.cv.width - cam_y*2) / 32));\n");
+    printf("var x2 = Math.max(0, Math.min(tilemap_width - 1, Math.round((cam_x + prevCanvas.cv.width - cam_y*2) / 32)));\n");
+    printf("var y1 = Math.max(0, Math.round((cam_y - prevCanvas.cv.height + cam_x/2) / 16));\n");
+    printf("var y2 = Math.max(0, Math.min(tilemap_height - 1, Math.round((cam_y + prevCanvas.cv.height + cam_x/2) / 16)));\n");
+    
+    printf("for (var i = y1; i < y2; i++) {\n");
+    printf("for (var j = x2; j >= x1; j--) {\n");
     printf("var tile_id = j + i * tilemap_width;\n");
+    printf("if (!tilemap.hasOwnProperty(\"maptile\" + tile_id)) continue;\n");
     printf("var tile = tilemap[\"maptile\" + tile_id];\n");
     
     printf("// Floor\n");
@@ -1079,9 +1091,12 @@ void scriptPrevCanvas()
     printf("var clickX = 0, clickY = 0;\n");
     printf("var cameraX = 0, cameraY = 0;\n");
     printf("var cam_startx = cameraX, cam_starty = cameraY;\n");
+    //printf("var dragRender = 1;\n");
 
     printf("function canvasMouseMove(event) {\n");
     printf("if (mouseDown) {\n");
+    //printf("dragRender = 0;\n");
+    //printf("setTimeout(() => { dragRender = 1; }, 100);\n");
     printf("cameraX = cam_startx - (clickX - event.clientX);\n");
     printf("cameraY = cam_starty - (clickY - event.clientY);\n");
     printf("prevCanvas.drawXOffset = 200 + cameraX;\n");
