@@ -315,14 +315,9 @@ function mapCellClick(id, clickType) {
         }
     } else if (clickType == 2) {
         // Remove item/wall
-        if (tilemap[id].item) {
-            var it_temp = "it_temp" + tilemap[id].item;
-            if (item_templates.hasOwnProperty(it_temp)) {
-                tilemap[id].flags.moveblock = false;
-                tilemap[id].flags.sightblock = false;
-            }
-            tilemap[id].item = 0;
-        }
+        tilemap[id].flags.moveblock = false;
+        tilemap[id].flags.sightblock = false;
+        tilemap[id].item = 0;
     }
     renderGrid();
     renderPreview();
