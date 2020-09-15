@@ -318,8 +318,8 @@ function mapCellClick(id, clickType) {
         if (tilemap[id].item) {
             var it_temp = "it_temp" + tilemap[id].item;
             if (item_templates.hasOwnProperty(it_temp)) {
-                if (item_templates[it_temp].flags.moveblock) tilemap[id].flags.moveblock = false;
-                if (item_templates[it_temp].flags.sightblock) tilemap[id].flags.sightblock = false;
+                tilemap[id].flags.moveblock = false;
+                tilemap[id].flags.sightblock = false;
             }
             tilemap[id].item = 0;
         }
