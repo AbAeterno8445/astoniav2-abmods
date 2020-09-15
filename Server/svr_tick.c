@@ -2925,15 +2925,15 @@ void tick(void)
                         maped_queue[i].op_type, maped_queue[i].x, maped_queue[i].y, maped_queue[i].it_temp);
 
                 switch(maped_queue[i].op_type) {
-                        case 0: // Place item
-                                build_item(maped_queue[i].it_temp, maped_queue[i].x, maped_queue[i].y, -1, 1);
+                        case MAPED_PLACEITEM: // Place item
+                                build_drop(maped_queue[i].x, maped_queue[i].y, maped_queue[i].it_temp, -1, 1);
                         break;
 
-                        case 1: // Remove item
+                        case MAPED_RMVITEM: // Remove item
                                 build_remove(maped_queue[i].x, maped_queue[i].y, -1);
                         break;
 
-                        case 2: // Change floor
+                        case MAPED_SETFLOOR: // Change floor
                                 map[maped_queue[i].x + maped_queue[i].y * MAPX].sprite = maped_queue[i].it_temp;
                         break;
                 }
