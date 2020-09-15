@@ -316,6 +316,25 @@ int main(int argc, char *args[])
 
             } else if (strcmp(it_type, "remove") == 0) {
                 addQueueInstruction(MAPED_RMVITEM, x, y, 0);
+
+            } else if (strcmp(it_type, "flag") == 0) {
+                x2 = 0x40000000;
+                switch(x1) {
+                    case 1: x2|=MF_MOVEBLOCK; break;
+                    case 2: x2|=MF_SIGHTBLOCK; break;
+                    case 3: x2|=MF_INDOORS; break;
+                    case 4: x2|=MF_UWATER; break;
+                    case 5: x2|=MF_NOLAG; break;
+                    case 6: x2|=MF_NOMONST; break;
+                    case 7: x2|=MF_BANK; break;
+                    case 8: x2|=MF_TAVERN; break;
+                    case 9: x2|=MF_NOMAGIC; break;
+                    case 10: x2|=MF_DEATHTRAP; break;
+                    case 11: x2|=MF_ARENA; break;
+                    case 12: x2|=MF_NOEXPIRE; break;
+                    case 13: x2|=MF_NOFIGHT; break;
+                }
+                addQueueInstruction(MAPED_PLACEITEM, x, y, x2);
             }
         break;
     }

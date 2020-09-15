@@ -288,7 +288,7 @@ function applyTempFilter() {
     }
 }
 
-var sendChanges = false;
+var sendChanges = true;
 
 function mapCellClick(id, clickType) {
     if (!tilemap.hasOwnProperty(id)) return;
@@ -305,7 +305,7 @@ function mapCellClick(id, clickType) {
             } else if (selected_item.type == "flag") {
                 if (!drawFlags) drawFlags = true;
                 for (var flag in selected_item.flags) {
-                    if (selected_item.flags[flag]) tilemap[id].flags[flag] = !tilemap[id].flags[flag];
+                    if (selected_item.flags[flag] == true) tilemap[id].flags[flag] = !tilemap[id].flags[flag];
                 }
             } else {
                 tilemap[id].item = selected_item.temp_id;
@@ -336,7 +336,26 @@ function mapCellClick(id, clickType) {
                 case "floor": it_temp_val = selected_item.item_spr; break;
                 case "wall":
                 case "item": it_temp_val = selected_item.temp_id; break;
-                case "flag": break; //TODO - send map flag changes
+                case "flag":
+                    it_temp_val = 0;
+                    for (var flag in selected_item.flags) {
+                        if (selected_item.flags[flag] == true) {
+                            if (flag == "moveblock") it_temp_val = 1;
+                            else if (flag == "sightblock") it_temp_val = 2;
+                            else if (flag == "indoors") it_temp_val = 3;
+                            else if (flag == "underwater") it_temp_val = 4;
+                            else if (flag == "nolag") it_temp_val = 5;
+                            else if (flag == "nomonster") it_temp_val = 6;
+                            else if (flag == "bank") it_temp_val = 7;
+                            else if (flag == "tavern") it_temp_val = 8;
+                            else if (flag == "nomagic") it_temp_val = 9;
+                            else if (flag == "deathtrap") it_temp_val = 10;
+                            else if (flag == "arena") it_temp_val = 11;
+                            else if (flag == "noexpire") it_temp_val = 12;
+                            else if (flag == "nofight") it_temp_val = 13;
+                        }
+                    }
+                break;
             }
         } else if (clickType == 2) {
             tmp_type = "remove";
