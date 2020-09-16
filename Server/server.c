@@ -637,6 +637,14 @@ void tmplabcheck(int in)
 	chlog(cn,"Removed Lab Item %s",it[in].name);
 }
 
+void clear_editor_queue() {
+        xlog("Clearing map editor instruction queue...");
+        for (int i=0; i<MAX_MAPED_QUEUE; i++) {
+                maped_queue[i].used = USE_EMPTY;
+        }
+        xlog("Done.");
+}
+
 int see_hit=0,see_miss=0;
 
 int main(int argc,char *args[])
@@ -710,6 +718,7 @@ int main(int argc,char *args[])
                 else if (strcasecmp("convchar",args[1])==0) { converter_main(0); unload(); exit(0); }
                 else if (strcasecmp("convitem",args[1])==0) { converter_main(1); unload(); exit(0); }
                 else if (strcasecmp("convglobs",args[1])==0) { converter_main(2); unload(); exit(0); }
+                else if (strcasecmp("clear_edit_queue",args[1])==0) { clear_editor_queue(); unload(); exit(0); }
                 else if (!strcasecmp("console",args[1])==0 && !strcasecmp("cons",args[1])==0 && !strcasecmp("c",args[1])==0) {
                         xlog("Wrong option given. Stopping server. To run normally through the command line, use option \"console\", \"cons\" or \"c\".");
                         unload();
