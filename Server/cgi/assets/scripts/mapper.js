@@ -196,6 +196,9 @@ function loadTemplates() {
             tmp_flagspan.innerHTML = temp.split("_")[1];
         }
         temp_cell.onmousedown = function (obj) { itemTempClick(obj.srcElement.id); }
+        if (item.type != "floor" && item.type != "flag") {
+            temp_cell.ondblclick = function (obj) { itemTempDblClick(obj); }
+        }
 
         var tmp_typespan = document.createElement("span");
         tmp_typespan.id = temp + "_typespan";
@@ -223,6 +226,15 @@ function loadTemplates() {
         paletteDiv.appendChild(temp_cell);
         item.dom_elem = temp_cell;
     }
+}
+
+function itemTempDblClick(obj) {
+    if (!item_templates.hasOwnProperty(obj.srcElement.id)) return;
+
+    var it_temp = item_templates[obj.srcElement.id];
+    if (it_temp.type == "floor" || it_temp.type == "flag") return;
+    
+    window.open("/cgi-imp/acct.cgi?step=23&in=" + it_temp.temp_id);
 }
 
 var selected_item = null;
