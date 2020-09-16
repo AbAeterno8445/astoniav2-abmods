@@ -124,6 +124,9 @@ prevCanvas.setDefaultOffset(200, 200, true);
 // Click and hold functionalities
 gridCanvas.cv.addEventListener("mousedown", (ev) => { cvMouseClick(ev, gridCanvas); }, false);
 gridCanvas.cv.addEventListener("mousemove", (ev) => { cvMouseMove(ev, gridCanvas); }, false);
+gridCanvas.cv.addEventListener("mouseup", () => { cvGridEndAction(); });
+gridCanvas.cv.addEventListener("mouseleave", () => { cvGridEndAction(); });
+
 prevCanvas.cv.addEventListener("mousedown", (ev) => { cvMouseClick(ev, prevCanvas); }, false);
 prevCanvas.cv.addEventListener("mousemove", (ev) => { cvMouseMove(ev, prevCanvas); }, false);
 
@@ -138,6 +141,8 @@ function cvMouseToTilePos(event, cvHandler) {
     var selectionY = Math.floor((event.clientY - cvRect.top - cvHandler.drawYOffset) / gridTileSize);
     return [selectionX, selectionY];
 }
+
+var cvGridActionList = [];
 
 var lastTile = "";
 function cvMouseMove(event, cvHandler) {
@@ -217,6 +222,51 @@ function cvMouseClick(event, cv) {
         break;
     }
 };
+
+function cvGridEndAction() {
+    if (cvGridActionList.length == 0) return;
+
+    if (cvGridActionList.length == 1) {
+        var act = cvGridActionList[0];
+        addEditorAction(act.type, act.tile_id, act.data);
+    } else {
+        var actList = [];
+        for (var act of cvGridActionList) {
+            actList.push(act);
+        }
+        addEditorAction("multiple_actions", "", actList);
+    }
+    cvGridActionList = [];
+}
+
+function mapCellClick(tile_id, clickType) {
+    if (!tilemap.hasOwnProperty(tile_id)) return;
+
+    if (clickType == 1) {
+        if (ctrlDown) {
+            // Pick tile
+            if (tilemap[tile_id].item) itemTempClick("it_temp" + tilemap[tile_id].item);
+            else if (tilemap[tile_id].floor) itemTempClick("it_temp" + (100000 + tilemap[tile_id].floor));
+            return;
+        } else if (selected_item) {
+            var old_item = tilemap[tile_id].item;
+
+            if (placeItem(selected_item, tile_id)) {
+                var act = new EditorAction("place", tile_id, { it_temp: selected_item, it_old: old_item });
+                cvGridActionList.push(act);
+            }
+        }
+    } else if (clickType == 2) {
+        var act = new EditorAction("remove", tile_id, { it_old: tilemap[tile_id].item, flags: [] });
+
+        if (tilemap[tile_id].flags.moveblock) act.data.flags.push("moveblock");
+        if (tilemap[tile_id].flags.sightblock) act.data.flags.push("sightblock");
+        
+        if (removeItem(tile_id)) cvGridActionList.push(act);
+    }
+    renderGrid();
+    renderPreview();
+}
 
 var drawFlags = true;
 function toggleTileFlags() {

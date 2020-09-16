@@ -115,6 +115,9 @@ document.addEventListener("keydown", function (event) {
     switch (event.keyCode) {
         case 16: shiftDown = 1; break;  // Shift
         case 17: ctrlDown = 1; break;   // Ctrl
+
+        case 89: if (ctrlDown) redoLastAction(); break;  // Y (for redo)
+        case 90: if (ctrlDown) undoLastAction(); break;  // Z (for undo)
     }
 });
 document.addEventListener("keyup", function (event) {
@@ -308,79 +311,74 @@ function applyTempFilter() {
 
 var sendChanges = true;
 
-function mapCellClick(id, clickType) {
-    if (!tilemap.hasOwnProperty(id)) return;
+function sendOperation(it_type, tile_id, it_val) {
+    if (!sendChanges) return;
+    if (!tilemap.hasOwnProperty(tile_id)) return;
 
-    if (clickType == 1) {
-        if (ctrlDown) {
-            // Pick tile
-            if (tilemap[id].item) itemTempClick("it_temp" + tilemap[id].item);
-            else if (tilemap[id].floor) itemTempClick("it_temp" + (100000 + tilemap[id].floor));
-            return;
-        } else if (selected_item) {
-            if (selected_item.type == "floor") {
-                tilemap[id].floor = selected_item.item_spr;
-            } else if (selected_item.type == "flag") {
-                if (!drawFlags) drawFlags = true;
-                for (var flag in selected_item.flags) {
-                    if (selected_item.flags[flag] == true) tilemap[id].flags[flag] = !tilemap[id].flags[flag];
-                }
-            } else {
-                tilemap[id].item = selected_item.temp_id;
-                if (selected_item.flags.moveblock) tilemap[id].flags.moveblock = true;
-                if (selected_item.flags.sightblock) tilemap[id].flags.sightblock = true;
+    $.ajax({
+        url: "/cgi-imp/mapper.cgi?step=2",
+        type: "GET",
+        data: { x: tilemap[tile_id].map_x, y: tilemap[tile_id].map_y, it_type: it_type, it_val: it_val },
+        dataType: "html"
+    });
+}
+
+function placeItem(it_temp, tile_id) {
+    if (!tilemap.hasOwnProperty(tile_id)) return 0;
+
+    var it_temp_val = 0;
+    if (it_temp.type == "floor") {
+        if (tilemap[tile_id].floor == it_temp.item_spr) return 0;
+
+        tilemap[tile_id].floor = it_temp.item_spr;
+        it_temp_val = selected_item.item_spr;
+
+    } else if (it_temp.type == "flag") {
+        if (!drawFlags) drawFlags = true;
+
+        for (var flag in it_temp.flags) {
+            if (it_temp.flags[flag] == true) {
+                tilemap[tile_id].flags[flag] = !tilemap[tile_id].flags[flag];
+
+                if (flag == "moveblock") it_temp_val = 1;
+                else if (flag == "sightblock") it_temp_val = 2;
+                else if (flag == "indoors") it_temp_val = 3;
+                else if (flag == "underwater") it_temp_val = 4;
+                else if (flag == "nolag") it_temp_val = 5;
+                else if (flag == "nomonster") it_temp_val = 6;
+                else if (flag == "bank") it_temp_val = 7;
+                else if (flag == "tavern") it_temp_val = 8;
+                else if (flag == "nomagic") it_temp_val = 9;
+                else if (flag == "deathtrap") it_temp_val = 10;
+                else if (flag == "arena") it_temp_val = 11;
+                else if (flag == "noexpire") it_temp_val = 12;
+                else if (flag == "nofight") it_temp_val = 13;
             }
         }
-    } else if (clickType == 2) {
-        // Remove item/wall
-        tilemap[id].flags.moveblock = false;
-        tilemap[id].flags.sightblock = false;
-        tilemap[id].item = 0;
-    }
-    renderGrid();
-    renderPreview();
+    } else {
+        if (tilemap[tile_id].item == it_temp.temp_id) return 0;
 
-    if (sendChanges) {
-        var it_temp_val = 0;
-        var tmp_type = "NA";
-        if (clickType == 1 && selected_item) {
-            tmp_type = selected_item.type;
-            switch (tmp_type) {
-                case "floor": it_temp_val = selected_item.item_spr; break;
-                case "wall":
-                case "item": it_temp_val = selected_item.temp_id; break;
-                case "flag":
-                    it_temp_val = 0;
-                    for (var flag in selected_item.flags) {
-                        if (selected_item.flags[flag] == true) {
-                            if (flag == "moveblock") it_temp_val = 1;
-                            else if (flag == "sightblock") it_temp_val = 2;
-                            else if (flag == "indoors") it_temp_val = 3;
-                            else if (flag == "underwater") it_temp_val = 4;
-                            else if (flag == "nolag") it_temp_val = 5;
-                            else if (flag == "nomonster") it_temp_val = 6;
-                            else if (flag == "bank") it_temp_val = 7;
-                            else if (flag == "tavern") it_temp_val = 8;
-                            else if (flag == "nomagic") it_temp_val = 9;
-                            else if (flag == "deathtrap") it_temp_val = 10;
-                            else if (flag == "arena") it_temp_val = 11;
-                            else if (flag == "noexpire") it_temp_val = 12;
-                            else if (flag == "nofight") it_temp_val = 13;
-                        }
-                    }
-                break;
-            }
-        } else if (clickType == 2) {
-            tmp_type = "remove";
-        }
-
-        $.ajax({
-            url: "/cgi-imp/mapper.cgi?step=2",
-            type: "GET",
-            data: { x: tilemap[id].map_x, y: tilemap[id].map_y, it_type: tmp_type, it_val: it_temp_val },
-            dataType: "html"
-        });
+        tilemap[tile_id].item = it_temp.temp_id;
+        if (it_temp.flags.moveblock) tilemap[tile_id].flags.moveblock = true;
+        if (it_temp.flags.sightblock) tilemap[tile_id].flags.sightblock = true;
+        it_temp_val = it_temp.temp_id;
     }
+
+    sendOperation(it_temp.type, tile_id, it_temp_val);
+    return 1;
+}
+
+function removeItem(tile_id) {
+    if (!tilemap.hasOwnProperty(tile_id)) return 0;
+
+    if (!tilemap[tile_id].flags.moveblock && !tilemap[tile_id].flags.sightblock && !tilemap[tile_id].item) return 0;
+
+    tilemap[tile_id].flags.moveblock = false;
+    tilemap[tile_id].flags.sightblock = false;
+    tilemap[tile_id].item = 0;
+
+    sendOperation("remove", tile_id, 0);
+    return 1;
 }
 
 function saveTempConfig() {

@@ -228,6 +228,7 @@ int main(int argc, char *args[])
 
     // Load scripts
     printf("<script src=\"/assets/scripts/cpicker.js\"></script>\n");
+    printf("<script src=\"/assets/scripts/undo_redo.js\"></script>\n");
     printf("<script src=\"/assets/scripts/canvas_funcs.js\"></script>\n");
     printf("<script src=\"/assets/scripts/mapper.js\"></script>\n");
 
@@ -312,6 +313,46 @@ int main(int argc, char *args[])
                 x = 0;
                 y++;
             }
+
+            // Load pending tile changes from queue (usually when server is offline)
+            for (int i=0; i<MAX_MAPED_QUEUE; i++) {
+                if (maped_queue[i].used == USE_EMPTY) continue;
+
+                if (maped_queue[i].x < x1 || maped_queue[i].x > x2) continue;
+                if (maped_queue[i].y < y1 || maped_queue[i].y > y2) continue;
+
+                if (maped_queue[i].op_type == MAPED_PLACEITEM || maped_queue[i].op_type == MAPED_SETFLOOR) {
+                    printf("var it_temp = ");
+                    if (maped_queue[i].it_temp&0x40000000) {
+                        if (maped_queue[i].it_temp&MF_MOVEBLOCK) printf("flag_moveblock;\n");
+                        else if (maped_queue[i].it_temp&MF_SIGHTBLOCK) printf("flag_sightblock;\n");
+                        else if (maped_queue[i].it_temp&MF_INDOORS) printf("flag_indoors;\n");
+                        else if (maped_queue[i].it_temp&MF_UWATER) printf("flag_underwater;\n");
+                        else if (maped_queue[i].it_temp&MF_NOLAG) printf("flag_nolag;\n");
+                        else if (maped_queue[i].it_temp&MF_NOMONST) printf("flag_nomonster;\n");
+                        else if (maped_queue[i].it_temp&MF_BANK) printf("flag_bank;\n");
+                        else if (maped_queue[i].it_temp&MF_TAVERN) printf("flag_tavern;\n");
+                        else if (maped_queue[i].it_temp&MF_NOMAGIC) printf("flag_nomagic;\n");
+                        else if (maped_queue[i].it_temp&MF_DEATHTRAP) printf("flag_deathtrap;\n");
+                        else if (maped_queue[i].it_temp&MF_ARENA) printf("flag_arena;\n");
+                        else if (maped_queue[i].it_temp&MF_NOEXPIRE) printf("flag_noexpire;\n");
+                        else if (maped_queue[i].it_temp&MF_NOFIGHT) printf("flag_nofight;\n");
+                        else printf("null;\n");
+
+                    } else if (maped_queue[i].op_type == MAPED_SETFLOOR) {
+                        printf("\"it_temp\" + %d;\n", 100000 + maped_queue[i].it_temp);
+                    } else {
+                        printf("\"it_temp\" + %d;\n", maped_queue[i].it_temp);
+                    }
+
+                    printf("if (it_temp && item_templates.hasOwnProperty(it_temp)) {\n");
+                    printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y, maped_queue[i].x);
+                    printf("if (tilemap.hasOwnProperty(tile_id)) {\n");
+                    printf("placeItem(item_templates[it_temp], tile_id); } }\n");
+
+                }
+            }
+
             printf("renderPreview(); renderGrid();</script>\n");
         break;
 
