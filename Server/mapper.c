@@ -281,6 +281,7 @@ int main(int argc, char *args[])
                         // Find item template with the same sprite (since it's not stored in map.it, it shouldn't be an usable/take-able item)
                         for (int in=2; in<MAXTITEM; in++) {
                             if (it_temp[in].used == USE_EMPTY) continue;
+                            if (it_temp[in].flags&(IF_TAKE|IF_LOOK|IF_LOOKSPECIAL|IF_USE|IF_USESPECIAL)) continue;
 
                             if (it_temp[in].sprite[0] == map[map_tileid].fsprite) {
                                 printf("tile.item = %d;\n", in);
