@@ -35,7 +35,7 @@ class MapTile {
 
     getFloorSprite() {
         var fl_id = "it_temp" + (this.floor + 100000);
-        if (item_templates.hasOwnProperty(fl_id)) return "/assets/" + padSpriteNum(item_templates[fl_id].item_spr) + ".png";
+        if (item_templates.hasOwnProperty(fl_id)) return "/assets/sprites/" + padSpriteNum(item_templates[fl_id].item_spr) + ".png";
     }
     getItemSprite() {
         var it_temp = this.getItemTemp();
@@ -46,7 +46,7 @@ class MapTile {
         if (hideWalls) {
             if (it_temp.type == "wall") tmp_item++;
         }
-        return "/assets/" + padSpriteNum(tmp_item) + ".png";
+        return "/assets/sprites/" + padSpriteNum(tmp_item) + ".png";
     }
 }
 
@@ -171,14 +171,14 @@ function loadTemplates() {
         var item = item_templates[temp];
 
         if (item.type != "flag") {
-            var sprite_url = "/assets/" + padSpriteNum(item.item_spr) + ".png";
+            var sprite_url = "/assets/sprites/" + padSpriteNum(item.item_spr) + ".png";
 
             // Load image into preview renderer
             prevCanvas.loadImage(sprite_url);
             if (item.type == "wall") {
                 // Load hidden wall image
                 var hidden_spr = item.item_spr + 1;
-                prevCanvas.loadImage("/assets/" + padSpriteNum(hidden_spr) + ".png");
+                prevCanvas.loadImage("/assets/sprites/" + padSpriteNum(hidden_spr) + ".png");
             }
         }
 
@@ -233,7 +233,7 @@ function itemTempDblClick(obj) {
 
     var it_temp = item_templates[obj.srcElement.id];
     if (it_temp.type == "floor" || it_temp.type == "flag") return;
-    
+
     window.open("/cgi-imp/acct.cgi?step=23&in=" + it_temp.temp_id);
 }
 

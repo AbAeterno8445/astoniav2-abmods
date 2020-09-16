@@ -3,8 +3,8 @@ Server/*.cgi
 Server/server
 Server/password
 Server/server.pid
-Server/cgi/assets/*.bmp
-Server/cgi/assets/*.png
+Server/cgi/assets/sprites/*.bmp
+Server/cgi/assets/sprites/*.png
 Client/gfx/*.png
 Client/gfx/*.bmp
 Client/.*
