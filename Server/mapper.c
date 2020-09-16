@@ -260,8 +260,8 @@ int main(int argc, char *args[])
             }
             printf("<script>loadMapCells(%d, %d, %d, %d);\n", x1, y1, x2, y2);
 
-            for (int i=x1; i<x2; i++) {
-                for (int j=y1; j<y2; j++) {
+            for (int i=y1; i<y2; i++) {
+                for (int j=x1; j<x2; j++) {
                     int map_tileid = i + j * MAPX;
                     if (map_tileid < 0 || map_tileid > MAPX * MAPY) continue;
 
