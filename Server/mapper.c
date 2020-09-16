@@ -113,7 +113,24 @@ void scriptLoadTemplates()
 void addQueueInstruction(char type, int x, int y, int it_val)
 {
     for (int i=0; i<MAX_MAPED_QUEUE; i++) {
-        if (maped_queue[i].used == USE_ACTIVE) continue;
+        if (maped_queue[i].used == USE_ACTIVE) {
+            // Operating in the same position
+            if (maped_queue[i].x == x && maped_queue[i].y == y) {
+                // Same operation
+                if (maped_queue[i].op_type == type) {
+                    maped_queue[i].it_temp = it_val;
+                    return;
+                }
+
+                // If removing item, change existing placement instruction instead (same position)
+                if (type == MAPED_RMVITEM && maped_queue[i].op_type == MAPED_PLACEITEM) {
+                    maped_queue[i].it_temp = 0;
+                    break;
+                }
+            } else {
+                continue;
+            }
+        }
 
         maped_queue[i].op_type = type;
         maped_queue[i].x = x;
