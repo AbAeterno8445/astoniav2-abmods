@@ -72,6 +72,7 @@ class ItemTemp {
 
         var span_txt = "F";
         if (this.type == "wall") span_txt = "W";
+        if (this.type == "flag") span_txt = "flag";
         if (this.type == "item") {
             span_txt = "It";
             it_temp_prev.style.borderRadius = "100%";
