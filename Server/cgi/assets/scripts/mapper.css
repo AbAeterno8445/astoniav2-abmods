@@ -74,6 +74,11 @@ body, html {
     background-color: gray;
 }
 
+.toolbox-button:focus {
+    outline: none;
+    outline-style: none;
+}
+
 #div-filter, #div-temp-picker {
     background-color: rgb(40, 40, 40);
     border: 1px white solid;

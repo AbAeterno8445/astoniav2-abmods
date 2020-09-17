@@ -334,7 +334,7 @@ function placeItem(it_temp, tile_id) {
         it_temp_val = selected_item.item_spr;
 
     } else if (it_temp.type == "flag") {
-        if (!drawFlags) drawFlags = true;
+        if (!drawFlags) toggleTileFlags();
 
         for (var flag in it_temp.flags) {
             if (it_temp.flags[flag] == true) {
@@ -448,6 +448,44 @@ var grid_enabled = true;
 function toggleMapGrid() {
     grid_enabled = !grid_enabled;
     renderGrid();
+}
+
+function updateUI() {
+    // Hide walls button
+    var tmp_ui = document.getElementById('but-hidew');
+    if (hideWalls) tmp_ui.style.border = "1px blue solid";
+    else tmp_ui.style.border = null;
+
+    // Template filter button
+    tmp_ui = document.getElementById('but-tempfilter');
+    if (document.getElementById('div-filter').style.display == "none") {
+        tmp_ui.style.backgroundImage = "url('/assets/ui/filter.png')";
+    } else {
+        tmp_ui.style.backgroundImage = "url('/assets/ui/filter_off.png')";
+    }
+
+    // Grid toggle button
+    tmp_ui = document.getElementById('but-grid');
+    if (grid_enabled) tmp_ui.style.backgroundImage = "url('/assets/ui/togglegrid.png";
+    else tmp_ui.style.backgroundImage = "url('/assets/ui/togglegrid_off.png";
+
+    // Color/type picker button
+    tmp_ui = document.getElementById('but-cpicker');
+    if (document.getElementById('div-temp-picker').style.display == "none") {
+        tmp_ui.style.backgroundImage = "url('/assets/ui/cpicker.png')";
+    } else {
+        tmp_ui.style.backgroundImage = "url('/assets/ui/cpicker_off.png')";
+    }
+
+    // Grid/preview display mode button
+    tmp_ui = document.getElementById('but-displaymode');
+    if (viewdivs_mode == 0) tmp_ui.style.backgroundImage = "url('/assets/ui/toggle_divs.png')";
+    else tmp_ui.style.backgroundImage = `url('/assets/ui/toggle_divs_${viewdivs_mode}.png')`;
+
+    // Toggle flag visibility button
+    tmp_ui = document.getElementById('but-toggleflags');
+    if (!drawFlags) tmp_ui.style.backgroundImage = "url('/assets/ui/toggle_flags.png')";
+    else tmp_ui.style.backgroundImage = "url('/assets/ui/toggle_flags_off.png')";
 }
 
 toggleDiv("div-filter");

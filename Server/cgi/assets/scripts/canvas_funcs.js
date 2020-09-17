@@ -272,6 +272,7 @@ var drawFlags = true;
 function toggleTileFlags() {
     drawFlags = !drawFlags;
     renderGrid();
+    updateUI();
 }
 
 function renderGrid() {

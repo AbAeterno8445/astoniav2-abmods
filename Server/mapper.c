@@ -173,12 +173,12 @@ int main(int argc, char *args[])
     printf("Y2:<input id=\"inp-map-y2\" style=\"width:40px\" type=\"number\" maxlength=\"4\">\n");
     printf("</div>\n");
     printf("<div id=\"div-toolbox\">\n");
-    printf("<button class=\"toolbox-button\" style=\"background-image: url('/assets/ui/hidew.png')\" onclick=\"toggleWalls()\" title=\"Hide walls\"></button>\n");
-    printf("<button class=\"toolbox-button\" style=\"background-image: url('/assets/ui/filter.png');\" onclick=\"toggleDiv('div-filter')\" title=\"Filter item templates\"></button>\n");
-    printf("<button class=\"toolbox-button\" style=\"background-image: url('/assets/ui/togglegrid.png');\" onclick=\"toggleMapGrid()\" title=\"Toggle map grid\"></button>\n");
-    printf("<button class=\"toolbox-button\" style=\"background-image: url('/assets/ui/cpicker.png');\" onclick=\"toggleDiv('div-temp-picker')\" title=\"Change template type and color\"></button>\n");
-    printf("<button class=\"toolbox-button\" style=\"background-image: url('/assets/ui/toggle_divs.png');\" onclick=\"toggleViewDivs()\" title=\"Toggle between grid-only and preview-only\"></button>\n");
-    printf("<button class=\"toolbox-button\" style=\"background-image: url('/assets/ui/toggle_flags.png');\" onclick=\"toggleTileFlags()\" title=\"Toggle visibility for tile flags\"></button>\n");
+    printf("<button id=\"but-hidew\" class=\"toolbox-button\" style=\"background-image: url('/assets/ui/hidew.png')\" onclick=\"toggleWalls(); updateUI();\" title=\"Hide walls\"></button>\n");
+    printf("<button id=\"but-tempfilter\" class=\"toolbox-button\" style=\"background-image: url('/assets/ui/filter.png');\" onclick=\"toggleDiv('div-filter'); updateUI();\" title=\"Filter item templates\"></button>\n");
+    printf("<button id=\"but-grid\" class=\"toolbox-button\" style=\"background-image: url('/assets/ui/togglegrid.png');\" onclick=\"toggleMapGrid(); updateUI();\" title=\"Toggle map grid\"></button>\n");
+    printf("<button id=\"but-cpicker\" class=\"toolbox-button\" style=\"background-image: url('/assets/ui/cpicker.png');\" onclick=\"toggleDiv('div-temp-picker'); updateUI();\" title=\"Change template type and color\"></button>\n");
+    printf("<button id=\"but-displaymode\" class=\"toolbox-button\" style=\"background-image: url('/assets/ui/toggle_divs.png');\" onclick=\"toggleViewDivs(); updateUI();\" title=\"Toggle between grid-only and preview-only\"></button>\n");
+    printf("<button id=\"but-toggleflags\" class=\"toolbox-button\" style=\"background-image: url('/assets/ui/toggle_flags.png');\" onclick=\"toggleTileFlags(); updateUI();\" title=\"Toggle visibility for tile flags\"></button>\n");
     printf("<span id=\"span-seltemp\" style=\"color:wheat;font-size:10pt;margin-left:2px;\">Selected: </span>\n");
     printf("</div>\n");
     printf("<div id=\"div-temp-picker\">\n");
@@ -236,6 +236,9 @@ int main(int argc, char *args[])
     scriptLoadTemplates();
     printf("<script src=\"/assets/scripts/load_floors.js\"></script>\n");
     printf("<script>loadTemplates();</script>\n");
+
+    // UI update
+    printf("<script>updateUI();</script>\n");
 
     int step = 0;
     if (head) {
