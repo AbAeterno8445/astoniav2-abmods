@@ -30,6 +30,12 @@ body, html {
     height: 99%;
 }
 
+#div-grid-sup {
+    flex: 1;
+    display: flex;
+    margin: 0px 0px 8px 4px;
+}
+
 #div-palette {
     border: 1px lightgray solid;
     margin: 4px;

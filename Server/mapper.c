@@ -219,8 +219,8 @@ int main(int argc, char *args[])
     printf("</div>\n");
     printf("</div>\n");
     printf("<div id=\"div-canvastable\">\n");
-    printf("<div style=\"flex: 1; display: flex; margin: 0px 0px 8px 4px;\">\n");
-    printf("<div class=\"div-toolbox\" style=\"margin: 4px 0px; height: 100%%; flex-direction: column;\">\n");
+    printf("<div id=\"div-grid-sup\">\n");
+    printf("<div id=\"div-grid-toolbox\" class=\"div-toolbox\" style=\"margin: 4px 0px; height: 100%%; flex-direction: column;\">\n");
     printf("<button id=\"but-brush\" class=\"toolbox-button toolbox-grid-button\" onclick=\"setPaintMode('brush');\" title=\"Brush paint mode\"><i class=\"fa fa-paint-brush\"></i></button>\n");
     printf("<button id=\"but-rect-mode\" class=\"toolbox-button toolbox-grid-button\" onclick=\"setPaintMode('rect');\" title=\"Rectangle paint mode\"><i class=\"fa fa-square-o\"></i></button>\n");
     printf("<button id=\"but-rectfill-mode\" class=\"toolbox-button toolbox-grid-button\" onclick=\"setPaintMode('rectfill');\" title=\"Filled rectangle paint mode\"><i class=\"fa fa-square\"></i></button>\n");

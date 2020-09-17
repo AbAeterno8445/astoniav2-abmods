@@ -431,7 +431,7 @@ var viewdivs_mode = 0;
 function toggleViewDivs() {
     viewdivs_mode = (viewdivs_mode + 1) % 3;
 
-    var divGrid = document.getElementById("div-grid");
+    var divGrid = document.getElementById("div-grid-sup");
     switch (viewdivs_mode) {
         case 0:
             divGrid.style.display = null;
