@@ -111,7 +111,7 @@ document.body.onmouseleave = function () {
 // Shift/Ctrl press
 var shiftDown = 0;
 var ctrlDown = 0;
-document.addEventListener("keydown", function (event) {
+window.addEventListener("keydown", function (event) {
     switch (event.keyCode) {
         case 16: shiftDown = 1; break;  // Shift
         case 17: ctrlDown = 1; break;   // Ctrl
@@ -122,11 +122,11 @@ document.addEventListener("keydown", function (event) {
             renderGrid();
         break;
 
-        case 89: if (ctrlDown) redoLastAction(); break;  // Y (for redo)
-        case 90: if (ctrlDown) undoLastAction(); break;  // Z (for undo)
+        case 89: event.preventDefault(); if (ctrlDown) { redoLastAction(); } break;  // Y (for redo)
+        case 90: event.preventDefault(); if (ctrlDown) { undoLastAction(); } break;  // Z (for undo)
     }
 });
-document.addEventListener("keyup", function (event) {
+window.addEventListener("keyup", function (event) {
     switch (event.keyCode) {
         case 16: shiftDown = 0; break;
         case 17: ctrlDown = 0; break;
