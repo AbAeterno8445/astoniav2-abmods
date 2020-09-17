@@ -122,8 +122,8 @@ window.addEventListener("keydown", function (event) {
             renderGrid();
         break;
 
-        case 89: event.preventDefault(); if (ctrlDown) { redoLastAction(); } break;  // Y (for redo)
-        case 90: event.preventDefault(); if (ctrlDown) { undoLastAction(); } break;  // Z (for undo)
+        case 89: if (ctrlDown) { event.preventDefault(); redoLastAction(); } break;  // Y (for redo)
+        case 90: if (ctrlDown) { event.preventDefault(); undoLastAction(); } break;  // Z (for undo)
     }
 });
 window.addEventListener("keyup", function (event) {
