@@ -9,7 +9,7 @@ body, html {
 
 .cv-base {
     overflow: auto;
-    border: 1px white solid;
+    border: 1px lightgray solid;
     background-color: black;
     flex: 1;
     min-height: 0;
@@ -31,7 +31,7 @@ body, html {
 }
 
 #div-palette {
-    border: 1px white solid;
+    border: 1px lightgray solid;
     margin: 4px;
     width: 300px;
     overflow: auto;
@@ -39,7 +39,7 @@ body, html {
 
 #div-mapload {
     background-color: rgb(40, 40, 40);
-    border: 1px white solid;
+    border: 1px lightgray solid;
     margin: 2px;
     color: wheat;
     font-size: 10pt;
@@ -47,12 +47,12 @@ body, html {
 
 #button-mapload {
     float: right;
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
-#div-toolbox {
+.div-toolbox {
     height: 40px;
-    border: 1px white solid;
+    border: 1px lightgray solid;
     margin: 2px;
     display: flex;
     align-items: center;
@@ -62,7 +62,7 @@ body, html {
 .toolbox-button {
     width: 32px;
     height: 32px;
-    border: 1px white solid;
+    border: 1px lightgray solid;
     background-color: black;
     background-size: auto;
     background-position: center;
@@ -74,14 +74,19 @@ body, html {
     background-color: gray;
 }
 
-.toolbox-button:focus {
-    outline: none;
-    outline-style: none;
+.toolbox-grid-button {
+    width: 24px;
+    height: 24px;
+    color: lightgray;
+    font-size: 12pt;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #div-filter, #div-temp-picker {
     background-color: rgb(40, 40, 40);
-    border: 1px white solid;
+    border: 1px lightgray solid;
     margin: 0px 2px 2px 2px;
     color: wheat;
     font-size: 10pt;
@@ -97,6 +102,10 @@ body, html {
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
 }
 
 #div-palette-container {
@@ -116,7 +125,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
 .temp-cell {
     width: 64px;
     height: 64px;
-    border: 1px white solid;
+    border: 1px lightgray solid;
     margin: 2px;
     background-color: black;
     background-repeat: no-repeat;
@@ -132,7 +141,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
 .temp-cell-color {
     width: 8px;
     height: 8px;
-    border: 1px white solid;
+    border: 1px lightgray solid;
     position: relative;
     top: -1px;
     left: -1px;

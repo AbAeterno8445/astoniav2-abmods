@@ -116,6 +116,12 @@ document.addEventListener("keydown", function (event) {
         case 16: shiftDown = 1; break;  // Shift
         case 17: ctrlDown = 1; break;   // Ctrl
 
+        case 27:  // Escape
+            // Cancel paint mode placement
+            paintData.active = false;
+            renderGrid();
+        break;
+
         case 89: if (ctrlDown) redoLastAction(); break;  // Y (for redo)
         case 90: if (ctrlDown) undoLastAction(); break;  // Z (for undo)
     }
@@ -486,6 +492,21 @@ function updateUI() {
     tmp_ui = document.getElementById('but-toggleflags');
     if (!drawFlags) tmp_ui.style.backgroundImage = "url('/assets/ui/toggle_flags.png')";
     else tmp_ui.style.backgroundImage = "url('/assets/ui/toggle_flags_off.png')";
+
+    // Grid - brush paint mode button
+    tmp_ui = document.getElementById('but-brush');
+    if (paintMode == "brush") tmp_ui.style.border = "1px blue solid";
+    else tmp_ui.style.border = null;
+
+    // Grid - rectangle paint mode button
+    tmp_ui = document.getElementById('but-rect-mode');
+    if (paintMode == "rect") tmp_ui.style.border = "1px blue solid";
+    else tmp_ui.style.border = null;
+
+    // Grid - filled rectangle paint mode button
+    tmp_ui = document.getElementById('but-rectfill-mode');
+    if (paintMode == "rectfill") tmp_ui.style.border = "1px blue solid";
+    else tmp_ui.style.border = null;
 }
 
 toggleDiv("div-filter");

@@ -144,6 +144,18 @@ function cvMouseToTilePos(event, cvHandler) {
 
 var cvGridActionList = [];
 
+var paintMode = "brush";
+var paintData = {
+    active: false
+};
+function setPaintMode(mode) {
+    paintMode = mode;
+    updateUI();
+
+    paintData.active = false;
+    renderGrid();
+}
+
 var lastTile = "";
 function cvMouseMove(event, cvHandler) {
     if (shiftDown) {
@@ -161,6 +173,7 @@ function cvMouseMove(event, cvHandler) {
         case gridCanvas:
             // Selection box
             gridSelCanvas.clearContext();
+            var render = false;
             var selPos = cvMouseToTilePos(event, cvHandler);
 
             if (selPos[0] >= 0 && selPos[0] < tilemap_width && selPos[1] >= 0 && selPos[1] < tilemap_height) {
@@ -169,16 +182,24 @@ function cvMouseMove(event, cvHandler) {
                 gridSelCanvas.ctx.strokeStyle = "rgb(0, 153, 255)";
                 gridSelCanvas.ctx.strokeRect(tile_x, tile_y, gridTileSize, gridTileSize);
 
-                if (mouseDown && !shiftDown) {
-                    var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
-                    if (tile_id != lastTile) {
-                        lastTile = tile_id;
-                        mapCellClick(tile_id, mouseDown);
+                if (paintMode == "brush") {
+                    if (mouseDown && !shiftDown) {
+                        var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
+                        if (tile_id != lastTile) {
+                            lastTile = tile_id;
+                            mapCellClick(tile_id, mouseDown);
+                        }
+                    }
+                } else if (paintData.active) {
+                    if (paintMode == "rect" || paintMode == "rectfill") {
+                        paintData["x2"] = selPos[0];
+                        paintData["y2"] = selPos[1];
+                        render = true;
                     }
                 }
             }
 
-            if (mouseDown && shiftDown) {
+            if ((mouseDown && shiftDown) || render) {
                 renderGrid();
             }
         break;
@@ -209,7 +230,39 @@ function cvMouseClick(event, cv) {
                 if (selPos[0] >= 0 && selPos[0] < tilemap_width && selPos[1] >= 0 && selPos[1] < tilemap_height) {
                     var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
                     lastTile = tile_id;
-                    mapCellClick(tile_id, clickType);
+
+                    if (paintMode == "brush") {
+                        mapCellClick(tile_id, clickType);
+                    } else {
+                        if (!paintData.active) {
+                            paintData["x1"] = selPos[0];
+                            paintData["y1"] = selPos[1];
+                            paintData.active = true;
+                        } else {
+                            // Paint mode second click - apply changes
+                            switch(paintMode) {
+                                case "rect":
+                                case "rectfill":
+                                    var x1 = Math.min(paintData.x1, paintData.x2);
+                                    var x2 = Math.max(paintData.x1, paintData.x2);
+                                    var y1 = Math.min(paintData.y1, paintData.y2);
+                                    var y2 = Math.max(paintData.y1, paintData.y2);
+
+                                    for (var i = y1; i <= y2; i++) {
+                                        for (var j = x1; j <= x2; j++) {
+                                            if (paintMode == "rect" && j != x1 && j != x2 && i != y1 && i != y2) continue;
+
+                                            var tmp_tile_id = "maptile" + (j + i * tilemap_width);
+                                            mapCellClick(tmp_tile_id, clickType);
+                                        }
+                                    }
+                                break;
+                            }
+
+                            paintData.active = false;
+                            renderGrid();
+                        }
+                    }
                 }
             } else {
                 renderGrid();
@@ -290,7 +343,8 @@ function renderGrid() {
 
             var draw_x = gridCanvas.drawXOffset + j * gridTileSize;
             var draw_y = gridCanvas.drawYOffset + i * gridTileSize;
-            // Border
+
+            // Grid border
             if (grid_enabled && gridTileSize > 2) {
                 gridCanvas.ctx.strokeStyle = "gray";
                 gridCanvas.ctx.lineWidth = 1;
@@ -362,6 +416,26 @@ function renderGrid() {
                         }
                     }
                     fpos++;
+                }
+            }
+
+            // Rectangle paint mode border
+            if (paintData.active) {
+                switch(paintMode) {
+                    case "rect":
+                    case "rectfill":
+                        var rect_x1 = Math.min(paintData.x1, paintData.x2);
+                        var rect_x2 = Math.max(paintData.x1, paintData.x2);
+                        var rect_y1 = Math.min(paintData.y1, paintData.y2);
+                        var rect_y2 = Math.max(paintData.y1, paintData.y2);
+                        if (j >= rect_x1 && j <= rect_x2 && i >= rect_y1 && i <= rect_y2) {
+                            if (paintMode == "rectfill" || j == rect_x1 || j == rect_x2 || i == rect_y1 || i == rect_y2) {
+                                gridCanvas.ctx.strokeStyle = "blue";
+                                gridCanvas.ctx.lineWidth = 1;
+                                gridCanvas.ctx.strokeRect(draw_x + 1, draw_y + 1, gridTileSize - 2, gridTileSize - 2);
+                            }
+                        }
+                    break;
                 }
             }
         }
