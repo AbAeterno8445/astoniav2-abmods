@@ -36,6 +36,16 @@ body, html {
     margin: 0px 0px 8px 4px;
 }
 
+#div-grid-tooltip {
+    color: wheat;
+    font-size: 10pt;
+    margin: 2px;
+    z-index: 3;
+    position: relative;
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 #div-palette {
     border: 1px lightgray solid;
     margin: 4px;

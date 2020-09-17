@@ -232,6 +232,7 @@ int main(int argc, char *args[])
     printf("<div id=\"div-grid\" class=\"cv-base\" style=\"position: relative; height: 100%%;\">\n");
     printf("<canvas id=\"cv-grid\" class=\"cv-grid\" style=\"z-index: 1\" oncontextmenu=\"return false\"></canvas>\n");
     printf("<canvas id=\"cv-grid-selection\" class=\"cv-grid\" style=\"z-index: 2; pointer-events: none;\"></canvas>\n");
+    printf("<div id=\"div-grid-tooltip\"></div>\n");
     printf("</div>\n");
     printf("</div>\n");
     printf("<canvas id=\"cv-preview\" class=\"cv-base\" oncontextmenu=\"if (shiftDown) return false;\"></canvas>\n");

@@ -114,8 +114,9 @@ class CanvasHandler {
 
 const gridCanvas = new CanvasHandler(document.getElementById('cv-grid'));
 gridCanvas.ctxSetLineCorrection(true);
+const gridCanvasTooltip = document.getElementById('div-grid-tooltip');
 
-const gridSelCanvas = new CanvasHandler(document.getElementById("cv-grid-selection"));
+const gridSelCanvas = new CanvasHandler(document.getElementById('cv-grid-selection'));
 gridSelCanvas.ctxSetLineCorrection(true);
 
 const prevCanvas = new CanvasHandler(document.getElementById('cv-preview'));
@@ -186,12 +187,13 @@ function cvMouseMove(event, cvHandler) {
             if (selPos[0] >= 0 && selPos[0] < tilemap_width && selPos[1] >= 0 && selPos[1] < tilemap_height) {
                 var tile_x = cvHandler.drawXOffset + selPos[0] * gridTileSize;
                 var tile_y = cvHandler.drawYOffset + selPos[1] * gridTileSize;
+                var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
+
                 gridSelCanvas.ctx.strokeStyle = "rgb(0, 153, 255)";
                 gridSelCanvas.ctx.strokeRect(tile_x, tile_y, gridTileSize, gridTileSize);
 
                 if (paintMode == "brush") {
                     if (mouseDown && !shiftDown) {
-                        var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
                         if (tile_id != lastTile) {
                             lastTile = tile_id;
                             mapCellClick(tile_id, mouseDown, true);
@@ -204,6 +206,15 @@ function cvMouseMove(event, cvHandler) {
                         render = true;
                     }
                 }
+
+                // Update grid tooltip
+                var ttip = "";
+                if (tilemap.hasOwnProperty(tile_id)) {
+                    ttip += `X: ${tilemap[tile_id].map_x} / Y: ${tilemap[tile_id].map_y} `;
+                    if (tilemap[tile_id].floor) ttip += `floor: ${tilemap[tile_id].floor} `;
+                    if (tilemap[tile_id].item) ttip += `item: ${tilemap[tile_id].item} `;
+                }
+                gridCanvasTooltip.innerHTML = ttip;
             }
 
             if ((mouseDown && shiftDown) || render) {
