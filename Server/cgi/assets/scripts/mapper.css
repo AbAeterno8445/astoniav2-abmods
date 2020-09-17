@@ -74,6 +74,11 @@ body, html {
     background-color: gray;
 }
 
+.toolbox-button:focus {
+    outline: 0;
+    outline-style: 0;
+}
+
 .toolbox-grid-button {
     width: 24px;
     height: 24px;

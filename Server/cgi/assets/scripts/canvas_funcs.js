@@ -221,6 +221,7 @@ function cvMouseClick(event, cv) {
     var clickType = 1;
     if (event.button == 2) clickType = 2;
 
+    if (shiftDown) event.preventDefault();
     // Shift + right click to reset camera
     if (shiftDown && clickType == 2) {
         cv.resetOffset();
@@ -238,7 +239,7 @@ function cvMouseClick(event, cv) {
                     var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
                     lastTile = tile_id;
 
-                    if (paintMode == "brush") {
+                    if (paintMode == "brush" || ctrlDown) {
                         mapCellClick(tile_id, clickType, true);
                     } else {
                         if (!paintData.active) {

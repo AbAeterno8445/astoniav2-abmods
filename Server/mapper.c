@@ -224,7 +224,7 @@ int main(int argc, char *args[])
     printf("<button id=\"but-brush\" class=\"toolbox-button toolbox-grid-button\" onclick=\"setPaintMode('brush');\" title=\"Brush paint mode\"><i class=\"fa fa-paint-brush\"></i></button>\n");
     printf("<button id=\"but-rect-mode\" class=\"toolbox-button toolbox-grid-button\" onclick=\"setPaintMode('rect');\" title=\"Rectangle paint mode\"><i class=\"fa fa-square-o\"></i></button>\n");
     printf("<button id=\"but-rectfill-mode\" class=\"toolbox-button toolbox-grid-button\" onclick=\"setPaintMode('rectfill');\" title=\"Filled rectangle paint mode\"><i class=\"fa fa-square\"></i></button>\n");
-    printf("<p style=\"margin-top: auto; font-size: 8pt; color: wheat; text-align: center;\">\n");
+    printf("<p class=\"unselectable\" style=\"margin-top: auto; font-size: 8pt; color: wheat; text-align: center;\">\n");
     printf("T.Size:<br>\n");
     printf("<input id=\"inp-tilesize\" type=\"number\" style=\"width: 16px; box-sizing: content-box;\" maxlength=\"2\" onchange=\"changeTileSize(this.value);\">\n");
     printf("</p>\n");
