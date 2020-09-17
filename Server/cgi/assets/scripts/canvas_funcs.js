@@ -130,10 +130,17 @@ gridCanvas.cv.addEventListener("mouseleave", () => { cvGridEndAction(); });
 prevCanvas.cv.addEventListener("mousedown", (ev) => { cvMouseClick(ev, prevCanvas); }, false);
 prevCanvas.cv.addEventListener("mousemove", (ev) => { cvMouseMove(ev, prevCanvas); }, false);
 
+var gridTileSize = 32;
+function changeTileSize(size) {
+    if (size < 1) return;
+    if (size > 256) size = 256;
+    gridTileSize = size;
+    updateUI();
+    renderGrid();
+}
+
 var clickX = 0, clickY = 0;
 var cam_startx = 0, cam_starty = 0;
-
-var gridTileSize = 32;
 
 function cvMouseToTilePos(event, cvHandler) {
     var cvRect = cvHandler.cv.getBoundingClientRect()

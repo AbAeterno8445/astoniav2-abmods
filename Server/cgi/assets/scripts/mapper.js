@@ -507,6 +507,10 @@ function updateUI() {
     tmp_ui = document.getElementById('but-rectfill-mode');
     if (paintMode == "rectfill") tmp_ui.style.border = "1px blue solid";
     else tmp_ui.style.border = null;
+
+    // Grid - tile size input
+    tmp_ui = document.getElementById('inp-tilesize');
+    tmp_ui.value = gridTileSize;
 }
 
 toggleDiv("div-filter");
