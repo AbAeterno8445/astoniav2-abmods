@@ -23,6 +23,11 @@ function undoAction(action, queueRedo) {
         case "place":
             if (action.data.it_temp.type == "flag") {
                 placeItem(action.data.it_temp, action.tile_id);
+
+            } else if (action.data.it_temp.type == "floor") {
+                if (action.data.flr_old && item_templates.hasOwnProperty("it_temp" + (100000 + action.data.flr_old))) {
+                    placeItem(item_templates["it_temp" + (100000 + action.data.flr_old)], action.tile_id);
+                }
             } else {
                 if (action.data.it_old && item_templates.hasOwnProperty("it_temp" + action.data.it_old)) {
                     placeItem(item_templates["it_temp" + action.data.it_old], action.tile_id);

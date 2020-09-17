@@ -303,9 +303,10 @@ function mapCellClick(tile_id, clickType) {
             return;
         } else if (selected_item) {
             var old_item = tilemap[tile_id].item;
+            var old_floor = tilemap[tile_id].floor;
 
             if (placeItem(selected_item, tile_id)) {
-                var act = new EditorAction("place", tile_id, { it_temp: selected_item, it_old: old_item });
+                var act = new EditorAction("place", tile_id, { it_temp: selected_item, it_old: old_item, flr_old: old_floor });
                 cvGridActionList.push(act);
             }
         }
