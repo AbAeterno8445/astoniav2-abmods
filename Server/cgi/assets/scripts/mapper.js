@@ -51,11 +51,12 @@ class MapTile {
 }
 
 class ItemTemp {
-    constructor(temp_id, item_spr, type, color) {
+    constructor(temp_id, item_spr, type, color, name) {
         this.temp_id = temp_id;
         this.item_spr = item_spr;
         this.type = type;   // 3 types: "floor", "wall" and "item" (candles, portals, etc.)
         this.color = color;
+        this.name = name;
         this.dom_elem = null;
 
         this.flags = {
@@ -300,6 +301,9 @@ function applyTempFilter() {
     tmp_val = document.getElementById("inp-maxitem").value;
     if (tmp_val.match(/^[0-9]+$/)) max = tmp_val;
 
+    // Get name filter
+    var name = RegExp(document.getElementById("inp-itemname").value, "i");
+
     var temp_elems = document.getElementsByClassName("temp-cell");
     for (var temp of temp_elems) {
         if (!item_templates.hasOwnProperty(temp.id)) continue;
@@ -309,6 +313,7 @@ function applyTempFilter() {
         if (type != "" && it_temp.type != type) hide = 1;
         if (max > 0 && it_temp.temp_id > max) hide = 1;
         if (min > 0 && it_temp.temp_id < min) hide = 1;
+        if (!name.test(it_temp.name)) hide = 1;
 
         if (hide) temp.style.display = "none";
         else temp.style.display = "";

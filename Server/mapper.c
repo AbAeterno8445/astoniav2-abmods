@@ -103,7 +103,7 @@ void scriptLoadTemplates()
             it_type = "item";
             it_color = "yellow";
         }
-        printf("item_templates[\"it_temp\" + %d] = new ItemTemp(%d, %d, \"%s\", \"%s\");\n", i, i, it_temp[i].sprite[0], it_type, it_color);
+        printf("item_templates[\"it_temp\" + %d] = new ItemTemp(%d, %d, \"%s\", \"%s\", `%s`);\n", i, i, it_temp[i].sprite[0], it_type, it_color, it_temp[i].name);
         if (it_temp[i].flags&(IF_MOVEBLOCK)) printf("item_templates[\"it_temp\" + %d].flags.moveblock = true;\n", i);
         if (it_temp[i].flags&(IF_SIGHTBLOCK)) printf("item_templates[\"it_temp\" + %d].flags.sightblock = true;\n", i);
     }
@@ -213,6 +213,10 @@ int main(int argc, char *args[])
     printf("Item ID:\n");
     printf("<input id=\"inp-minitem\" type=\"number\" style=\"width:32px\" onchange=\"applyTempFilter()\">~\n");
     printf("<input id=\"inp-maxitem\" type=\"number\" style=\"width:32px\" onchange=\"applyTempFilter()\">\n");
+    printf("</div>\n");
+    printf("<div style=\"margin-top:4px\">\n");
+    printf("Item name:\n");
+    printf("<input id=\"inp-itemname\" type=\"text\" onchange=\"applyTempFilter()\">\n");
     printf("</div>\n");
     printf("</div>\n");
     printf("<div id=\"div-palette-container\"></div>\n");
