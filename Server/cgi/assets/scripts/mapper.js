@@ -210,6 +210,7 @@ function loadTemplates() {
         if (item.type != "floor" && item.type != "flag") {
             temp_cell.ondblclick = function (obj) { itemTempDblClick(obj); }
         }
+        if (item.name) temp_cell.title = item.name;
 
         var tmp_typespan = document.createElement("span");
         tmp_typespan.id = temp + "_typespan";
