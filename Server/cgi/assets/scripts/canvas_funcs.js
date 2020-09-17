@@ -194,7 +194,7 @@ function cvMouseMove(event, cvHandler) {
                         var tile_id = "maptile" + (selPos[0] + selPos[1] * tilemap_width);
                         if (tile_id != lastTile) {
                             lastTile = tile_id;
-                            mapCellClick(tile_id, mouseDown);
+                            mapCellClick(tile_id, mouseDown, true);
                         }
                     }
                 } else if (paintData.active) {
@@ -239,7 +239,7 @@ function cvMouseClick(event, cv) {
                     lastTile = tile_id;
 
                     if (paintMode == "brush") {
-                        mapCellClick(tile_id, clickType);
+                        mapCellClick(tile_id, clickType, true);
                     } else {
                         if (!paintData.active) {
                             paintData["x1"] = selPos[0];
@@ -260,9 +260,10 @@ function cvMouseClick(event, cv) {
                                             if (paintMode == "rect" && j != x1 && j != x2 && i != y1 && i != y2) continue;
 
                                             var tmp_tile_id = "maptile" + (j + i * tilemap_width);
-                                            mapCellClick(tmp_tile_id, clickType);
+                                            mapCellClick(tmp_tile_id, clickType, false);
                                         }
                                     }
+                                    renderPreview();
                                 break;
                             }
 
@@ -299,7 +300,7 @@ function cvGridEndAction() {
     cvGridActionList = [];
 }
 
-function mapCellClick(tile_id, clickType) {
+function mapCellClick(tile_id, clickType, render) {
     if (!tilemap.hasOwnProperty(tile_id)) return;
 
     if (clickType == 1) {
@@ -325,8 +326,11 @@ function mapCellClick(tile_id, clickType) {
         
         if (removeItem(tile_id)) cvGridActionList.push(act);
     }
-    renderGrid();
-    renderPreview();
+
+    if (render) {
+        renderGrid();
+        renderPreview();
+    }
 }
 
 var drawFlags = true;
