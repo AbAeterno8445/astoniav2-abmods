@@ -344,19 +344,19 @@ int main(int argc, char *args[])
                 if (maped_queue[i].op_type == MAPED_PLACEITEM || maped_queue[i].op_type == MAPED_SETFLOOR) {
                     printf("var it_temp = ");
                     if (maped_queue[i].it_temp&0x40000000) {
-                        if (maped_queue[i].it_temp&MF_MOVEBLOCK) printf("flag_moveblock;\n");
-                        else if (maped_queue[i].it_temp&MF_SIGHTBLOCK) printf("flag_sightblock;\n");
-                        else if (maped_queue[i].it_temp&MF_INDOORS) printf("flag_indoors;\n");
-                        else if (maped_queue[i].it_temp&MF_UWATER) printf("flag_underwater;\n");
-                        else if (maped_queue[i].it_temp&MF_NOLAG) printf("flag_nolag;\n");
-                        else if (maped_queue[i].it_temp&MF_NOMONST) printf("flag_nomonster;\n");
-                        else if (maped_queue[i].it_temp&MF_BANK) printf("flag_bank;\n");
-                        else if (maped_queue[i].it_temp&MF_TAVERN) printf("flag_tavern;\n");
-                        else if (maped_queue[i].it_temp&MF_NOMAGIC) printf("flag_nomagic;\n");
-                        else if (maped_queue[i].it_temp&MF_DEATHTRAP) printf("flag_deathtrap;\n");
-                        else if (maped_queue[i].it_temp&MF_ARENA) printf("flag_arena;\n");
-                        else if (maped_queue[i].it_temp&MF_NOEXPIRE) printf("flag_noexpire;\n");
-                        else if (maped_queue[i].it_temp&MF_NOFIGHT) printf("flag_nofight;\n");
+                        if (maped_queue[i].it_temp&MF_MOVEBLOCK) printf("\"flag_moveblock\";\n");
+                        else if (maped_queue[i].it_temp&MF_SIGHTBLOCK) printf("\"flag_sightblock\";\n");
+                        else if (maped_queue[i].it_temp&MF_INDOORS) printf("\"flag_indoors\";\n");
+                        else if (maped_queue[i].it_temp&MF_UWATER) printf("\"flag_underwater\";\n");
+                        else if (maped_queue[i].it_temp&MF_NOLAG) printf("\"flag_nolag\";\n");
+                        else if (maped_queue[i].it_temp&MF_NOMONST) printf("\"flag_nomonster\";\n");
+                        else if (maped_queue[i].it_temp&MF_BANK) printf("\"flag_bank\";\n");
+                        else if (maped_queue[i].it_temp&MF_TAVERN) printf("\"flag_tavern\";\n");
+                        else if (maped_queue[i].it_temp&MF_NOMAGIC) printf("\"flag_nomagic\";\n");
+                        else if (maped_queue[i].it_temp&MF_DEATHTRAP) printf("\"flag_deathtrap\";\n");
+                        else if (maped_queue[i].it_temp&MF_ARENA) printf("\"flag_arena\";\n");
+                        else if (maped_queue[i].it_temp&MF_NOEXPIRE) printf("\"flag_noexpire\";\n");
+                        else if (maped_queue[i].it_temp&MF_NOFIGHT) printf("\"flag_nofight\";\n");
                         else printf("null;\n");
 
                     } else if (maped_queue[i].op_type == MAPED_SETFLOOR) {
