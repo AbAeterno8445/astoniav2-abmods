@@ -328,9 +328,9 @@ function sendOperation(it_type, tile_id, it_val) {
     if (!tilemap.hasOwnProperty(tile_id)) return;
 
     $.ajax({
-        url: "/cgi-imp/mapper.cgi?step=2",
-        type: "GET",
-        data: { x: tilemap[tile_id].map_x, y: tilemap[tile_id].map_y, it_type: it_type, it_val: it_val },
+        url: "/cgi-imp/mapper.cgi",
+        type: "POST",
+        data: { step: 2, x: tilemap[tile_id].map_x, y: tilemap[tile_id].map_y, it_type: it_type, it_val: it_val },
         dataType: "html"
     });
 }
