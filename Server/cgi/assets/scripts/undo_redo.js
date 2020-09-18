@@ -22,15 +22,15 @@ function undoAction(action, queueRedo) {
     switch(action.type) {
         case "place":
             if (action.data.it_temp.type == "flag") {
-                placeItem(action.data.it_temp, action.tile_id);
+                placeItem(action.data.it_temp, action.tile_id, true);
 
             } else if (action.data.it_temp.type == "floor") {
                 if (action.data.flr_old && item_templates.hasOwnProperty("it_temp" + (100000 + action.data.flr_old))) {
-                    placeItem(item_templates["it_temp" + (100000 + action.data.flr_old)], action.tile_id);
+                    placeItem(item_templates["it_temp" + (100000 + action.data.flr_old)], action.tile_id, true);
                 }
             } else {
                 if (action.data.it_old && item_templates.hasOwnProperty("it_temp" + action.data.it_old)) {
-                    placeItem(item_templates["it_temp" + action.data.it_old], action.tile_id);
+                    placeItem(item_templates["it_temp" + action.data.it_old], action.tile_id, true);
                 } else {
                     removeItem(action.tile_id);
                 }
@@ -39,10 +39,10 @@ function undoAction(action, queueRedo) {
 
         case "remove":
             if (action.data.it_old && item_templates.hasOwnProperty("it_temp" + action.data.it_old)) {
-                placeItem(item_templates["it_temp" + action.data.it_old], action.tile_id);
+                placeItem(item_templates["it_temp" + action.data.it_old], action.tile_id, true);
             }
             for (var flag of action.data.flags) {
-                if (!tilemap[action.tile_id].flags[flag]) placeItem(item_templates["flag_" + flag], action.tile_id);
+                if (!tilemap[action.tile_id].flags[flag]) placeItem(item_templates["flag_" + flag], action.tile_id, true);
             }
         break;
 
@@ -63,7 +63,7 @@ function undoLastAction() {
 function redoAction(action, queueUndo) {
     switch(action.type) {
         case "place":
-            placeItem(action.data.it_temp, action.tile_id);
+            placeItem(action.data.it_temp, action.tile_id, true);
         break;
 
         case "remove":

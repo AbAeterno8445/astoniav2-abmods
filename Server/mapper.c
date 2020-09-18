@@ -368,8 +368,7 @@ int main(int argc, char *args[])
                     printf("if (it_temp && item_templates.hasOwnProperty(it_temp)) {\n");
                     printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y, maped_queue[i].x);
                     printf("if (tilemap.hasOwnProperty(tile_id)) {\n");
-                    printf("placeItem(item_templates[it_temp], tile_id); } }\n");
-
+                    printf("placeItem(item_templates[it_temp], tile_id, false); } }\n");
                 }
             }
 

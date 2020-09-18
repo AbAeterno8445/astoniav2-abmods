@@ -335,7 +335,7 @@ function sendOperation(it_type, tile_id, it_val) {
     });
 }
 
-function placeItem(it_temp, tile_id) {
+function placeItem(it_temp, tile_id, send_op) {
     if (!tilemap.hasOwnProperty(tile_id)) return 0;
 
     var it_temp_val = 0;
@@ -376,7 +376,7 @@ function placeItem(it_temp, tile_id) {
         it_temp_val = it_temp.temp_id;
     }
 
-    sendOperation(it_temp.type, tile_id, it_temp_val);
+    if (send_op) sendOperation(it_temp.type, tile_id, it_temp_val);
     return 1;
 }
 
