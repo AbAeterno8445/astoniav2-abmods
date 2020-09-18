@@ -210,7 +210,8 @@ function cvMouseMove(event, cvHandler) {
                 // Update grid tooltip
                 var ttip = "";
                 if (tilemap.hasOwnProperty(tile_id)) {
-                    ttip += `X: ${tilemap[tile_id].map_x} / Y: ${tilemap[tile_id].map_y} `;
+                    var m = tilemap[tile_id].map_x + tilemap[tile_id].map_y * 1024;
+                    ttip += `X: ${tilemap[tile_id].map_x} / Y: ${tilemap[tile_id].map_y} / M: ${m} `;
                     if (tilemap[tile_id].floor) ttip += `floor: ${tilemap[tile_id].floor} `;
                     if (tilemap[tile_id].item) ttip += `item: ${tilemap[tile_id].item} `;
                 }
