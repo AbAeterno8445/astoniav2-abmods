@@ -118,18 +118,29 @@ void addQueueInstruction(char type, int x, int y, int it_val)
             if (maped_queue[i].x == x && maped_queue[i].y == y) {
                 // Same operation
                 if (maped_queue[i].op_type == type) {
-                    maped_queue[i].it_temp = it_val;
-                    return;
+                    // Flag operation
+                    if (it_val&0x40000000) {
+                        if (maped_queue[i].it_temp == 0) {
+                            maped_queue[i].it_temp = it_val;
+                            return;
+                        } else if (maped_queue[i].it_temp == it_val) {
+                            maped_queue[i].it_temp = 0;
+                            return;
+                        }
+                        continue;
+                    } else {
+                        maped_queue[i].it_temp = it_val;
+                        return;
+                    }
                 }
 
                 // If removing item, change existing placement instruction instead (same position)
                 if (type == MAPED_RMVITEM && maped_queue[i].op_type == MAPED_PLACEITEM) {
                     maped_queue[i].it_temp = 0;
-                    break;
+                    return;
                 }
-            } else {
-                continue;
             }
+            continue;
         }
 
         maped_queue[i].op_type = type;
