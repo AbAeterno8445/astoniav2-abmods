@@ -140,6 +140,7 @@ function changeTileSize(size) {
     renderGrid();
 }
 
+var draggingPrev = false;
 var clickX = 0, clickY = 0;
 var cam_startx = 0, cam_starty = 0;
 
@@ -163,6 +164,8 @@ function setPaintMode(mode) {
     paintData.active = false;
     renderGrid();
 }
+
+setInterval(() => { if (draggingPrev) renderPreview(); }, 100);
 
 var lastTile = "";
 function cvMouseMove(event, cvHandler) {
@@ -224,7 +227,8 @@ function cvMouseMove(event, cvHandler) {
         break;
 
         case prevCanvas:
-            if (shiftDown && mouseDown) renderPreview();
+            if (shiftDown && mouseDown) draggingPrev = true;
+            else draggingPrev = false;
         break;
     }
 }
