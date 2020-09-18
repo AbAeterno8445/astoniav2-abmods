@@ -2,9 +2,11 @@ Server/.dat
 Server/*.cgi
 Server/server
 Server/password
+Server/respawn
 Server/server.pid
 Server/cgi/assets/sprites/*.bmp
 Server/cgi/assets/sprites/*.png
+Server/cgi/*.cgi
 Client/gfx/*.png
 Client/gfx/*.bmp
 Client/.*
