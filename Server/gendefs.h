@@ -33,6 +33,7 @@ All rights reserved.
 
 #define TURNING_ENABLED         0       // Whether characters turn when acting (enables/disables turning animations)
 #define ESCAPE_ENABLED          0       // Whether the escape mechanic is enabled during fights
+#define DIAGONAL_ESCAPE         0       // Whether characters can move diagonally around other characters
 
 #define AUTOERASE_ENABLED       0       // Whether players get automatically deleted after a while of inactivity (svr_tick.c, func check_expire())
 

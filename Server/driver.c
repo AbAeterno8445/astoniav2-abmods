@@ -1281,7 +1281,7 @@ int npc_driver_high(int cn)
                                         if (ch[cn].data[47] && indoor1==indoor2 && (it[in].driver==7) &&
                                         can_go(ch[cn].x,ch[cn].y,it[in].x,it[in].y,inst_id) &&
                                         do_char_can_see_item(cn,in)) {
-                                                if (plr_check_target(x+y*MAPX+1) && !map[x+y*MAPX+1].it) {
+                                                if (plr_check_target(x+y*MAPX+1,0) && !map[x+y*MAPX+1].it) {
                                                         in2=god_create_item(18);
                                                         it[in2].carried=cn;
                                                         ch[cn].citem=in2;
@@ -1339,7 +1339,7 @@ int npc_driver_high(int cn)
                                         if (ch[cn].data[47] && indoor1==indoor2 && (it[in].driver==7) &&
                                         can_go(ch[cn].x,ch[cn].y,it[in].x,it[in].y,inst_id) &&
                                         do_char_can_see_item(cn,in)) {
-                                                if (plr_check_target_inst(inst_id,x+y*map_instances[inst_id].width+1) && !map_instancedtiles[inst_id][x+y*map_instances[inst_id].width+1].it) {
+                                                if (plr_check_target_inst(inst_id,x+y*map_instances[inst_id].width+1,0) && !map_instancedtiles[inst_id][x+y*map_instances[inst_id].width+1].it) {
                                                         in2=god_create_item(18);
                                                         it[in2].carried=cn;
                                                         ch[cn].citem=in2;
@@ -1800,45 +1800,45 @@ void npc_driver_low(int cn)
 
                                         if (abs(x-xo)+abs(y-yo)>ch[cn].data[73]) {
                                                 if (inst_id == -1) {
-                                                        if (plr_check_target(xo+yo*MAPX)) {
+                                                        if (plr_check_target(xo+yo*MAPX,0)) {
                                                                 ch[cn].goto_x=xo;
                                                                 ch[cn].goto_y=yo;
                                                                 return;
-                                                        } else if (plr_check_target(xo+1+yo*MAPX)) {
+                                                        } else if (plr_check_target(xo+1+yo*MAPX,0)) {
                                                                 ch[cn].goto_x=xo+1;
                                                                 ch[cn].goto_y=yo;
                                                                 return;
-                                                        } else if (plr_check_target(xo-1+yo*MAPX)) {
+                                                        } else if (plr_check_target(xo-1+yo*MAPX,0)) {
                                                                 ch[cn].goto_x=xo-1;
                                                                 ch[cn].goto_y=yo;
                                                                 return;
-                                                        } else if (plr_check_target(xo+yo*MAPX+MAPX)) {
+                                                        } else if (plr_check_target(xo+yo*MAPX+MAPX,0)) {
                                                                 ch[cn].goto_x=xo;
                                                                 ch[cn].goto_y=yo+1;
                                                                 return;
-                                                        } else if (plr_check_target(xo+yo*MAPX-MAPX)) {
+                                                        } else if (plr_check_target(xo+yo*MAPX-MAPX,0)) {
                                                                 ch[cn].goto_x=xo;
                                                                 ch[cn].goto_y=yo-1;
                                                                 return;
                                                         } else continue;
                                                 } else {
-                                                        if (plr_check_target_inst(inst_id,xo+yo*map_instances[inst_id].width)) {
+                                                        if (plr_check_target_inst(inst_id,xo+yo*map_instances[inst_id].width,0)) {
                                                                 ch[cn].goto_x=xo;
                                                                 ch[cn].goto_y=yo;
                                                                 return;
-                                                        } else if (plr_check_target_inst(inst_id,xo+1+yo*map_instances[inst_id].width)) {
+                                                        } else if (plr_check_target_inst(inst_id,xo+1+yo*map_instances[inst_id].width,0)) {
                                                                 ch[cn].goto_x=xo+1;
                                                                 ch[cn].goto_y=yo;
                                                                 return;
-                                                        } else if (plr_check_target_inst(inst_id,xo-1+yo*map_instances[inst_id].width)) {
+                                                        } else if (plr_check_target_inst(inst_id,xo-1+yo*map_instances[inst_id].width,0)) {
                                                                 ch[cn].goto_x=xo-1;
                                                                 ch[cn].goto_y=yo;
                                                                 return;
-                                                        } else if (plr_check_target_inst(inst_id,xo+yo*map_instances[inst_id].width+map_instances[inst_id].width)) {
+                                                        } else if (plr_check_target_inst(inst_id,xo+yo*map_instances[inst_id].width+map_instances[inst_id].width,0)) {
                                                                 ch[cn].goto_x=xo;
                                                                 ch[cn].goto_y=yo+1;
                                                                 return;
-                                                        } else if (plr_check_target_inst(inst_id,xo+yo*map_instances[inst_id].width-map_instances[inst_id].width)) {
+                                                        } else if (plr_check_target_inst(inst_id,xo+yo*map_instances[inst_id].width-map_instances[inst_id].width,0)) {
                                                                 ch[cn].goto_x=xo;
                                                                 ch[cn].goto_y=yo-1;
                                                                 return;
@@ -1848,9 +1848,9 @@ void npc_driver_low(int cn)
                                 }
 
                                 if (inst_id == -1) {
-                                        if (!plr_check_target(x+y*MAPX)) continue;
+                                        if (!plr_check_target(x+y*MAPX,0)) continue;
                                 } else {
-                                        if (!plr_check_target_inst(inst_id,x+y*map_instances[inst_id].width)) continue;
+                                        if (!plr_check_target_inst(inst_id,x+y*map_instances[inst_id].width,0)) continue;
                                 }
                                 if (!can_go(ch[cn].x,ch[cn].y,x,y,inst_id)) continue;
                                 break;

@@ -101,26 +101,26 @@ int follow_driver(int cn,int co)
         }
 
         if (inst_id == -1) {
-                if (plr_check_target(m)) m=m;
-                else if (plr_check_target(m+1)) m=m+1;
-                else if (plr_check_target(m-1)) m=m-1;
-                else if (plr_check_target(m+m_wid)) m=m+m_wid;
-                else if (plr_check_target(m-m_wid)) m=m-m_wid;
-                else if (plr_check_target(m+1+m_wid)) m=m+1+m_wid;
-                else if (plr_check_target(m+1-m_wid)) m=m+1-m_wid;
-                else if (plr_check_target(m-1+m_wid)) m=m-1+m_wid;
-                else if (plr_check_target(m-1-m_wid)) m=m-1-m_wid;
+                if (plr_check_target(m,0)) m=m;
+                else if (plr_check_target(m+1,0)) m=m+1;
+                else if (plr_check_target(m-1,0)) m=m-1;
+                else if (plr_check_target(m+m_wid,0)) m=m+m_wid;
+                else if (plr_check_target(m-m_wid,0)) m=m-m_wid;
+                else if (plr_check_target(m+1+m_wid,0)) m=m+1+m_wid;
+                else if (plr_check_target(m+1-m_wid,0)) m=m+1-m_wid;
+                else if (plr_check_target(m-1+m_wid,0)) m=m-1+m_wid;
+                else if (plr_check_target(m-1-m_wid,0)) m=m-1-m_wid;
                 else return 0;
         } else {
-                if (plr_check_target_inst(inst_id,m)) m=m;
-                else if (plr_check_target_inst(inst_id,m+1)) m=m+1;
-                else if (plr_check_target_inst(inst_id,m-1)) m=m-1;
-                else if (plr_check_target_inst(inst_id,m+m_wid)) m=m+m_wid;
-                else if (plr_check_target_inst(inst_id,m-m_wid)) m=m-m_wid;
-                else if (plr_check_target_inst(inst_id,m+1+m_wid)) m=m+1+m_wid;
-                else if (plr_check_target_inst(inst_id,m+1-m_wid)) m=m+1-m_wid;
-                else if (plr_check_target_inst(inst_id,m-1+m_wid)) m=m-1+m_wid;
-                else if (plr_check_target_inst(inst_id,m-1-m_wid)) m=m-1-m_wid;
+                if (plr_check_target_inst(inst_id,m,0)) m=m;
+                else if (plr_check_target_inst(inst_id,m+1,0)) m=m+1;
+                else if (plr_check_target_inst(inst_id,m-1,0)) m=m-1;
+                else if (plr_check_target_inst(inst_id,m+m_wid,0)) m=m+m_wid;
+                else if (plr_check_target_inst(inst_id,m-m_wid,0)) m=m-m_wid;
+                else if (plr_check_target_inst(inst_id,m+1+m_wid,0)) m=m+1+m_wid;
+                else if (plr_check_target_inst(inst_id,m+1-m_wid,0)) m=m+1-m_wid;
+                else if (plr_check_target_inst(inst_id,m-1+m_wid,0)) m=m-1+m_wid;
+                else if (plr_check_target_inst(inst_id,m-1-m_wid,0)) m=m-1-m_wid;
                 else return 0;
         }
 

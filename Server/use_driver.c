@@ -965,7 +965,7 @@ int use_crystal_sub(int cn,int in)
 
         do {
                 m=RANDOM(64)+128+(RANDOM(64)+64)*MAPX;
-        } while (!plr_check_target(m));
+        } while (!plr_check_target(m,0));
 
         ch[cc].goto_x=m%MAPX;
         ch[cc].goto_y=m/MAPX;

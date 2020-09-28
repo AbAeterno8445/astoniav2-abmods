@@ -15,6 +15,7 @@ eg. `"/|0|This is red. /|2|This is green. /|1960|This is purple."`. Gods can sen
 - **gendefs.h:**
     - **TURNING_ENABLED:** 0 or 1, enables/disables character turning animations.
     - **ESCAPE_ENABLED:** 0 or 1, enables/disables escaping mechanic when fighting.
+    - **DIAGONAL_ESCAPE:** 0 or 1, enables/disables characters moving diagonally through each other.
     - **AUTOERASE_ENABLED:** 0 or 1, enables/disables deletion of inactive player accounts.
 
 - **data.h:**

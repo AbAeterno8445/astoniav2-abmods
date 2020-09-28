@@ -75,7 +75,7 @@ void init_group(void);
 int group_active(int cn);
 
 // ---- act ----
-int plr_check_target(int m);
+int plr_check_target(int m,short ignore_chars);
 void act_move_up(int cn);
 void act_move_down(int cn);
 void act_move_left(int cn);
@@ -343,7 +343,7 @@ void unload_instance(int inst_id);
 void save_inst_to_base(int inst_id);
 short inst_isalive(int inst_id);
 
-int plr_check_target_inst(int inst_id,int m);
+int plr_check_target_inst(int inst_id,int m,short ignore_chars);
 void plr_map_set_inst(int cn);
 void do_area_log_inst(int inst_id,int cn,int co,int xs,int ys,int font,char *format,...);
 void do_area_sound_inst(int inst_id,int cn,int co,int xs,int ys,int nr);

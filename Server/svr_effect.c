@@ -60,12 +60,12 @@ void effect_tick(void)
 
 			m = fx[n].data[0] + fx[n].data[1] * m_wid;
 			if (inst_id == -1) {
-				if (fx[n].duration==0 && plr_check_target(m)) {
+				if (fx[n].duration==0 && plr_check_target(m,0)) {
 					map[m].flags|=MF_MOVEBLOCK;
 					fx[n].type=8;
 				}
 			} else {
-				if (fx[n].duration==0 && plr_check_target_inst(inst_id,m)) {
+				if (fx[n].duration==0 && plr_check_target_inst(inst_id,m,0)) {
 					map_instancedtiles[inst_id][m].flags|=MF_MOVEBLOCK;
 					fx[n].type=8;
 				}

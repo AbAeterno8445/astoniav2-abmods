@@ -861,9 +861,9 @@ void plr_misc(int cn)
         }
 }
 
-int plr_check_target(int m)
+int plr_check_target(int m,short ignore_chars)
 {
-        if (map[m].ch || map[m].to_ch) return 0;
+        if ((map[m].ch && !ignore_chars) || map[m].to_ch) return 0;
 
         if (map[m].flags&MF_MOVEBLOCK) return 0;
 
@@ -872,9 +872,9 @@ int plr_check_target(int m)
         return 1;
 }
 
-int plr_check_target_inst(int inst_id, int m)
+int plr_check_target_inst(int inst_id, int m, short ignore_chars)
 {
-        if (map_instancedtiles[inst_id][m].ch || map_instancedtiles[inst_id][m].to_ch) return 0;
+        if ((map_instancedtiles[inst_id][m].ch && !ignore_chars) || map_instancedtiles[inst_id][m].to_ch) return 0;
 
         if (map_instancedtiles[inst_id][m].flags&MF_MOVEBLOCK) return 0;
 
@@ -887,11 +887,11 @@ int plr_set_target(int m,int cn)
 {
         int inst_id = ch[cn].instance_id;
         if (inst_id == -1) {
-                if (!plr_check_target(m)) return 0;
+                if (!plr_check_target(m,0)) return 0;
 
                 map[m].to_ch=cn;
         } else {
-                if (!plr_check_target_inst(inst_id, m)) return 0;
+                if (!plr_check_target_inst(inst_id, m, 0)) return 0;
 
                 map_instancedtiles[inst_id][m].to_ch = cn;
         }
@@ -1016,11 +1016,11 @@ void act_move_leftup(int cn)
         if (!do_char_can_flee(cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
         if (inst_id == -1) {
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         } else {
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         }
         if (!plr_set_target(ch[cn].x+ch[cn].y*wid-wid-1,cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
@@ -1049,11 +1049,11 @@ void act_move_leftdown(int cn)
         if (!do_char_can_flee(cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
         if (inst_id == -1) {
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         } else {
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         }
         if (!plr_set_target(ch[cn].x+ch[cn].y*wid+wid-1,cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
@@ -1081,11 +1081,11 @@ void act_move_rightup(int cn)
         if (!do_char_can_flee(cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
         if (inst_id == -1) {
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid-wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         } else {
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid-wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         }
         if (!plr_set_target(ch[cn].x+ch[cn].y*wid-wid+1,cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
@@ -1114,11 +1114,11 @@ void act_move_rightdown(int cn)
         if (!do_char_can_flee(cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 
         if (inst_id == -1) {
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target(ch[cn].x+ch[cn].y*wid+1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         } else {
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+wid)) { ch[cn].cerrno=ERR_FAILED; return; }
-                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+1)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+wid,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
+                if (!plr_check_target_inst(inst_id,ch[cn].x+ch[cn].y*wid+1,DIAGONAL_ESCAPE)) { ch[cn].cerrno=ERR_FAILED; return; }
         }
         if (!plr_set_target(ch[cn].x+ch[cn].y*wid+wid+1,cn)) { ch[cn].cerrno=ERR_FAILED; return; }
 

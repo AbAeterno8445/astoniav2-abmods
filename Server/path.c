@@ -154,15 +154,15 @@ int add_node(int x,int y,int dir,int ccost,int cdir,int inst_id)
         return 1;
 }
 
-static inline int dr_check_target(int m,int inst_id)
+static inline int dr_check_target(int m,int inst_id,short ignore_chars)
 {
         int in;
 
         if (inst_id == -1) {
-                if (((unsigned long)map[m].flags&mapblock) || map[m].ch || map[m].to_ch ||
+                if (((unsigned long)map[m].flags&mapblock) || (map[m].ch && !ignore_chars) || map[m].to_ch ||
                         ((in=map[m].it) && (it[in].flags&IF_MOVEBLOCK) && it[in].driver!=2)) return 0;
         } else {
-                if (((unsigned long)map_instancedtiles[inst_id][m].flags&mapblock) || map_instancedtiles[inst_id][m].ch || map_instancedtiles[inst_id][m].to_ch ||
+                if (((unsigned long)map_instancedtiles[inst_id][m].flags&mapblock) || (map_instancedtiles[inst_id][m].ch && !ignore_chars) || map_instancedtiles[inst_id][m].to_ch ||
                         ((in=map_instancedtiles[inst_id][m].it) && (it[in].flags&IF_MOVEBLOCK) && it[in].driver!=2)) return 0;
         }
 
@@ -190,54 +190,72 @@ static void add_suc(struct node *node, int inst_id)
         else m_wid = map_instances[inst_id].width;
 
         if (!node->dir) {
-                if (dr_check_target(node->x+node->y*m_wid+1,inst_id)) add_node(node->x+1,node->y,DX_RIGHT,node->cost+2+drv_turncount(node->cdir,DX_RIGHT),DX_RIGHT,inst_id);
-                if (dr_check_target(node->x+node->y*m_wid-1,inst_id)) add_node(node->x-1,node->y,DX_LEFT,node->cost+2+drv_turncount(node->cdir,DX_LEFT),DX_LEFT,inst_id);
-                if (dr_check_target(node->x+node->y*m_wid+m_wid,inst_id)) add_node(node->x,node->y+1,DX_DOWN,node->cost+2+drv_turncount(node->cdir,DX_DOWN),DX_DOWN,inst_id);
-                if (dr_check_target(node->x+node->y*m_wid-m_wid,inst_id)) add_node(node->x,node->y-1,DX_UP,node->cost+2+drv_turncount(node->cdir,DX_UP),DX_UP,inst_id);
+                // Check adjacent tiles
+                if (dr_check_target(node->x+node->y*m_wid+1,inst_id,0))
+                        add_node(node->x+1,node->y,DX_RIGHT,node->cost+2+drv_turncount(node->cdir,DX_RIGHT),DX_RIGHT,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid+1+m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid-1,inst_id,0))
+                        add_node(node->x-1,node->y,DX_LEFT,node->cost+2+drv_turncount(node->cdir,DX_LEFT),DX_LEFT,inst_id);
+
+                if (dr_check_target(node->x+node->y*m_wid+m_wid,inst_id,0))
+                        add_node(node->x,node->y+1,DX_DOWN,node->cost+2+drv_turncount(node->cdir,DX_DOWN),DX_DOWN,inst_id);
+
+                if (dr_check_target(node->x+node->y*m_wid-m_wid,inst_id,0))
+                        add_node(node->x,node->y-1,DX_UP,node->cost+2+drv_turncount(node->cdir,DX_UP),DX_UP,inst_id);
+
+                // Diagonals
+                if (dr_check_target(node->x+node->y*m_wid+1+m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid+1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x+1,node->y+1,DX_RIGHTDOWN,node->cost+3+drv_turncount(node->cdir,DX_RIGHTDOWN),DX_RIGHTDOWN,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid+1-m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid+1-m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid+1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x+1,node->y-1,DX_RIGHTUP,node->cost+3+drv_turncount(node->cdir,DX_RIGHTUP),DX_RIGHTUP,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid-1+m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid-1+m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid-1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x-1,node->y+1,DX_LEFTDOWN,node->cost+3+drv_turncount(node->cdir,DX_LEFTDOWN),DX_LEFTDOWN,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid-1-m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid-1-m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid-1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x-1,node->y-1,DX_LEFTUP,node->cost+3+drv_turncount(node->cdir,DX_LEFTUP),DX_LEFTUP,inst_id);
         } else {
-                if (dr_check_target(node->x+node->y*m_wid+1,inst_id)) add_node(node->x+1,node->y,node->dir,node->cost+2+drv_turncount(node->cdir,DX_RIGHT),DX_RIGHT,inst_id);
-                if (dr_check_target(node->x+node->y*m_wid-1,inst_id)) add_node(node->x-1,node->y,node->dir,node->cost+2+drv_turncount(node->cdir,DX_LEFT),DX_LEFT,inst_id);
-                if (dr_check_target(node->x+node->y*m_wid+m_wid,inst_id)) add_node(node->x,node->y+1,node->dir,node->cost+2+drv_turncount(node->cdir,DX_DOWN),DX_DOWN,inst_id);
-                if (dr_check_target(node->x+node->y*m_wid-m_wid,inst_id)) add_node(node->x,node->y-1,node->dir,node->cost+2+drv_turncount(node->cdir,DX_UP),DX_UP,inst_id);
+                // Adjacent tiles
+                if (dr_check_target(node->x+node->y*m_wid+1,inst_id,0))
+                        add_node(node->x+1,node->y,node->dir,node->cost+2+drv_turncount(node->cdir,DX_RIGHT),DX_RIGHT,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid+1+m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid-1,inst_id,0))
+                        add_node(node->x-1,node->y,node->dir,node->cost+2+drv_turncount(node->cdir,DX_LEFT),DX_LEFT,inst_id);
+
+                if (dr_check_target(node->x+node->y*m_wid+m_wid,inst_id,0))
+                        add_node(node->x,node->y+1,node->dir,node->cost+2+drv_turncount(node->cdir,DX_DOWN),DX_DOWN,inst_id);
+
+                if (dr_check_target(node->x+node->y*m_wid-m_wid,inst_id,0))
+                        add_node(node->x,node->y-1,node->dir,node->cost+2+drv_turncount(node->cdir,DX_UP),DX_UP,inst_id);
+
+                // Diagonals
+                if (dr_check_target(node->x+node->y*m_wid+1+m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid+1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x+1,node->y+1,node->dir,node->cost+3+drv_turncount(node->cdir,DX_RIGHTDOWN),DX_RIGHTDOWN,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid+1-m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid+1-m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid+1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x+1,node->y-1,node->dir,node->cost+3+drv_turncount(node->cdir,DX_RIGHTUP),DX_RIGHTUP,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid-1+m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid-1+m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid-1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid+m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x-1,node->y+1,node->dir,node->cost+3+drv_turncount(node->cdir,DX_LEFTDOWN),DX_LEFTDOWN,inst_id);
 
-                if (dr_check_target(node->x+node->y*m_wid-1-m_wid,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-1,inst_id) &&
-                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id))
+                if (dr_check_target(node->x+node->y*m_wid-1-m_wid,inst_id,0) &&
+                    dr_check_target(node->x+node->y*m_wid-1,inst_id,DIAGONAL_ESCAPE) &&
+                    dr_check_target(node->x+node->y*m_wid-m_wid,inst_id,DIAGONAL_ESCAPE))
                         add_node(node->x-1,node->y-1,node->dir,node->cost+3+drv_turncount(node->cdir,DX_LEFTUP),DX_LEFTUP,inst_id);
         }
 }
@@ -320,7 +338,7 @@ int pathfinder(int cn,int x1,int y1,int flag,int x2,int y2,int inst_id)
         ty1=y1; ty2=y2;
         mode=flag;
 
-        if (flag==0 && !dr_check_target(tx1+ty1*m_wid,inst_id)) return -1;
+        if (flag==0 && !dr_check_target(tx1+ty1*m_wid,inst_id,0)) return -1;
 
         if (ch[cn].attack_cn || (!(ch[cn].flags&(CF_PLAYER|CF_USURP)) && ch[cn].data[78])) maxstep=max(abs(ch[cn].x-x1),abs(ch[cn].y-y1))*4+50;
         else maxstep=max(abs(ch[cn].x-x1),abs(ch[cn].y-y1))*8+100;
