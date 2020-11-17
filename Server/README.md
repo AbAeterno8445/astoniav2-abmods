@@ -55,3 +55,6 @@ You can also look (alt+click) at one of these characters to remove them.
 
 ## Misc
 Lag scrolls can lead back to an instance if it's still alive.
+
+This document has a few preview images/gifs showing some of the new features:
+https://docs.google.com/document/d/1q26_0Y2CCTRTST_v3Pe-BQlaDwFhOGgYrkdJ3jFr-_k/edit?usp=sharing
