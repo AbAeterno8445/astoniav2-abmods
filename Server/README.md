@@ -56,3 +56,6 @@ You can also look (alt+click) at one of these characters to remove them.
 
 ## Misc
 Lag scrolls can lead back to an instance if it's still alive.
+
+This document has some preview images/gifs displaying new features (from map-device):
+https://docs.google.com/document/d/12ehAk76jAdHjEM2fg7eoyN8iX_OYubWroqNmZup5IU0/edit?usp=sharing
