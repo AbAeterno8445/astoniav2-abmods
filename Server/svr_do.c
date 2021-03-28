@@ -564,7 +564,7 @@ void do_tell(int cn,char *con,char *text)
         }
 
         // Remove potential color codes for non-gods
-        if (!ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP)) {
+        if (!(ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP))) {
                 text = txt_remove_colorcodes(text);
                 ccode_proc = 1;
         }
@@ -630,7 +630,7 @@ void do_shout(int cn,char *text)
         }
 
         // Remove potential color codes for non-gods
-        if (!ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP)) {
+        if (!(ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP))) {
                 text = txt_remove_colorcodes(text);
                 ccode_proc = 1;
         }
@@ -1929,7 +1929,7 @@ void do_say(int cn,char *text)
         }
 
         // Remove potential color codes for non-gods
-        if (!ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP)) {
+        if (!(ch[cn].flags&(CF_GOD|CF_GREATERGOD|CF_IMP))) {
                 text = txt_remove_colorcodes(text);
                 ccode_proc = 1;
         }
