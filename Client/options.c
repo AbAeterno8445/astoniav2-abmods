@@ -541,14 +541,14 @@ APIENTRY OptionsProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 					if (race==0) race=random(4)+1;
 
 					if (sex==1) {
-						if (race==1) race=3;
-						else if (race==2) race=2;
-						else if (race==3) race=4;
+						if (race==1) race=3; // templar M
+						else if (race==2) race=2; // mercenary M
+						else if (race==3) race=4; // harakim M
 						else race=13;
 					} else {
-						if (race==1) race=77;
-						else if (race==2) race=76;
-						else if (race==3) race=78;
+						if (race==1) race=77; // templar F
+						else if (race==2) race=76; // mercenary F
+						else if (race==3) race=78; // harakim F
 						else race=79;
 					}
 
