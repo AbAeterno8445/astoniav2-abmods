@@ -651,8 +651,11 @@ void dd_showbar(int xf,int yf,int xs,int ys,unsigned short col)
 		else yf += 2;
 	}
 
-	xt=xf+xs;
-	yt=yf+ys;
+	xt=min(screen_width, xf+xs);
+	yt=min(screen_height, yf+ys);
+
+	xf=max(0, xf);
+	yf=max(0, yf);
 
 	for (y=yf; y<yt; y++) {
 		for (x=xf,off=y*MAXX+xf; x<xt; x++,off++) {
@@ -791,7 +794,7 @@ int dd_copytile(int nr,int x,int y,LPDIRECTDRAWSURFACE sur,int mapcheck)
 	int xs=0,ys=0,xe=0,ye=0;
 
 	if (!mapcheck) {
-		if (x<0 || y<0 || x>=screen_width || y>=screen_height)	return 0;
+		if (x<-31 || y<0 || x>=screen_width || y>=screen_height)	return 0;
 
 		if (x<0) {
 			xs=-x;    x=0;
@@ -803,7 +806,7 @@ int dd_copytile(int nr,int x,int y,LPDIRECTDRAWSURFACE sur,int mapcheck)
 		if (x+32>=screen_width) xe=x-screen_width+32;
 		if (y+32>=screen_height) ye=y-screen_height+32;
 	} else {
-		if (x<0 || y<0 || x>=screen_width || y>=screen_height)	return 0;
+		if (x<-31 || y<0 || x>=screen_width || y>=screen_height)	return 0;
 
 		if (x<0) {
 			xs=-x;    x=0;
@@ -1767,7 +1770,11 @@ void dd_gputc(int xpos,int ypos,int font,int c)
 	sprtab[nr].ticker=current_tick;
 
 	for (y=0; y<9; y++) {
+		if (ypos + y < 0 || ypos + y >= screen_height) continue;
+
 		for (x=0; x<6; x++,tptr++,fptr++) {
+			if (xpos + x < 0 || xpos + x >= screen_width) continue;
+
 			if (*fptr!=background)
 				*tptr=*fptr;
 		}
