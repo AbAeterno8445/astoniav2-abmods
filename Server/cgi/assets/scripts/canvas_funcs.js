@@ -261,6 +261,8 @@ function cvMouseClick(event, cv) {
                         if (!paintData.active) {
                             paintData["x1"] = selPos[0];
                             paintData["y1"] = selPos[1];
+                            paintData["x2"] = selPos[0];
+                            paintData["y2"] = selPos[1];
                             paintData.active = true;
                         } else {
                             // Paint mode second click - apply changes
