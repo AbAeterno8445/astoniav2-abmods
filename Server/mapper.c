@@ -284,8 +284,8 @@ int main(int argc, char *args[])
             x2 = atoi(find_val(head,"x2"))+1;
             y2 = atoi(find_val(head,"y2"))+1;
 
-            if (x1 < 0 || x1 > 1024 || x1 > x2 || y1 < 0 || y1 > 1024 || y1 > y2 ||
-                x2 < 0 || x2 > 1024 || y2 < 0 || y2 > 1024) {
+            if (x1 < 0 || x1 > MAPX || x1 > x2 || y1 < 0 || y1 > MAPY || y1 > y2 ||
+                x2 < 0 || x2 > MAPX || y2 < 0 || y2 > MAPY) {
                     printf("<script>alert(\"Received invalid input for map area.\");</script>\n");
                     break;
             }
@@ -293,7 +293,7 @@ int main(int argc, char *args[])
 
             for (int i=y1; i<y2; i++) {
                 for (int j=x1; j<x2; j++) {
-                    int map_tileid = i + j * MAPX;
+                    int map_tileid = (x1 + y) + (y1 + x) * MAPX;
                     if (map_tileid < 0 || map_tileid > MAPX * MAPY) continue;
 
                     printf("if (tilemap.hasOwnProperty(\"maptile\" + (%d + %d * tilemap_width))) {\n", x, y);
