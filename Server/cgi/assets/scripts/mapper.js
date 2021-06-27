@@ -145,6 +145,11 @@ function loadMapArea() {
     if (!x2.match(/^[0-9]+$/)) { alert("X2 contains non-number characters."); return; }
     if (!y2.match(/^[0-9]+$/)) { alert("Y2 contains non-number characters."); return; }
 
+    x1 = parseInt(x1);
+    x2 = parseInt(x2);
+    y1 = parseInt(y1);
+    y2 = parseInt(y2);
+
     if (x1 < 0 || x1 > 1024 || x1 >= x2) { alert("X1 must be between 0 and 1024, and must be lower than X2."); return; }
     if (y1 < 0 || y1 > 1024 || y1 >= y2) { alert("Y1 must be between 0 and 1024, and must be lower than Y2."); return; }
     if (x2 < 0 || x2 > 1024) { alert("X2 must be between 0 and 1024."); return; }
