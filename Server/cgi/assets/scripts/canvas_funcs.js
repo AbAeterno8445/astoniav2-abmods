@@ -279,9 +279,25 @@ function cvMouseClick(event, cv) {
                                             if (paintMode == "rect" && j != x1 && j != x2 && i != y1 && i != y2) continue;
 
                                             var tmp_tile_id = "maptile" + (j + i * tilemap_width);
-                                            mapCellClick(tmp_tile_id, clickType, false);
+                                            if (clickType != 2) mapCellClick(tmp_tile_id, clickType, false, false);
+                                            else removeItem(tmp_tile_id, false);
                                         }
                                     }
+
+                                    // Sends either "rect" for a rectangle or "rectfill" for a filled rectangle
+                                    var origin_tile = tilemap["maptile" + (x1 + y1 * tilemap_width)];
+                                    var orig_x = origin_tile.map_x;
+                                    var orig_y = origin_tile.map_y;
+
+                                    sendMassOperation(paintMode, {
+                                        x1: orig_x,
+                                        x2: orig_x + (y2 - y1),
+                                        y1: orig_y,
+                                        y2: orig_y + (x2 - x1),
+                                        it_type: (clickType != 2) ? selected_item.type : "remove", // Right click to remove rectangular area
+                                        it_val: (clickType != 2) ? getItemTempVal(selected_item) : 0
+                                    });
+
                                     renderPreview();
                                 break;
                             }
@@ -319,7 +335,7 @@ function cvGridEndAction() {
     cvGridActionList = [];
 }
 
-function mapCellClick(tile_id, clickType, render) {
+function mapCellClick(tile_id, clickType, render, send_op=true) {
     if (!tilemap.hasOwnProperty(tile_id)) return;
 
     if (clickType == 1) {
@@ -332,7 +348,7 @@ function mapCellClick(tile_id, clickType, render) {
             var old_item = tilemap[tile_id].item;
             var old_floor = tilemap[tile_id].floor;
 
-            if (placeItem(selected_item, tile_id, true)) {
+            if (placeItem(selected_item, tile_id, send_op)) {
                 var act = new EditorAction("place", tile_id, { it_temp: selected_item, it_old: old_item, flr_old: old_floor });
                 cvGridActionList.push(act);
             }
@@ -343,7 +359,7 @@ function mapCellClick(tile_id, clickType, render) {
         if (tilemap[tile_id].flags.moveblock) act.data.flags.push("moveblock");
         if (tilemap[tile_id].flags.sightblock) act.data.flags.push("sightblock");
         
-        if (removeItem(tile_id)) cvGridActionList.push(act);
+        if (removeItem(tile_id, send_op)) cvGridActionList.push(act);
     }
 
     if (render) {

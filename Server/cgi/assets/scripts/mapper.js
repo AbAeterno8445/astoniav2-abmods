@@ -340,23 +340,30 @@ function sendOperation(it_type, tile_id, it_val) {
     });
 }
 
-function placeItem(it_temp, tile_id, send_op) {
-    if (!tilemap.hasOwnProperty(tile_id)) return 0;
+function sendMassOperation(op_type, op_data) {
+    if (!sendChanges) return;
 
+    var inst_data = {
+        step: 3,
+        op_type: op_type
+    };
+    Object.assign(inst_data, op_data);
+
+    $.ajax({
+        url: "/cgi-imp/mapper.cgi",
+        type: "POST",
+        data: inst_data,
+        dataType: "html"
+    });
+}
+
+function getItemTempVal(it_temp) {
     var it_temp_val = 0;
     if (it_temp.type == "floor") {
-        if (tilemap[tile_id].floor == it_temp.item_spr) return 0;
-
-        tilemap[tile_id].floor = it_temp.item_spr;
-        it_temp_val = selected_item.item_spr;
-
+        it_temp_val = it_temp.item_spr;
     } else if (it_temp.type == "flag") {
-        if (!drawFlags) toggleTileFlags();
-
         for (var flag in it_temp.flags) {
             if (it_temp.flags[flag] == true) {
-                tilemap[tile_id].flags[flag] = !tilemap[tile_id].flags[flag];
-
                 if (flag == "moveblock") it_temp_val = 1;
                 else if (flag == "sightblock") it_temp_val = 2;
                 else if (flag == "indoors") it_temp_val = 3;
@@ -373,19 +380,43 @@ function placeItem(it_temp, tile_id, send_op) {
             }
         }
     } else {
+        it_temp_val = it_temp.temp_id;
+    }
+    return it_temp_val;
+}
+
+function placeItem(it_temp, tile_id, send_op) {
+    if (!tilemap.hasOwnProperty(tile_id)) return 0;
+
+    var it_temp_val = 0;
+    if (it_temp.type == "floor") {
+        if (tilemap[tile_id].floor == it_temp.item_spr) return 0;
+
+        tilemap[tile_id].floor = it_temp.item_spr;
+
+    } else if (it_temp.type == "flag") {
+        if (!drawFlags) toggleTileFlags();
+
+        for (var flag in it_temp.flags) {
+            if (it_temp.flags[flag] == true) {
+                tilemap[tile_id].flags[flag] = !tilemap[tile_id].flags[flag];
+            }
+        }
+    } else {
         if (tilemap[tile_id].item == it_temp.temp_id) return 0;
 
         tilemap[tile_id].item = it_temp.temp_id;
         if (it_temp.flags.moveblock) tilemap[tile_id].flags.moveblock = true;
         if (it_temp.flags.sightblock) tilemap[tile_id].flags.sightblock = true;
-        it_temp_val = it_temp.temp_id;
     }
+
+    it_temp_val = getItemTempVal(it_temp);
 
     if (send_op) sendOperation(it_temp.type, tile_id, it_temp_val);
     return 1;
 }
 
-function removeItem(tile_id) {
+function removeItem(tile_id, send_op=true) {
     if (!tilemap.hasOwnProperty(tile_id)) return 0;
 
     if (!tilemap[tile_id].flags.moveblock && !tilemap[tile_id].flags.sightblock && !tilemap[tile_id].item) return 0;
@@ -394,7 +425,7 @@ function removeItem(tile_id) {
     tilemap[tile_id].flags.sightblock = false;
     tilemap[tile_id].item = 0;
 
-    sendOperation("remove", tile_id, 0);
+    if (send_op) sendOperation("remove", tile_id, 0);
     return 1;
 }
 

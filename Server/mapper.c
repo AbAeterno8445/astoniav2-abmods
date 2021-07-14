@@ -152,6 +152,40 @@ void addQueueInstruction(char type, int x, int y, int it_val)
     }
 }
 
+void queueItem(char* it_type, int x, int y, int it_val) {
+    if (strcmp(it_type, "floor") == 0) {
+        addQueueInstruction(MAPED_SETFLOOR, x, y, it_val);
+
+    } else if (strcmp(it_type, "wall") == 0 || strcmp(it_type, "item") == 0) {
+        if (map[x + y * MAPX].it) {
+            addQueueInstruction(MAPED_RMVITEM, x, y, 0);
+        }
+        addQueueInstruction(MAPED_PLACEITEM, x, y, it_val);
+
+    } else if (strcmp(it_type, "remove") == 0) {
+        addQueueInstruction(MAPED_RMVITEM, x, y, 0);
+
+    } else if (strcmp(it_type, "flag") == 0) {
+        int it_flag = 0x40000000;
+        switch(it_val) {
+            case 1: it_flag|=MF_MOVEBLOCK; break;
+            case 2: it_flag|=MF_SIGHTBLOCK; break;
+            case 3: it_flag|=MF_INDOORS; break;
+            case 4: it_flag|=MF_UWATER; break;
+            case 5: it_flag|=MF_NOLAG; break;
+            case 6: it_flag|=MF_NOMONST; break;
+            case 7: it_flag|=MF_BANK; break;
+            case 8: it_flag|=MF_TAVERN; break;
+            case 9: it_flag|=MF_NOMAGIC; break;
+            case 10: it_flag|=MF_DEATHTRAP; break;
+            case 11: it_flag|=MF_ARENA; break;
+            case 12: it_flag|=MF_NOEXPIRE; break;
+            case 13: it_flag|=MF_NOFIGHT; break;
+        }
+        addQueueInstruction(MAPED_PLACEITEM, x, y, it_flag);
+    }
+}
+
 int main(int argc, char *args[])
 {
     LIST *head;
@@ -276,6 +310,8 @@ int main(int argc, char *args[])
 
     int x1, y1, x2, y2;
     int x = 0, y = 0;
+    int it_val = 0;
+    char *op_type = "";
     char *it_type;
     switch(step) {
         case 1: // Load map area, receives coordinates as "x1", "y1", "x2", "y2"
@@ -353,7 +389,7 @@ int main(int argc, char *args[])
                 if (maped_queue[i].y < y1 || maped_queue[i].y > y2) continue;
 
                 if (maped_queue[i].op_type == MAPED_PLACEITEM || maped_queue[i].op_type == MAPED_SETFLOOR) {
-                    printf("var it_temp = ");
+                    printf("var tmp_it_temp = ");
                     if (maped_queue[i].it_temp&0x40000000) {
                         if (maped_queue[i].it_temp&MF_MOVEBLOCK) printf("\"flag_moveblock\";\n");
                         else if (maped_queue[i].it_temp&MF_SIGHTBLOCK) printf("\"flag_sightblock\";\n");
@@ -376,10 +412,15 @@ int main(int argc, char *args[])
                         printf("\"it_temp\" + %d;\n", maped_queue[i].it_temp);
                     }
 
-                    printf("if (it_temp && item_templates.hasOwnProperty(it_temp)) {\n");
-                    printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y, maped_queue[i].x);
+                    printf("if (tmp_it_temp && item_templates.hasOwnProperty(tmp_it_temp)) {\n");
+                    printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y - y1, maped_queue[i].x - x1);
                     printf("if (tilemap.hasOwnProperty(tile_id)) {\n");
-                    printf("placeItem(item_templates[it_temp], tile_id, false); } }\n");
+                    printf("placeItem(item_templates[tmp_it_temp], tile_id, false); } else console.log(\"no tile_id found\", tile_id); }\n");
+
+                } else if (maped_queue[i].op_type == MAPED_RMVITEM) {
+                    printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y - y1, maped_queue[i].x - x1);
+                    printf("if (tilemap.hasOwnProperty(tile_id)) {\n");
+                    printf("removeItem(tile_id, false); } else console.log(\"rmvitem: no tile_id found\", tile_id);\n");
                 }
             }
 
@@ -389,41 +430,35 @@ int main(int argc, char *args[])
         case 2: // Process tile instruction
             x = atoi(find_val(head, "x"));
             y = atoi(find_val(head, "y"));
-            x1 = atoi(find_val(head, "it_val"));
+            it_val = atoi(find_val(head, "it_val"));
             it_type = find_val(head, "it_type");
 
             if (x<0 || x>MAPX || y<0 || y>MAPY) break;
 
-            if (strcmp(it_type, "floor") == 0) {
-                addQueueInstruction(MAPED_SETFLOOR, x, y, x1);
+            queueItem(it_type, x, y, it_val);
+        break;
 
-            } else if (strcmp(it_type, "wall") == 0 || strcmp(it_type, "item") == 0) {
-                if (map[x + y * MAPX].it) {
-                    addQueueInstruction(MAPED_RMVITEM, x, y, 0);
+        case 3: // Process mass operation instruction
+            x1 = atoi(find_val(head, "x1"));
+            x2 = atoi(find_val(head, "x2"));
+            y1 = atoi(find_val(head, "y1"));
+            y2 = atoi(find_val(head, "y2"));
+            it_val = atoi(find_val(head, "it_val"));
+            it_type = find_val(head, "it_type");
+            op_type = find_val(head, "op_type");
+
+            if (x1<0 || x1>MAPX || y1<0 || y1>MAPY) break;
+            if (x2<0 || x2>MAPX || y2<0 || y2>MAPY) break;
+
+            if (strcmp(op_type, "rect") == 0 || strcmp(op_type, "rectfill") == 0) {
+                // Rectangle/filled rectangle operation
+                for (int i = y1; i <= y2; i++) {
+                    for (int j = x1; j <= x2; j++) {
+                        if (strcmp(op_type, "rect") == 0 && j != x1 && j != x2 && i != y1 && i != y2) continue;
+
+                        queueItem(it_type, j, i, it_val);
+                    }
                 }
-                addQueueInstruction(MAPED_PLACEITEM, x, y, x1);
-
-            } else if (strcmp(it_type, "remove") == 0) {
-                addQueueInstruction(MAPED_RMVITEM, x, y, 0);
-
-            } else if (strcmp(it_type, "flag") == 0) {
-                x2 = 0x40000000;
-                switch(x1) {
-                    case 1: x2|=MF_MOVEBLOCK; break;
-                    case 2: x2|=MF_SIGHTBLOCK; break;
-                    case 3: x2|=MF_INDOORS; break;
-                    case 4: x2|=MF_UWATER; break;
-                    case 5: x2|=MF_NOLAG; break;
-                    case 6: x2|=MF_NOMONST; break;
-                    case 7: x2|=MF_BANK; break;
-                    case 8: x2|=MF_TAVERN; break;
-                    case 9: x2|=MF_NOMAGIC; break;
-                    case 10: x2|=MF_DEATHTRAP; break;
-                    case 11: x2|=MF_ARENA; break;
-                    case 12: x2|=MF_NOEXPIRE; break;
-                    case 13: x2|=MF_NOFIGHT; break;
-                }
-                addQueueInstruction(MAPED_PLACEITEM, x, y, x2);
             }
         break;
     }
