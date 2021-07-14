@@ -985,9 +985,12 @@ struct see_map
 #define MAX_MAPED_QUEUE         16000
 #define MAPED_QUEUE_SIZE        (sizeof(struct mapedit_queue)*MAX_MAPED_QUEUE)
 
+#define MAPED_QUEUE_PROCLIMIT   50      // How many map editor queue instructions to process per tick
+
 #define MAPED_PLACEITEM         0
 #define MAPED_RMVITEM           1
 #define MAPED_SETFLOOR          2
+#define MAPED_QUEUE_PAUSE       3       // Pauses the queue at this operation until removed - when removed, queue will continue from this operation's position
 
 struct mapedit_queue
 {

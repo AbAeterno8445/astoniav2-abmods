@@ -186,6 +186,15 @@ void queueItem(char* it_type, int x, int y, int it_val) {
     }
 }
 
+void unpauseQueue() {
+    for (int i = 0; i < MAPED_QUEUE_SIZE; i++) {
+        if (maped_queue[i].used == USE_EMPTY) continue;
+        if (maped_queue[i].op_type == MAPED_QUEUE_PAUSE) {
+            maped_queue[i].used = USE_EMPTY;
+        }
+    }
+}
+
 int main(int argc, char *args[])
 {
     LIST *head;
@@ -384,6 +393,7 @@ int main(int argc, char *args[])
             // Load pending tile changes from queue (usually when server is offline)
             for (int i=0; i<MAX_MAPED_QUEUE; i++) {
                 if (maped_queue[i].used == USE_EMPTY) continue;
+                printf("console.log(\"found queue instruction at %d: %d - %d\");\n", i, maped_queue[i].op_type, maped_queue[i].it_temp);
 
                 if (maped_queue[i].x < x1 || maped_queue[i].x > x2) continue;
                 if (maped_queue[i].y < y1 || maped_queue[i].y > y2) continue;
@@ -416,7 +426,7 @@ int main(int argc, char *args[])
                     printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y - y1, maped_queue[i].x - x1);
                     printf("if (tilemap.hasOwnProperty(tile_id)) {\n");
                     printf("placeItem(item_templates[tmp_it_temp], tile_id, false); } else console.log(\"no tile_id found\", tile_id); }\n");
-
+                    
                 } else if (maped_queue[i].op_type == MAPED_RMVITEM) {
                     printf("var tile_id = \"maptile\" + (%d + %d * tilemap_width);\n", maped_queue[i].y - y1, maped_queue[i].x - x1);
                     printf("if (tilemap.hasOwnProperty(tile_id)) {\n");
@@ -450,6 +460,7 @@ int main(int argc, char *args[])
             if (x1<0 || x1>MAPX || y1<0 || y1>MAPY) break;
             if (x2<0 || x2>MAPX || y2<0 || y2>MAPY) break;
 
+            addQueueInstruction(MAPED_QUEUE_PAUSE, 0, 0, 0);
             if (strcmp(op_type, "rect") == 0 || strcmp(op_type, "rectfill") == 0) {
                 // Rectangle/filled rectangle operation
                 for (int i = y1; i <= y2; i++) {
@@ -460,6 +471,7 @@ int main(int argc, char *args[])
                     }
                 }
             }
+            unpauseQueue();
         break;
     }
     

@@ -2892,6 +2892,8 @@ static long cl=0;
 static int cltick=0;
 static int wakeup=1;
 
+static int maped_queuepos = 0;
+
 void tick(void)
 {
         int n,cnt,hour,awake,body,online=0,plon;
@@ -2914,11 +2916,26 @@ void tick(void)
 
         // Process map editor queue
         int queue_prev = 20; // Process this many after finding the first USE_EMPTY instruction
-        for (int i=0; i<MAX_MAPED_QUEUE; i++) {
+        for (int k=0; k<MAPED_QUEUE_PROCLIMIT; k++) {
+                int i = k + maped_queuepos;
+
+                if (i >= MAPED_QUEUE_SIZE) {
+                        maped_queuepos = 0;
+                        break;
+                }
+
                 if (maped_queue[i].used == USE_EMPTY) {
                         queue_prev--;
-                        if (queue_prev <= 0) break;
+                        if (queue_prev <= 0) {
+                                maped_queuepos = 0;
+                                break;
+                        }
                         continue;
+                }
+
+                if (maped_queue[i].op_type == MAPED_QUEUE_PAUSE) {
+                        xlog("maped queue paused at pos %d", i);
+                        break;
                 }
 
                 xlog("processed maped queue: type=%d, x=%d, y=%d, it_temp=%d",
@@ -2941,6 +2958,7 @@ void tick(void)
                 }
                 maped_queue[i].used = USE_EMPTY;
                 queue_prev = 20;
+                maped_queuepos++;
         }
 
         // send tick to players
